@@ -4,6 +4,8 @@ export type CategoriaSocio = 'Activo' | 'Cadete' | 'Vitalicio' | 'Familiar' | 'H
 
 export type EstadoCuota = 'al_dia' | 'pendiente' | 'exento';
 
+export type SexoOption = 'Mujer' | 'Hombre' | 'Prefiero no decirlo';
+
 export interface UserProfile {
   id: string;
   email: string;
@@ -12,10 +14,18 @@ export interface UserProfile {
   apellido: string;
   dni?: string;
   fecha_nacimiento?: string;
-  domicilio?: string;
-  localidad?: string;
-  telefono?: string;
+  sexo?: SexoOption | string;
+  whatsapp_codigo?: string;
   whatsapp?: string;
+  telefono?: string;
+  pais?: string;
+  provincia?: string;
+  localidad?: string;
+  barrio?: string;
+  calle?: string;
+  numero?: string;
+  domicilio?: string;
+  observaciones?: string;
   avatar_url?: string;
   created_at: string;
   // Campos cuando es socio

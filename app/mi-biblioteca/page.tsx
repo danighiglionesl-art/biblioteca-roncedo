@@ -29,17 +29,17 @@ export default function MiBibliotecaPage() {
   const miSolicitud = solicitudes.find((s) => s.user_id === user.id);
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-24 pt-6 px-4">
+    <div className="min-h-screen bg-[#E5F2FE] pb-24 pt-6 px-4">
       <div className="max-w-4xl mx-auto space-y-6">
         {/* Cabecera */}
-        <div className="bg-white rounded-3xl p-6 shadow-card border border-slate-200">
+        <div className="bg-white rounded-3xl p-6 shadow-card border border-blue-200/80">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-roncedo-navy text-white flex items-center justify-center flex-shrink-0 shadow-md">
-                <Library className="w-7 h-7 text-roncedo-goldLight" />
+              <div className="w-14 h-14 rounded-2xl bg-[#5B9BE5] text-white flex items-center justify-center flex-shrink-0 shadow-md">
+                <Library className="w-7 h-7 text-white" />
               </div>
               <div>
-                <span className="text-[10px] uppercase font-bold tracking-wider text-roncedo-blue">
+                <span className="text-[10px] uppercase font-bold tracking-wider text-roncedo-celesteDark">
                   Espacio Personal del Lector
                 </span>
                 <h1 className="text-2xl font-black text-slate-900 leading-tight">

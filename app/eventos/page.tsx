@@ -6,19 +6,19 @@ import { Calendar, ArrowLeft, Sparkles, CheckCircle2 } from 'lucide-react';
 
 export default function EventosPage() {
   return (
-    <div className="min-h-screen bg-slate-50 pb-24 pt-6 px-4">
+    <div className="min-h-screen bg-[#E5F2FE] pb-24 pt-6 px-4">
       <div className="max-w-4xl mx-auto space-y-6">
         <Link
           href="/home"
-          className="inline-flex items-center gap-1.5 text-xs font-bold text-roncedo-blue hover:underline"
+          className="inline-flex items-center gap-1.5 text-xs font-bold text-roncedo-celesteDark hover:underline"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Volver al Inicio</span>
         </Link>
 
-        <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-card border border-slate-200">
+        <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-card border border-blue-200/80">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 rounded-2xl bg-purple-700 text-white flex items-center justify-center shadow-md">
+            <div className="w-12 h-12 rounded-2xl bg-[#5B9BE5] text-white flex items-center justify-center shadow-md">
               <Calendar className="w-6 h-6" />
             </div>
             <div>

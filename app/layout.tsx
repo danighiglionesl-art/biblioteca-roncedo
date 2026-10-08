@@ -6,9 +6,9 @@ import { BottomNav } from '@/components/navigation/BottomNav';
 import { ServiceWorkerRegister } from '@/components/pwa/ServiceWorkerRegister';
 
 export const metadata: Metadata = {
-  title: 'Biblioteca Dr. Lautaro Roncedo | Alcira Gigena',
+  title: 'Biblioteca Roncedo | Alcira Gigena',
   description:
-    'Plataforma digital oficial, carnet de socio con QR y archivo histórico de la Biblioteca del Club Sportivo y Biblioteca Dr. Lautaro Roncedo de Alcira Gigena, Córdoba.',
+    'Plataforma digital oficial, carnet de socio con QR y archivo de la Biblioteca Roncedo del Club Sportivo y Biblioteca Dr. Lautaro Roncedo de Alcira Gigena, Córdoba.',
   manifest: '/manifest.json',
   icons: {
     icon: '/images/escudo-roncedo.jpg',
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'Biblio Roncedo',
+    title: 'Biblioteca Roncedo',
   },
   formatDetection: {
     telephone: false,
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#102A4E',
+  themeColor: '#5B9BE5',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
@@ -43,7 +43,7 @@ export default function RootLayout({
       <head>
         <link rel="apple-touch-icon" href="/images/emblema-biblioteca.jpg" />
       </head>
-      <body className="h-full flex flex-col bg-slate-50 text-slate-900 font-sans antialiased selection:bg-roncedo-blue selection:text-white">
+      <body className="h-full flex flex-col bg-[#EDF5FD] text-slate-900 font-sans antialiased selection:bg-roncedo-celeste selection:text-white">
         <AuthProvider>
           <ServiceWorkerRegister />
           <Header />

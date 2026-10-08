@@ -23,7 +23,7 @@ export default function CarnetPage() {
   const isSocio = user.role === 'socio' || user.role === 'admin';
 
   return (
-    <div className="min-h-screen bg-slate-100/70 pb-24 pt-6 px-4">
+    <div className="min-h-screen bg-[#E5F2FE] pb-24 pt-6 px-4">
       <div className="max-w-2xl mx-auto">
         {/* Cabecera de Página */}
         <div className="text-center mb-6">

@@ -93,17 +93,17 @@ export default function AdminPage() {
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-28 pt-6 px-4">
+    <div className="min-h-screen bg-[#E5F2FE] pb-28 pt-6 px-4">
       <div className="max-w-5xl mx-auto space-y-6">
         {/* Cabecera del Panel Admin */}
-        <div className="bg-roncedo-navy text-white rounded-3xl p-6 shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="bg-gradient-to-r from-[#0F2D54] via-[#1B5296] to-[#5B9BE5] text-white rounded-3xl p-6 shadow-xl border border-white/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="bg-amber-400 text-slate-900 font-extrabold text-[10px] uppercase px-2 py-0.5 rounded-full">
                 Panel Institucional
               </span>
-              <span className="text-xs text-blue-200">
-                Dr. Lautaro Roncedo
+              <span className="text-xs text-blue-100">
+                Biblioteca Roncedo
               </span>
             </div>
             <h1 className="text-2xl font-black text-white leading-tight">

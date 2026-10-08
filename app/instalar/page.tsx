@@ -64,7 +64,7 @@ export default function InstalarPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-28 pt-6 px-4">
+    <div className="min-h-screen bg-[#E5F2FE] pb-28 pt-6 px-4">
       <div className="max-w-2xl mx-auto space-y-6">
         {/* Cabecera */}
         <div className="text-center">

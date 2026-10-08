@@ -94,26 +94,26 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-between bg-gradient-to-b from-roncedo-navy via-slate-900 to-roncedo-navyDark text-slate-100 p-4 sm:p-6">
+    <div className="min-h-screen flex flex-col justify-between bg-gradient-to-b from-[#0F2D54] via-[#1B5296] to-[#5B9BE5] text-slate-100 p-4 sm:p-6">
       <div className="max-w-md w-full mx-auto my-auto py-6">
         {/* Cabecera con Emblema Oficial */}
         <div className="text-center mb-6">
-          <div className="relative w-28 h-28 mx-auto mb-4 rounded-2xl overflow-hidden shadow-2xl border-2 border-white/20 bg-white/10 p-1">
+          <div className="relative w-28 h-28 mx-auto mb-4 rounded-2xl overflow-hidden shadow-2xl border-2 border-white/30 bg-white/20 p-1">
             <Image
               src="/images/emblema-biblioteca.jpg"
-              alt="Emblema Oficial Biblioteca Roncedo"
+              alt="Logo Oficial Biblioteca Roncedo"
               fill
               className="object-cover"
               priority
             />
           </div>
-          <span className="text-xs uppercase tracking-widest font-bold text-roncedo-blueLight inline-block bg-white/10 px-3 py-1 rounded-full border border-white/10 mb-2">
+          <span className="text-xs uppercase tracking-widest font-bold text-white inline-block bg-white/20 px-3 py-1 rounded-full border border-white/30 mb-2 backdrop-blur-sm">
             Plataforma Institucional Digital
           </span>
           <h1 className="text-xl sm:text-2xl font-black text-white leading-tight">
-            Biblioteca Dr. Lautaro Roncedo
+            Biblioteca Roncedo
           </h1>
-          <p className="text-sm text-slate-300 mt-1">
+          <p className="text-sm text-blue-100 mt-1">
             Club Sportivo y Biblioteca • Alcira Gigena
           </p>
         </div>

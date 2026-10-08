@@ -55,22 +55,22 @@ export function CarnetDigital({ user, className = '' }: CarnetDigitalProps) {
         {/* Cabecera del Carnet */}
         <div className="px-5 pt-5 pb-3 border-b border-white/10 relative z-10 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-white/10 border border-white/30 shadow-sm flex-shrink-0">
+            <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-white/20 border border-white/40 shadow-sm flex-shrink-0">
               <Image
                 src="/images/emblema-biblioteca.jpg"
-                alt="Emblema Biblioteca Dr. Lautaro Roncedo"
+                alt="Emblema Biblioteca Roncedo"
                 fill
                 className="object-cover"
               />
             </div>
             <div>
-              <p className="text-[10px] tracking-widest uppercase font-bold text-roncedo-blueLight">
+              <p className="text-[10px] tracking-widest uppercase font-bold text-roncedo-celesteLight">
                 CARNET DE SOCIO OFICIAL
               </p>
               <h2 className="text-sm font-extrabold text-white leading-tight">
-                C.S. y B. Dr. Lautaro Roncedo
+                Biblioteca Roncedo
               </h2>
-              <p className="text-[11px] text-slate-300">
+              <p className="text-[11px] text-blue-200">
                 Alcira Gigena • Córdoba
               </p>
             </div>
@@ -227,7 +227,7 @@ export function CarnetDigital({ user, className = '' }: CarnetDigitalProps) {
           onClick={() => {
             if (navigator.share) {
               navigator.share({
-                title: 'Carnet de Socio - Biblioteca Dr. Lautaro Roncedo',
+                title: 'Carnet de Socio - Biblioteca Roncedo',
                 text: `Carnet Digital de ${user.nombre} ${user.apellido} (Socio #${user.numero_socio || '1042'})`,
                 url: window.location.href,
               }).catch(() => {});

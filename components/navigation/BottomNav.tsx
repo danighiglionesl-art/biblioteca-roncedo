@@ -65,12 +65,12 @@ export function BottomNav() {
               href={item.href}
               className={`flex flex-col items-center justify-center transition-colors relative py-1 ${
                 isActive
-                  ? 'text-roncedo-blue font-bold'
-                  : 'text-slate-500 hover:text-roncedo-navy font-medium'
+                  ? 'text-roncedo-celeste font-bold'
+                  : 'text-slate-500 hover:text-roncedo-celeste font-medium'
               }`}
             >
               {isActive && (
-                <span className="absolute top-0 w-8 h-1 bg-roncedo-blue rounded-b-full" />
+                <span className="absolute top-0 w-8 h-1 bg-roncedo-celeste rounded-b-full shadow-sm" />
               )}
               <Icon className={`w-5 h-5 mb-1 ${isActive ? 'stroke-[2.5]' : 'stroke-[1.8]'}`} />
               <span className="text-[11px] leading-tight truncate px-1">{item.label}</span>

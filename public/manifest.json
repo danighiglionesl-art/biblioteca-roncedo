@@ -1,11 +1,11 @@
 {
   "name": "Biblioteca Roncedo",
   "short_name": "BiblioRoncedo",
-  "description": "Biblioteca del Club Sportivo y Biblioteca Dr. Lautaro Roncedo de Alcira Gigena",
+  "description": "Plataforma oficial de la Biblioteca Roncedo de Alcira Gigena",
   "start_url": "/home",
   "display": "standalone",
-  "background_color": "#102A4E",
-  "theme_color": "#102A4E",
+  "background_color": "#E5F2FE",
+  "theme_color": "#5B9BE5",
   "orientation": "portrait-primary",
   "icons": [
     {

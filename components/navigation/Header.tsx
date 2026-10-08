@@ -17,14 +17,14 @@ export function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-roncedo-navy text-white shadow-md border-b border-blue-900/40">
+    <header className="sticky top-0 z-40 bg-gradient-to-r from-[#0F284B] via-[#1A457D] to-[#2B6CB5] text-white shadow-md border-b border-roncedo-celeste/40">
       <div className="max-w-6xl mx-auto px-4 py-2.5 flex items-center justify-between">
         {/* Logo e Identidad Institucional */}
         <Link href="/home" className="flex items-center gap-3 group">
-          <div className="relative w-11 h-11 rounded-lg overflow-hidden border border-white/20 bg-white/10 flex-shrink-0 group-hover:scale-105 transition-transform">
+          <div className="relative w-11 h-11 rounded-lg overflow-hidden border border-white/30 bg-white/20 flex-shrink-0 group-hover:scale-105 transition-transform shadow-sm">
             <Image
               src="/images/emblema-biblioteca.jpg"
-              alt="Escudo Biblioteca Dr. Lautaro Roncedo"
+              alt="Logo Biblioteca Roncedo"
               fill
               className="object-cover"
               priority
@@ -32,7 +32,7 @@ export function Header() {
           </div>
           <div>
             <div className="flex items-center gap-1.5">
-              <span className="text-xs uppercase tracking-wider font-semibold text-roncedo-blueLight">
+              <span className="text-xs uppercase tracking-wider font-semibold text-roncedo-celesteLight">
                 Cultura y Deporte
               </span>
               <span className="text-[10px] bg-roncedo-gold/20 text-roncedo-goldLight px-1.5 py-0.2 rounded font-medium border border-roncedo-gold/30">
@@ -40,7 +40,7 @@ export function Header() {
               </span>
             </div>
             <h1 className="text-base sm:text-lg font-bold tracking-tight text-white leading-tight">
-              Biblioteca Dr. Lautaro Roncedo
+              Biblioteca Roncedo
             </h1>
           </div>
         </Link>
@@ -65,7 +65,7 @@ export function Header() {
                   </span>
                 )}
                 {user.role === 'usuario' && (
-                  <span className="bg-blue-500/20 text-blue-300 px-1.5 py-0.5 rounded text-[10px] font-semibold border border-blue-400/30">
+                  <span className="bg-roncedo-celeste/20 text-roncedo-celesteLight px-1.5 py-0.5 rounded text-[10px] font-semibold border border-roncedo-celeste/30">
                     Usuario Registrado
                   </span>
                 )}
@@ -75,20 +75,29 @@ export function Header() {
             {/* Acceso a Instalar PWA */}
             <Link
               href="/instalar"
-              className="hidden sm:flex items-center gap-1 bg-white/10 hover:bg-white/20 text-xs px-2.5 py-1.5 rounded-lg border border-white/10 transition-colors"
+              className="hidden sm:flex items-center gap-1 bg-white/10 hover:bg-white/20 text-xs px-2.5 py-1.5 rounded-lg border border-white/20 transition-colors"
               title="Instalar App en el teléfono"
             >
-              <Download className="w-3.5 h-3.5 text-roncedo-blueLight" />
+              <Download className="w-3.5 h-3.5 text-roncedo-celesteLight" />
               <span className="hidden lg:inline">Instalar PWA</span>
             </Link>
 
-            {/* Perfil */}
+            {/* Perfil con foto si existe */}
             <Link
               href="/perfil"
-              className="w-9 h-9 rounded-full bg-roncedo-blue/40 border border-white/20 flex items-center justify-center text-white hover:bg-roncedo-blue transition-colors"
+              className="relative w-9 h-9 rounded-full overflow-hidden border border-white/30 bg-roncedo-celeste/30 flex items-center justify-center text-white hover:ring-2 hover:ring-roncedo-celesteLight transition-all"
               title="Mi Perfil"
             >
-              <UserIcon className="w-4 h-4" />
+              {user.avatar_url ? (
+                <Image
+                  src={user.avatar_url}
+                  alt={user.nombre}
+                  fill
+                  className="object-cover"
+                />
+              ) : (
+                <UserIcon className="w-4 h-4" />
+              )}
             </Link>
 
             {/* Cerrar Sesión */}
