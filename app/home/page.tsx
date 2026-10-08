@@ -121,22 +121,22 @@ export default function HomePage() {
               </p>
             </div>
 
-            {/* Tarjeta Rápida de Socio */}
-            <div className="bg-white/15 backdrop-blur-md border border-white/30 rounded-2xl p-4 flex items-center gap-4 flex-shrink-0 shadow-sm">
-              <div className="relative w-14 h-14 rounded-xl overflow-hidden bg-white/30 border border-white/40 flex-shrink-0">
+            {/* Tarjeta Rápida de Socio con el celeste de la imagen para que el escudo quede como un PNG */}
+            <div className="bg-[#B2D5FD] border border-white/60 rounded-2xl p-4 flex items-center gap-4 flex-shrink-0 shadow-md">
+              <div className="relative w-14 h-14 flex-shrink-0">
                 <Image
-                  src="/images/escudo-roncedo.jpg"
+                  src="/images/escudo-roncedo.png"
                   alt="Escudo Roncedo"
                   fill
-                  className="object-cover"
+                  className="object-contain drop-shadow-sm"
                 />
               </div>
               <div>
-                <p className="text-[10px] uppercase font-bold text-blue-100 tracking-wider">
+                <p className="text-[10px] uppercase font-bold text-[#102A4E]/80 tracking-wider">
                   Condición Institucional
                 </p>
                 <div className="flex items-center gap-2">
-                  <span className="text-base font-extrabold text-white">
+                  <span className="text-base font-extrabold text-[#0F284B]">
                     {user.role === 'admin'
                       ? 'Administrador General'
                       : isSocio
@@ -147,7 +147,7 @@ export default function HomePage() {
                 {isSocio ? (
                   <Link
                     href="/carnet"
-                    className="inline-flex items-center gap-1 text-xs text-emerald-200 font-bold hover:underline mt-0.5"
+                    className="inline-flex items-center gap-1 text-xs text-emerald-800 font-extrabold hover:text-emerald-900 hover:underline mt-0.5"
                   >
                     <span>Ver mi Carnet Digital con QR</span>
                     <ChevronRight className="w-3 h-3" />
@@ -155,7 +155,7 @@ export default function HomePage() {
                 ) : (
                   <Link
                     href="/perfil"
-                    className="inline-flex items-center gap-1 text-xs text-amber-200 font-bold hover:underline mt-0.5"
+                    className="inline-flex items-center gap-1 text-xs text-[#92400E] font-extrabold hover:text-[#78350F] hover:underline mt-0.5"
                   >
                     <span>Solicitar ser Socio Oficial</span>
                     <ChevronRight className="w-3 h-3" />

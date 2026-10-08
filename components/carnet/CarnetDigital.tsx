@@ -44,7 +44,7 @@ export function CarnetDigital({ user, className = '' }: CarnetDigitalProps) {
         <div className="absolute inset-0 opacity-5 pointer-events-none flex items-center justify-center">
           <div className="relative w-72 h-72">
             <Image
-              src="/images/escudo-roncedo.jpg"
+              src="/images/escudo-roncedo.png"
               alt="Marca de agua"
               fill
               className="object-contain"
