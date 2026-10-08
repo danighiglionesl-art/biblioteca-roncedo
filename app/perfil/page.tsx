@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth/AuthContext';
 import { CategoriaSocio, SexoOption } from '@/types';
 import confetti from 'canvas-confetti';
+import LOCALIDADES_DATA_RAW from '@/lib/data/localidadesArgentina.json';
 import {
   User,
   Mail,
@@ -25,6 +26,8 @@ import {
   Home,
   FileText,
 } from 'lucide-react';
+
+const LOCALIDADES_POR_PROVINCIA: Record<string, string[]> = LOCALIDADES_DATA_RAW;
 
 const PAISES = [
   { nombre: 'Argentina', codigo: '+54' },
@@ -69,23 +72,19 @@ const PROVINCIAS_ARGENTINA = [
   'Tucumán',
 ];
 
-const LOCALIDADES_CORDOBA = [
-  'Alcira Gigena',
-  'Río Cuarto',
-  'Coronel Baigorria',
-  'Elena',
-  'Berrotarán',
-  'Almafuerte',
-  'Río Tercero',
-  'Córdoba Capital',
-  'General Cabrera',
-  'General Deheza',
-  'Villa María',
-  'Villa Dolores',
-  'Villa Carlos Paz',
-  'Alta Gracia',
-  'Otra localidad (especificar)',
-];
+function getLocalidadesParaProvincia(provincia: string): string[] {
+  let key = provincia;
+  if (provincia.includes('CABA') || provincia.includes('Ciudad Autónoma')) {
+    key = 'Ciudad Autónoma de Buenos Aires';
+  }
+  const lista = LOCALIDADES_POR_PROVINCIA[key] || LOCALIDADES_POR_PROVINCIA['Córdoba'] || [];
+  // Asegurarnos de que si es Córdoba, Alcira Gigena esté en el tope
+  if (key === 'Córdoba') {
+    const sinGigena = lista.filter(l => l !== 'Alcira Gigena');
+    return ['Alcira Gigena', ...sinGigena];
+  }
+  return lista;
+}
 
 export default function PerfilPage() {
   const { user, updateProfile, submitSolicitudSocio, solicitudes } = useAuth();
@@ -101,16 +100,24 @@ export default function PerfilPage() {
   const [sexo, setSexo] = useState<string>(user.sexo || 'Prefiero no decirlo');
   const [whatsappCodigo, setWhatsappCodigo] = useState(user.whatsapp_codigo || '+54');
   const [whatsapp, setWhatsapp] = useState(user.whatsapp || '');
+  const [email, setEmail] = useState(user.email || '');
   const [pais, setPais] = useState(user.pais || 'Argentina');
   const [provincia, setProvincia] = useState(user.provincia || 'Córdoba');
   const [provinciaManual, setProvinciaManual] = useState(user.provincia || '');
   const [localidad, setLocalidad] = useState(user.localidad || 'Alcira Gigena');
+  const [esOtraLocalidad, setEsOtraLocalidad] = useState(false);
+  const [localidadManual, setLocalidadManual] = useState('');
   const [codigoPostal, setCodigoPostal] = useState(user.codigo_postal || '5811');
   const [barrio, setBarrio] = useState(user.barrio || '');
   const [calle, setCalle] = useState(user.calle || '');
   const [numero, setNumero] = useState(user.numero || '');
   const [observaciones, setObservaciones] = useState(user.observaciones || '');
   const [avatarUrl, setAvatarUrl] = useState(user.avatar_url || '');
+
+  // Localidades disponibles para la provincia seleccionada
+  const localidadesDisponibles = useMemo(() => {
+    return getLocalidadesParaProvincia(provincia);
+  }, [provincia]);
 
   // Sincronizar estado cuando el usuario cambia (ej: cambio de sesión o inicio con Gmail)
   React.useEffect(() => {
@@ -122,10 +129,21 @@ export default function PerfilPage() {
       setSexo(user.sexo || 'Prefiero no decirlo');
       setWhatsappCodigo(user.whatsapp_codigo || '+54');
       setWhatsapp(user.whatsapp || '');
+      setEmail(user.email || '');
       setPais(user.pais || 'Argentina');
-      setProvincia(user.provincia || 'Córdoba');
-      setLocalidad(user.localidad || 'Alcira Gigena');
-      setCodigoPostal(user.codigo_postal || '5811');
+      const provInicial = user.provincia || 'Córdoba';
+      setProvincia(provInicial);
+      const locInicial = user.localidad || 'Alcira Gigena';
+      setLocalidad(locInicial);
+      const lista = getLocalidadesParaProvincia(provInicial);
+      if (locInicial && !lista.includes(locInicial)) {
+        setEsOtraLocalidad(true);
+        setLocalidadManual(locInicial);
+      } else {
+        setEsOtraLocalidad(false);
+        setLocalidadManual('');
+      }
+      setCodigoPostal(user.codigo_postal || (provInicial === 'Córdoba' && locInicial === 'Alcira Gigena' ? '5811' : ''));
       setBarrio(user.barrio || '');
       setCalle(user.calle || '');
       setNumero(user.numero || '');
@@ -183,7 +201,11 @@ export default function PerfilPage() {
 
     try {
       const provinciaFinal = pais === 'Argentina' ? provincia : provinciaManual;
-      const localidadFinal = localidad.trim();
+      const localidadFinal = (
+        pais === 'Argentina'
+          ? (esOtraLocalidad ? localidadManual.trim() : localidad.trim())
+          : localidad.trim()
+      ) || 'Alcira Gigena';
       const domicilioCompleto = `${calle} ${numero}${barrio ? `, B° ${barrio}` : ''}`.trim();
 
       const res = await updateProfile({
@@ -194,7 +216,7 @@ export default function PerfilPage() {
         sexo: sexo as SexoOption,
         whatsapp_codigo: whatsappCodigo,
         whatsapp: whatsapp.trim(),
-        email: user.email, // Devuelve y preserva el correo utilizado en la registración
+        email: email.trim(),
         pais,
         provincia: provinciaFinal,
         localidad: localidadFinal,
@@ -232,12 +254,17 @@ export default function PerfilPage() {
 
     setGuardando(true);
     try {
+      const localidadFinal = (
+        pais === 'Argentina'
+          ? (esOtraLocalidad ? localidadManual.trim() : localidad.trim())
+          : localidad.trim()
+      ) || 'Alcira Gigena';
       const domicilioCompleto = `${calle} ${numero}${barrio ? `, B° ${barrio}` : ''}`.trim();
       const res = await submitSolicitudSocio({
         dni,
         telefono: `${whatsappCodigo} ${whatsapp}`,
         domicilio: domicilioCompleto,
-        localidad: localidad.trim(),
+        localidad: localidadFinal,
         codigo_postal: codigoPostal.trim(),
         fecha_nacimiento: fechaNacimiento,
         categoria: categoriaDeseada,
@@ -550,22 +577,17 @@ export default function PerfilPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5 flex items-center justify-between">
-                  <span>Correo Electrónico *</span>
-                  <span className="text-[10px] font-semibold text-slate-500 bg-blue-100/70 text-[#1E40AF] px-2 py-0.5 rounded-full border border-blue-200/60">
-                    Cuenta registrada
-                  </span>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                  Correo Electrónico *
                 </label>
                 <input
                   type="email"
-                  disabled
-                  readOnly
-                  value={user.email}
-                  className="w-full bg-slate-100/90 px-3.5 py-2.5 rounded-xl border border-blue-200 text-sm font-semibold text-slate-700 shadow-sm cursor-not-allowed"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="ejemplo@correo.com"
+                  className="w-full bg-white px-3.5 py-2.5 rounded-xl border border-blue-200 focus:outline-none focus:ring-2 focus:ring-roncedo-celeste focus:border-roncedo-celeste text-sm text-slate-900 shadow-sm transition-all"
                 />
-                <p className="text-[11px] text-slate-500 mt-1">
-                  Correo electrónico vinculado a tu cuenta (no modificable).
-                </p>
               </div>
             </div>
 
@@ -600,7 +622,19 @@ export default function PerfilPage() {
                 {pais === 'Argentina' ? (
                   <select
                     value={provincia}
-                    onChange={(e) => setProvincia(e.target.value)}
+                    onChange={(e) => {
+                      const nuevaProv = e.target.value;
+                      setProvincia(nuevaProv);
+                      const nuevasLocs = getLocalidadesParaProvincia(nuevaProv);
+                      if (nuevaProv === 'Córdoba') {
+                        setLocalidad('Alcira Gigena');
+                        setCodigoPostal('5811');
+                      } else if (nuevasLocs.length > 0) {
+                        setLocalidad(nuevasLocs[0]);
+                      }
+                      setEsOtraLocalidad(false);
+                      setLocalidadManual('');
+                    }}
                     className="w-full bg-white px-3.5 py-2.5 rounded-xl border border-blue-200 focus:outline-none focus:ring-2 focus:ring-roncedo-celeste focus:border-roncedo-celeste text-sm text-slate-900 shadow-sm transition-all"
                   >
                     {PROVINCIAS_ARGENTINA.map((prov) => (
@@ -627,35 +661,59 @@ export default function PerfilPage() {
                 <label className="block text-xs font-bold text-slate-700 mb-1.5">
                   Localidad *
                 </label>
-                <input
-                  type="text"
-                  list="localidades-sugeridas"
-                  required
-                  value={localidad}
-                  onChange={(e) => setLocalidad(e.target.value)}
-                  placeholder="Ej: Alcira Gigena, Río Cuarto..."
-                  className="w-full bg-white px-3.5 py-2.5 rounded-xl border border-blue-200 focus:outline-none focus:ring-2 focus:ring-roncedo-celeste focus:border-roncedo-celeste text-sm text-slate-900 shadow-sm transition-all"
-                />
-                <datalist id="localidades-sugeridas">
-                  <option value="Alcira Gigena" />
-                  <option value="Río Cuarto" />
-                  <option value="Coronel Baigorria" />
-                  <option value="Elena" />
-                  <option value="Berrotarán" />
-                  <option value="Almafuerte" />
-                  <option value="Río Tercero" />
-                  <option value="General Cabrera" />
-                  <option value="General Deheza" />
-                  <option value="Córdoba Capital" />
-                  <option value="Villa María" />
-                  <option value="Carnerillo" />
-                  <option value="Chaján" />
-                  <option value="Sampacho" />
-                  <option value="San Basilio" />
-                  <option value="Adelia María" />
-                </datalist>
+                {pais === 'Argentina' ? (
+                  <div className="space-y-2">
+                    <select
+                      value={esOtraLocalidad ? '__otra__' : localidad}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val === '__otra__') {
+                          setEsOtraLocalidad(true);
+                        } else {
+                          setEsOtraLocalidad(false);
+                          setLocalidad(val);
+                          if (val === 'Alcira Gigena' && provincia === 'Córdoba') {
+                            setCodigoPostal('5811');
+                          }
+                        }
+                      }}
+                      className="w-full bg-white px-3.5 py-2.5 rounded-xl border border-blue-200 focus:outline-none focus:ring-2 focus:ring-roncedo-celeste focus:border-roncedo-celeste text-sm text-slate-900 shadow-sm transition-all"
+                    >
+                      {localidadesDisponibles.map((loc) => (
+                        <option key={loc} value={loc}>
+                          {loc}
+                        </option>
+                      ))}
+                      <option value="__otra__">
+                        ➕ Otra localidad (escribir manualmente)...
+                      </option>
+                    </select>
+
+                    {esOtraLocalidad && (
+                      <input
+                        type="text"
+                        required
+                        value={localidadManual}
+                        onChange={(e) => setLocalidadManual(e.target.value)}
+                        placeholder="Escribe tu localidad aquí"
+                        className="w-full bg-white px-3.5 py-2 rounded-xl border border-blue-200 text-sm focus:outline-none focus:ring-2 focus:ring-roncedo-celeste shadow-sm"
+                      />
+                    )}
+                  </div>
+                ) : (
+                  <input
+                    type="text"
+                    required
+                    value={localidad}
+                    onChange={(e) => setLocalidad(e.target.value)}
+                    placeholder="Ciudad o Municipio"
+                    className="w-full bg-white px-3.5 py-2.5 rounded-xl border border-blue-200 focus:outline-none focus:ring-2 focus:ring-roncedo-celeste focus:border-roncedo-celeste text-sm text-slate-900 shadow-sm transition-all"
+                  />
+                )}
                 <p className="text-[11px] text-slate-500 mt-1">
-                  Puedes escribir el nombre de cualquier pueblo, ciudad o comuna.
+                  {pais === 'Argentina'
+                    ? `Localidades desplegadas de ${provincia} (${localidadesDisponibles.length} en padrón oficial).`
+                    : 'Ingresa la localidad correspondiente a tu país.'}
                 </p>
               </div>
 
