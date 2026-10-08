@@ -51,7 +51,7 @@ export default function EventosPage() {
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                <span>Sección "Mis actividades" dentro del perfil del socio</span>
+                <span>Sección &ldquo;Mis actividades&rdquo; dentro del perfil del socio</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
