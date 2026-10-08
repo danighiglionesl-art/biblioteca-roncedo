@@ -7,6 +7,7 @@ import { FotoHistorica, ColeccionFoto } from '@/types';
 import { getFotosHistoricas } from '@/lib/supabase/fototeca';
 import { FotoDetalleModal } from './FotoDetalleModal';
 import { SubirFotoModal } from './SubirFotoModal';
+import { AdminSincronizarModal } from './AdminSincronizarModal';
 import {
   Camera,
   Search,
@@ -25,6 +26,7 @@ import {
   ChevronRight,
   Info,
   Building,
+  FolderSync,
 } from 'lucide-react';
 
 const DECADAS = [
@@ -67,15 +69,17 @@ export function FototecaGallery() {
   // Modales
   const [selectedFoto, setSelectedFoto] = useState<FotoHistorica | null>(null);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [isSyncModalOpen, setIsSyncModalOpen] = useState(false);
 
   // Cargar fotos iniciales / de Supabase
+  const loadData = async () => {
+    setIsLoading(true);
+    const data = await getFotosHistoricas();
+    setFotos(data);
+    setIsLoading(false);
+  };
+
   useEffect(() => {
-    async function loadData() {
-      setIsLoading(true);
-      const data = await getFotosHistoricas();
-      setFotos(data);
-      setIsLoading(false);
-    }
     loadData();
   }, []);
 
@@ -176,6 +180,16 @@ export function FototecaGallery() {
               <Plus className="w-4 h-4 stroke-[2.5]" />
               <span>Aportar una Fotografía</span>
             </button>
+
+            {isAdmin && (
+              <button
+                onClick={() => setIsSyncModalOpen(true)}
+                className="flex items-center gap-2 bg-white/15 hover:bg-white/25 text-white font-bold px-4 py-2.5 rounded-2xl text-xs sm:text-sm border border-white/20 transition-all backdrop-blur-sm"
+              >
+                <FolderSync className="w-4 h-4 text-roncedo-gold" />
+                <span>Sincronizar Archivo Local</span>
+              </button>
+            )}
 
             <div className="flex items-center gap-2 text-xs text-blue-200 bg-white/10 backdrop-blur-sm px-3.5 py-2 rounded-2xl border border-white/10">
               <Sparkles className="w-4 h-4 text-roncedo-gold flex-shrink-0" />
@@ -446,6 +460,13 @@ export function FototecaGallery() {
         isOpen={isUploadModalOpen}
         onClose={() => setIsUploadModalOpen(false)}
         onFotoSubida={handleFotoSubida}
+      />
+
+      {/* Modal de Administrador para Sincronizar Fotos Locales */}
+      <AdminSincronizarModal
+        isOpen={isSyncModalOpen}
+        onClose={() => setIsSyncModalOpen(false)}
+        onImportComplete={loadData}
       />
     </div>
   );

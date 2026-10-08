@@ -13,6 +13,16 @@ export const isSupabaseConfigured = Boolean(
   !supabaseAnonKey.includes('tu-anon-key')
 );
 
+// Polyfill de transporte de WebSocket para Node.js < 22 en Server-Side Rendering (SSR)
+class SSRWebSocketDummy {}
+
 export const supabase = isSupabaseConfigured
-  ? createClient(supabaseUrl, supabaseAnonKey)
+  ? createClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        persistSession: typeof window !== 'undefined',
+      },
+      realtime: {
+        transport: typeof WebSocket !== 'undefined' ? WebSocket : (SSRWebSocketDummy as any),
+      },
+    })
   : null;

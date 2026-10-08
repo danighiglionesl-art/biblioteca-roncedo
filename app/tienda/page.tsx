@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { ShoppingBag, ArrowLeft, Sparkles, CheckCircle2, MessageCircle } from 'lucide-react';
+import { CONTACTO_BIBLIOTECA } from '@/lib/constants/contacto';
 
 export default function TiendaPage() {
   return (
@@ -58,6 +59,28 @@ export default function TiendaPage() {
                 <span>Retiro en sede de la Biblioteca y envíos a domicilio</span>
               </div>
             </div>
+          </div>
+
+          {/* Contacto directo por WhatsApp */}
+          <div className="mt-6 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-emerald-500 text-white flex items-center justify-center flex-shrink-0 shadow-sm">
+                <MessageCircle className="w-5 h-5 fill-current" />
+              </div>
+              <div className="text-xs">
+                <p className="font-bold text-slate-800">¿Buscás souvenirs, indumentaria o libros de la institución?</p>
+                <p className="text-slate-600">Consultas y reservas por WhatsApp oficial: <strong>{CONTACTO_BIBLIOTECA.whatsappFormato}</strong></p>
+              </div>
+            </div>
+            <a
+              href={CONTACTO_BIBLIOTECA.getWhatsAppTiendaUrl()}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs rounded-xl font-bold flex items-center gap-2 flex-shrink-0 transition-colors shadow-sm"
+            >
+              <MessageCircle className="w-4 h-4 fill-current" />
+              <span>Consultar por WhatsApp</span>
+            </a>
           </div>
         </div>
       </div>

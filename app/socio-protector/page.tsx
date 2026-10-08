@@ -19,7 +19,9 @@ import {
   HelpCircle,
   CreditCard,
   Building,
+  MessageCircle,
 } from 'lucide-react';
+import { CONTACTO_BIBLIOTECA } from '@/lib/constants/contacto';
 
 export default function SocioProtectorPage() {
   const { user, isLoading } = useAuth();
@@ -301,16 +303,17 @@ export default function SocioProtectorPage() {
             <div className="flex items-center gap-3">
               <HelpCircle className="w-5 h-5 text-roncedo-celeste flex-shrink-0" />
               <p className="text-slate-600">
-                ¿Tenés consultas sobre tu adhesión o necesitás cancelar tu suscripción? Podés hacerlo desde tu cuenta de Mercado Pago o contactar a la biblioteca.
+                ¿Tenés dudas sobre tu adhesión o necesitás cancelar tu suscripción? Escribinos a nuestro WhatsApp oficial (<strong>{CONTACTO_BIBLIOTECA.whatsappFormato}</strong>).
               </p>
             </div>
             <a
-              href="https://wa.me/5493584887722?text=Hola,%20quisiera%20hacer%20una%20consulta%20sobre%20Socio%20Protector%20de%20Biblioteca%20Roncedo"
+              href={CONTACTO_BIBLIOTECA.getWhatsAppSocioProtectorUrl()}
               target="_blank"
               rel="noopener noreferrer"
-              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold flex-shrink-0 transition-colors shadow-sm"
+              className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold flex items-center gap-2 flex-shrink-0 transition-colors shadow-sm"
             >
-              Consultar por WhatsApp
+              <MessageCircle className="w-4 h-4 fill-current" />
+              <span>Consultar por WhatsApp</span>
             </a>
           </div>
         </div>

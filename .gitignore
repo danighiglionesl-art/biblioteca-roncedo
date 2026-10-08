@@ -32,3 +32,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# media pesada local
+material/Fotografías/
+material/Fotografias/
+material/Fotograf*

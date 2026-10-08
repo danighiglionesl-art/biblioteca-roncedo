@@ -4,6 +4,7 @@ import { AuthProvider } from '@/lib/auth/AuthContext';
 import { LibrosProvider } from '@/lib/context/LibrosContext';
 import { Header } from '@/components/navigation/Header';
 import { BottomNav } from '@/components/navigation/BottomNav';
+import { BotonWhatsappFlotante } from '@/components/common/BotonWhatsappFlotante';
 import { ServiceWorkerRegister } from '@/components/pwa/ServiceWorkerRegister';
 
 export const metadata: Metadata = {
@@ -53,6 +54,7 @@ export default function RootLayout({
               {children}
             </div>
             <BottomNav />
+            <BotonWhatsappFlotante />
           </LibrosProvider>
         </AuthProvider>
       </body>

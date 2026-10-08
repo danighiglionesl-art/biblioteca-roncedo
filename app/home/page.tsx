@@ -22,7 +22,9 @@ import {
   Clock,
   MapPin,
   Globe2,
+  MessageCircle,
 } from 'lucide-react';
+import { CONTACTO_BIBLIOTECA } from '@/lib/constants/contacto';
 
 export default function HomePage() {
   const { user } = useAuth();
@@ -368,6 +370,37 @@ export default function HomePage() {
                 Asociarme a la Biblioteca
               </Link>
             </div>
+          </div>
+        </section>
+
+        {/* Canal de Atención y Consultas por WhatsApp */}
+        <section className="mt-8 bg-white rounded-3xl p-6 sm:p-8 shadow-card border border-blue-200/80">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+            <div className="flex items-start sm:items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-[#25D366] text-white flex items-center justify-center flex-shrink-0 shadow-md">
+                <MessageCircle className="w-6 h-6 fill-current" />
+              </div>
+              <div>
+                <span className="text-[10px] uppercase font-bold tracking-wider text-emerald-800 bg-emerald-100 px-2.5 py-0.5 rounded-full border border-emerald-300">
+                  Canal Oficial de Consultas
+                </span>
+                <h3 className="text-base sm:text-lg font-black text-slate-900 mt-1">
+                  ¿Tenés consultas sobre la Biblioteca?
+                </h3>
+                <p className="text-xs text-slate-600 mt-0.5">
+                  Escribinos directamente a nuestro celular oficial de WhatsApp: <strong className="text-slate-900">{CONTACTO_BIBLIOTECA.whatsappFormato}</strong>
+                </p>
+              </div>
+            </div>
+            <a
+              href={CONTACTO_BIBLIOTECA.getWhatsAppUrl()}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 px-5 py-3.5 bg-[#25D366] hover:bg-[#1EBE5D] text-white font-bold text-xs sm:text-sm rounded-2xl transition-transform active:scale-95 shadow-md flex-shrink-0"
+            >
+              <MessageCircle className="w-4 h-4 fill-current" />
+              <span>Escribir por WhatsApp</span>
+            </a>
           </div>
         </section>
       </main>

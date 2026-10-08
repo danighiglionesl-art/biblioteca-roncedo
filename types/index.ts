@@ -339,4 +339,61 @@ export interface FotoHistorica {
   updated_at?: string;
 }
 
+// =====================================================================
+// TIPOS DEL ARCHIVO DIGITAL DE ACTAS HISTÓRICAS
+// =====================================================================
 
+export type TipoReunionActa =
+  | 'Asamblea General Constitutiva'
+  | 'Asamblea General Ordinaria'
+  | 'Asamblea General Extraordinaria'
+  | 'Reunión de Comisión Directiva'
+  | 'Reunión de Subcomisión'
+  | 'Acta Notarial / Especial';
+
+export interface FirmanteActa {
+  nombre: string;
+  cargo?: string;
+}
+
+export interface FolioArchivo {
+  id: string;
+  numero_pagina: number; // 1 a 102
+  folio: number; // Folio 1 a 51
+  lado: 'Debe' | 'Haber' | 'Único';
+  libro: string;
+  archivo: string; // Nombre del archivo físico, ej: Libro Nb0 1-1.jpg
+  imagen_url: string;
+  anio_estimado?: number;
+  acta_id_asociada?: string;
+  numero_acta_asociada?: number | string;
+  resumen_breve?: string;
+  estado_conservacion?: 'Excelente' | 'Bueno' | 'Regular' | 'Restaurado';
+}
+
+export interface ActaHistorica {
+  id: string;
+  numero_acta: number | string;
+  libro: string;
+  folio_inicio?: number | string;
+  folio_fin?: number | string;
+  pagina_archivo_inicio: number; // 1 a 102
+  pagina_archivo_fin: number; // 1 a 102
+  fecha: string; // YYYY-MM-DD
+  anio: number;
+  titulo: string;
+  tipo_reunion: TipoReunionActa;
+  lugar?: string;
+  asistentes_count?: number;
+  resumen: string;
+  transcripcion_completa?: string;
+  firmantes?: FirmanteActa[];
+  temas_tratados?: string[];
+  archivos: string[];
+  imagenes_urls?: string[];
+  estado_conservacion?: 'Excelente' | 'Bueno' | 'Regular' | 'Restaurado';
+  es_destacada?: boolean;
+  notas_archivista?: string;
+  created_at?: string;
+  updated_at?: string;
+}

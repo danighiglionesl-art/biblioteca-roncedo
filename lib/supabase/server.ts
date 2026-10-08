@@ -10,11 +10,16 @@ export const isSupabaseServerConfigured = Boolean(
   serviceRoleKey !== 'tu-service-role-key-privada-aqui'
 );
 
+class SSRWebSocketDummy {}
+
 export const supabaseServer = isSupabaseServerConfigured
   ? createClient(supabaseUrl, serviceRoleKey, {
       auth: {
         autoRefreshToken: false,
         persistSession: false,
+      },
+      realtime: {
+        transport: typeof WebSocket !== 'undefined' ? WebSocket : (SSRWebSocketDummy as any),
       },
     })
   : null;
