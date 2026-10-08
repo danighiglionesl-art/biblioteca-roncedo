@@ -101,17 +101,38 @@ export default function PerfilPage() {
   const [sexo, setSexo] = useState<string>(user.sexo || 'Prefiero no decirlo');
   const [whatsappCodigo, setWhatsappCodigo] = useState(user.whatsapp_codigo || '+54');
   const [whatsapp, setWhatsapp] = useState(user.whatsapp || '');
-  const [email, setEmail] = useState(user.email || '');
   const [pais, setPais] = useState(user.pais || 'Argentina');
   const [provincia, setProvincia] = useState(user.provincia || 'Córdoba');
   const [provinciaManual, setProvinciaManual] = useState(user.provincia || '');
   const [localidad, setLocalidad] = useState(user.localidad || 'Alcira Gigena');
-  const [localidadManual, setLocalidadManual] = useState('');
+  const [codigoPostal, setCodigoPostal] = useState(user.codigo_postal || '5811');
   const [barrio, setBarrio] = useState(user.barrio || '');
   const [calle, setCalle] = useState(user.calle || '');
   const [numero, setNumero] = useState(user.numero || '');
   const [observaciones, setObservaciones] = useState(user.observaciones || '');
   const [avatarUrl, setAvatarUrl] = useState(user.avatar_url || '');
+
+  // Sincronizar estado cuando el usuario cambia (ej: cambio de sesión o inicio con Gmail)
+  React.useEffect(() => {
+    if (user) {
+      setNombre(user.nombre || '');
+      setApellido(user.apellido || '');
+      setDni(user.dni || '');
+      setFechaNacimiento(user.fecha_nacimiento || '');
+      setSexo(user.sexo || 'Prefiero no decirlo');
+      setWhatsappCodigo(user.whatsapp_codigo || '+54');
+      setWhatsapp(user.whatsapp || '');
+      setPais(user.pais || 'Argentina');
+      setProvincia(user.provincia || 'Córdoba');
+      setLocalidad(user.localidad || 'Alcira Gigena');
+      setCodigoPostal(user.codigo_postal || '5811');
+      setBarrio(user.barrio || '');
+      setCalle(user.calle || '');
+      setNumero(user.numero || '');
+      setObservaciones(user.observaciones || '');
+      setAvatarUrl(user.avatar_url || '');
+    }
+  }, [user]);
 
   const [categoriaDeseada, setCategoriaDeseada] = useState<CategoriaSocio>('Activo');
   const [guardadoExito, setGuardadoExito] = useState(false);
@@ -162,13 +183,7 @@ export default function PerfilPage() {
 
     try {
       const provinciaFinal = pais === 'Argentina' ? provincia : provinciaManual;
-      const localidadFinal =
-        pais === 'Argentina' && provincia === 'Córdoba'
-          ? localidad === 'Otra localidad (especificar)'
-            ? localidadManual
-            : localidad
-          : localidad;
-
+      const localidadFinal = localidad.trim();
       const domicilioCompleto = `${calle} ${numero}${barrio ? `, B° ${barrio}` : ''}`.trim();
 
       const res = await updateProfile({
@@ -179,10 +194,11 @@ export default function PerfilPage() {
         sexo: sexo as SexoOption,
         whatsapp_codigo: whatsappCodigo,
         whatsapp: whatsapp.trim(),
-        email: email.trim(),
+        email: user.email, // Devuelve y preserva el correo utilizado en la registración
         pais,
         provincia: provinciaFinal,
         localidad: localidadFinal,
+        codigo_postal: codigoPostal.trim(),
         barrio: barrio.trim(),
         calle: calle.trim(),
         numero: numero.trim(),
@@ -221,7 +237,8 @@ export default function PerfilPage() {
         dni,
         telefono: `${whatsappCodigo} ${whatsapp}`,
         domicilio: domicilioCompleto,
-        localidad: pais === 'Argentina' && provincia === 'Córdoba' ? localidad : localidadManual || localidad,
+        localidad: localidad.trim(),
+        codigo_postal: codigoPostal.trim(),
         fecha_nacimiento: fechaNacimiento,
         categoria: categoriaDeseada,
       });
@@ -430,11 +447,11 @@ export default function PerfilPage() {
           )}
 
           <form onSubmit={handleGuardarDatos} className="space-y-5">
-            {/* 3.a Nombre/s y 3.b Apellido/s */}
+            {/* Nombre/s y Apellido/s */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                  3.a Nombre/s *
+                  Nombre/s *
                 </label>
                 <input
                   type="text"
@@ -448,7 +465,7 @@ export default function PerfilPage() {
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                  3.b Apellido/s *
+                  Apellido/s *
                 </label>
                 <input
                   type="text"
@@ -461,11 +478,11 @@ export default function PerfilPage() {
               </div>
             </div>
 
-            {/* 3.c DNI, 3.e Fecha de Nacimiento y 3.f Sexo */}
+            {/* DNI, Fecha de Nacimiento y Sexo */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                  3.c DNI / Documento *
+                  DNI / Documento *
                 </label>
                 <input
                   type="text"
@@ -478,7 +495,7 @@ export default function PerfilPage() {
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                  3.e Fecha de Nacimiento
+                  Fecha de Nacimiento
                 </label>
                 <input
                   type="date"
@@ -490,7 +507,7 @@ export default function PerfilPage() {
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                  3.f Sexo
+                  Sexo
                 </label>
                 <select
                   value={sexo}
@@ -504,11 +521,11 @@ export default function PerfilPage() {
               </div>
             </div>
 
-            {/* 3.g WhatsApp (con lista desplegable por país) y 3.h Correo electrónico */}
+            {/* WhatsApp y Correo Electrónico Registrado */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                  3.g WhatsApp (para avisos y reservas)
+                  WhatsApp (para avisos y reservas)
                 </label>
                 <div className="flex gap-2">
                   <select
@@ -533,32 +550,36 @@ export default function PerfilPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                  3.h Correo Electrónico *
+                <label className="block text-xs font-bold text-slate-700 mb-1.5 flex items-center justify-between">
+                  <span>Correo Electrónico *</span>
+                  <span className="text-[10px] font-semibold text-slate-500 bg-blue-100/70 text-[#1E40AF] px-2 py-0.5 rounded-full border border-blue-200/60">
+                    Cuenta registrada
+                  </span>
                 </label>
                 <input
                   type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="ejemplo@correo.com"
-                  className="w-full bg-white px-3.5 py-2.5 rounded-xl border border-blue-200 focus:outline-none focus:ring-2 focus:ring-roncedo-celeste focus:border-roncedo-celeste text-sm text-slate-900 shadow-sm transition-all"
+                  disabled
+                  readOnly
+                  value={user.email}
+                  className="w-full bg-slate-100/90 px-3.5 py-2.5 rounded-xl border border-blue-200 text-sm font-semibold text-slate-700 shadow-sm cursor-not-allowed"
                 />
+                <p className="text-[11px] text-slate-500 mt-1">
+                  Correo electrónico vinculado a tu cuenta (no modificable).
+                </p>
               </div>
             </div>
 
-            {/* 3.i País, 3.j Provincia y 3.k Localidad */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {/* País y Provincia */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                  3.i País
+                  País
                 </label>
                 <select
                   value={pais}
                   onChange={(e) => {
                     const nuevoPais = e.target.value;
                     setPais(nuevoPais);
-                    // Actualizar código de whatsapp automático si cambia el país
                     const match = PAISES.find((p) => p.nombre === nuevoPais);
                     if (match) setWhatsappCodigo(match.codigo);
                   }}
@@ -574,7 +595,7 @@ export default function PerfilPage() {
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                  3.j Provincia
+                  Provincia
                 </label>
                 {pais === 'Argentina' ? (
                   <select
@@ -598,52 +619,68 @@ export default function PerfilPage() {
                   />
                 )}
               </div>
+            </div>
+
+            {/* Localidad y Código Postal (debajo de Localidad) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                  Localidad *
+                </label>
+                <input
+                  type="text"
+                  list="localidades-sugeridas"
+                  required
+                  value={localidad}
+                  onChange={(e) => setLocalidad(e.target.value)}
+                  placeholder="Ej: Alcira Gigena, Río Cuarto..."
+                  className="w-full bg-white px-3.5 py-2.5 rounded-xl border border-blue-200 focus:outline-none focus:ring-2 focus:ring-roncedo-celeste focus:border-roncedo-celeste text-sm text-slate-900 shadow-sm transition-all"
+                />
+                <datalist id="localidades-sugeridas">
+                  <option value="Alcira Gigena" />
+                  <option value="Río Cuarto" />
+                  <option value="Coronel Baigorria" />
+                  <option value="Elena" />
+                  <option value="Berrotarán" />
+                  <option value="Almafuerte" />
+                  <option value="Río Tercero" />
+                  <option value="General Cabrera" />
+                  <option value="General Deheza" />
+                  <option value="Córdoba Capital" />
+                  <option value="Villa María" />
+                  <option value="Carnerillo" />
+                  <option value="Chaján" />
+                  <option value="Sampacho" />
+                  <option value="San Basilio" />
+                  <option value="Adelia María" />
+                </datalist>
+                <p className="text-[11px] text-slate-500 mt-1">
+                  Puedes escribir el nombre de cualquier pueblo, ciudad o comuna.
+                </p>
+              </div>
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                  3.k Localidad
+                  Código Postal
                 </label>
-                {pais === 'Argentina' && provincia === 'Córdoba' ? (
-                  <div className="space-y-2">
-                    <select
-                      value={localidad}
-                      onChange={(e) => setLocalidad(e.target.value)}
-                      className="w-full bg-white px-3.5 py-2.5 rounded-xl border border-blue-200 focus:outline-none focus:ring-2 focus:ring-roncedo-celeste focus:border-roncedo-celeste text-sm text-slate-900 shadow-sm transition-all"
-                    >
-                      {LOCALIDADES_CORDOBA.map((loc) => (
-                        <option key={loc} value={loc}>
-                          {loc}
-                        </option>
-                      ))}
-                    </select>
-                    {localidad === 'Otra localidad (especificar)' && (
-                      <input
-                        type="text"
-                        required
-                        value={localidadManual}
-                        onChange={(e) => setLocalidadManual(e.target.value)}
-                        placeholder="Escribe tu localidad aquí"
-                        className="w-full bg-white px-3.5 py-2 rounded-xl border border-blue-200 text-sm focus:outline-none focus:ring-2 focus:ring-roncedo-celeste"
-                      />
-                    )}
-                  </div>
-                ) : (
-                  <input
-                    type="text"
-                    value={localidad}
-                    onChange={(e) => setLocalidad(e.target.value)}
-                    placeholder="Ciudad o Municipio"
-                    className="w-full bg-white px-3.5 py-2.5 rounded-xl border border-blue-200 focus:outline-none focus:ring-2 focus:ring-roncedo-celeste focus:border-roncedo-celeste text-sm text-slate-900 shadow-sm transition-all"
-                  />
-                )}
+                <input
+                  type="text"
+                  value={codigoPostal}
+                  onChange={(e) => setCodigoPostal(e.target.value)}
+                  placeholder="Ej: 5811"
+                  className="w-full bg-white px-3.5 py-2.5 rounded-xl border border-blue-200 focus:outline-none focus:ring-2 focus:ring-roncedo-celeste focus:border-roncedo-celeste text-sm text-slate-900 shadow-sm transition-all"
+                />
+                <p className="text-[11px] text-slate-500 mt-1">
+                  Código postal de tu localidad (ej: 5811 para Alcira Gigena).
+                </p>
               </div>
             </div>
 
-            {/* 3.l Barrio, 3.m Calle y 3.n Número */}
+            {/* Barrio, Calle y Número / Altura */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                  3.l Barrio
+                  Barrio
                 </label>
                 <input
                   type="text"
@@ -656,7 +693,7 @@ export default function PerfilPage() {
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                  3.m Calle
+                  Calle
                 </label>
                 <input
                   type="text"
@@ -669,7 +706,7 @@ export default function PerfilPage() {
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                  3.n Número / Altura
+                  Número / Altura
                 </label>
                 <input
                   type="text"
@@ -681,10 +718,10 @@ export default function PerfilPage() {
               </div>
             </div>
 
-            {/* 3.ñ Observaciones */}
+            {/* Observaciones */}
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                3.ñ Observaciones
+                Observaciones
               </label>
               <textarea
                 rows={3}

@@ -21,6 +21,7 @@ export interface UserProfile {
   pais?: string;
   provincia?: string;
   localidad?: string;
+  codigo_postal?: string;
   barrio?: string;
   calle?: string;
   numero?: string;
@@ -48,6 +49,7 @@ export interface SocioSolicitud {
   telefono: string;
   domicilio: string;
   localidad: string;
+  codigo_postal?: string;
   fecha_nacimiento?: string;
   categoria_solicitada: CategoriaSocio;
   estado: EstadoSolicitud;

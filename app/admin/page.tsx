@@ -251,7 +251,7 @@ export default function AdminPage() {
                         <strong>DNI:</strong> {sol.dni} • <strong>Tel:</strong> {sol.telefono}
                       </p>
                       <p className="text-xs text-slate-500">
-                        <strong>Domicilio:</strong> {sol.domicilio}, {sol.localidad} • <strong>Email:</strong> {sol.email}
+                        <strong>Domicilio:</strong> {sol.domicilio}, {sol.localidad}{sol.codigo_postal ? ` (CP ${sol.codigo_postal})` : ''} • <strong>Email:</strong> {sol.email}
                       </p>
                       <span className="text-[10px] text-slate-400 block">
                         Fecha de solicitud: {new Date(sol.fecha_solicitud).toLocaleString('es-AR')}

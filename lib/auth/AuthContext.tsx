@@ -23,6 +23,7 @@ interface AuthContextType {
     telefono: string;
     domicilio: string;
     localidad: string;
+    codigo_postal?: string;
     fecha_nacimiento?: string;
     categoria: CategoriaSocio;
   }) => Promise<{ success: boolean; error?: string }>;
@@ -237,6 +238,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     telefono: string;
     domicilio: string;
     localidad: string;
+    codigo_postal?: string;
     fecha_nacimiento?: string;
     categoria: CategoriaSocio;
   }) => {
@@ -252,6 +254,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       telefono: datos.telefono,
       domicilio: datos.domicilio,
       localidad: datos.localidad,
+      codigo_postal: datos.codigo_postal,
       fecha_nacimiento: datos.fecha_nacimiento,
       categoria_solicitada: datos.categoria,
       estado: 'pendiente',
@@ -267,6 +270,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       telefono: datos.telefono,
       domicilio: datos.domicilio,
       localidad: datos.localidad,
+      codigo_postal: datos.codigo_postal,
       fecha_nacimiento: datos.fecha_nacimiento,
     });
 
