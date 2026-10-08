@@ -21,6 +21,8 @@ export default function CarnetPage() {
   if (!user) return null;
 
   const isSocio = user.role === 'socio' || user.role === 'admin';
+  const isSocioProtector = user.estado_socio_protector === 'activo';
+  const hasCarnet = isSocio || isSocioProtector;
 
   return (
     <div className="min-h-screen bg-[#E5F2FE] pb-24 pt-6 px-4">
@@ -39,10 +41,74 @@ export default function CarnetPage() {
           </p>
         </div>
 
-        {isSocio ? (
+        {hasCarnet ? (
           <div>
             {/* Componente del Carnet */}
             <CarnetDigital user={user} className="mb-6" />
+
+            {/* Ficha Informativa de Socio Protector si está activo */}
+            {isSocioProtector && (
+              <div className="bg-gradient-to-r from-rose-50 to-pink-50 border border-rose-200 rounded-2xl p-4 mb-4 shadow-sm flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">❤️</span>
+                  <div>
+                    <h3 className="text-xs font-black text-rose-950 uppercase tracking-wide">
+                      Socio Protector {user.tipo_socio_protector || 'Activo'}
+                    </h3>
+                    <p className="text-[11px] text-rose-800">
+                      Aporte mensual activo de ${user.importe_mensual?.toLocaleString('es-AR') || '2.000'}/mes vía {user.proveedor_pago === 'mercadopago' ? 'Mercado Pago' : user.proveedor_pago || 'Mercado Pago'}. ¡Gracias por apoyar a la Biblioteca!
+                    </p>
+                  </div>
+                </div>
+                <Link
+                  href="/socio-protector"
+                  className="px-3 py-1.5 rounded-xl bg-white text-rose-700 hover:bg-rose-100 text-xs font-bold border border-rose-200 transition-colors flex-shrink-0"
+                >
+                  Gestionar
+                </Link>
+              </div>
+            )}
+
+            {/* Invitación a ser Socio Protector si es socio pero aún no es protector */}
+            {isSocio && !isSocioProtector && (
+              <div className="bg-white border border-blue-200/80 rounded-2xl p-4 mb-4 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div>
+                  <h4 className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                    <span>Sumá tu distinción de Socio Protector</span>
+                    <span>❤️</span>
+                  </h4>
+                  <p className="text-[11px] text-slate-500 mt-0.5">
+                    Colaborá con un aporte mensual voluntario para apoyar las actividades culturales y educativas.
+                  </p>
+                </div>
+                <Link
+                  href="/socio-protector"
+                  className="px-3.5 py-1.5 rounded-xl bg-roncedo-navy text-white text-xs font-bold hover:bg-blue-900 transition-colors flex-shrink-0"
+                >
+                  Conocer más
+                </Link>
+              </div>
+            )}
+
+            {/* Si es Socio Protector pero aún no socio general */}
+            {!isSocio && isSocioProtector && (
+              <div className="bg-white border border-blue-200/80 rounded-2xl p-4 mb-4 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div>
+                  <h4 className="text-xs font-bold text-slate-900">
+                    ¿Deseas también retirar libros y tener número de socio oficial?
+                  </h4>
+                  <p className="text-[11px] text-slate-500 mt-0.5">
+                    Podés solicitar tu alta de socio general en cualquier momento. Ambas categorías son complementarias.
+                  </p>
+                </div>
+                <Link
+                  href="/perfil"
+                  className="px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-colors flex-shrink-0"
+                >
+                  Solicitar Socio
+                </Link>
+              </div>
+            )}
 
             {/* Información y Preguntas Frecuentes de Uso */}
             <div className="bg-white rounded-2xl p-5 shadow-card border border-slate-200 mt-6 text-slate-700">
@@ -79,23 +145,29 @@ export default function CarnetPage() {
               <CreditCard className="w-10 h-10" />
             </div>
             <span className="text-xs font-bold uppercase tracking-wider text-amber-700 bg-amber-100 px-3 py-1 rounded-full">
-              Solicitud de Socio Requerida
+              Habilitación Requerida
             </span>
             <h2 className="text-xl font-black text-slate-900 mt-3">
-              Aún no tienes un Carnet de Socio activo
+              Aún no tienes un Carnet Digital emitido
             </h2>
             <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto mt-2 leading-relaxed">
-              Estás registrado como usuario general. Para obtener tu <strong>Carnet Digital con QR único</strong>, solicitar libros a domicilio y disfrutar de los beneficios institucionales, completa tu solicitud de socio.
+              Estás registrado como usuario general. Puedes obtener tu carnet como <strong>Socio Oficial</strong> completando tu solicitud, o convertirte en <strong>Socio Protector ❤️</strong> colaborando con el sostenimiento de la institución.
             </p>
 
             <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
               <Link
+                href="/socio-protector"
+                className="inline-flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-700 text-white font-bold px-5 py-3 rounded-2xl shadow-md text-xs sm:text-sm transition-all"
+              >
+                <span>Ser Socio Protector ❤️</span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+              <Link
                 href="/perfil"
-                className="inline-flex items-center justify-center gap-2 bg-roncedo-navy hover:bg-blue-900 text-white font-bold px-6 py-3.5 rounded-2xl shadow-md text-sm transition-all"
+                className="inline-flex items-center justify-center gap-2 bg-roncedo-navy hover:bg-blue-900 text-white font-bold px-5 py-3 rounded-2xl shadow-md text-xs sm:text-sm transition-all"
               >
                 <UserCheck className="w-4 h-4" />
-                <span>Completar mi Solicitud de Socio</span>
-                <ArrowRight className="w-4 h-4" />
+                <span>Solicitud de Socio</span>
               </Link>
             </div>
           </div>

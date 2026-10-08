@@ -15,19 +15,21 @@ interface CarnetDigitalProps {
 export function CarnetDigital({ user, className = '' }: CarnetDigitalProps) {
   const [isFullscreen, setIsFullscreen] = useState(false);
 
+  const isCuotaAlDia = (user.estado_cuota || 'al_dia') === 'al_dia';
+  const isSocioProtectorActivo = user.estado_socio_protector === 'activo';
+
   // Payload seguro para el QR institucional
   const qrData = JSON.stringify({
     org: 'CSyB-RONCEDO',
-    socio: user.numero_socio || '1042',
+    socio: user.numero_socio || (isSocioProtectorActivo ? 'PROTECTOR' : 'REGISTRADO'),
     nombre: `${user.nombre} ${user.apellido}`,
     dni: user.dni || 'S/D',
-    categoria: user.categoria_socio || 'Activo',
+    categoria: user.categoria_socio || 'General',
+    protector: isSocioProtectorActivo ? `Socio Protector ${user.tipo_socio_protector || ''}`.trim() : 'no',
     cuota: user.estado_cuota || 'al_dia',
-    alta: user.fecha_alta_socio || '2021-04-10',
+    alta: user.fecha_alta_socio || user.fecha_adhesion || '2026-04-01',
     val: 'OFICIAL-VERIFICADO',
   });
-
-  const isCuotaAlDia = (user.estado_cuota || 'al_dia') === 'al_dia';
 
   return (
     <div className={`flex flex-col items-center ${className}`}>
@@ -77,10 +79,10 @@ export function CarnetDigital({ user, className = '' }: CarnetDigitalProps) {
           </div>
           <div className="text-right">
             <span className="text-[9px] uppercase tracking-wider text-slate-400 block font-semibold">
-              N° DE SOCIO
+              {user.numero_socio ? 'N° DE SOCIO' : 'IDENTIFICADOR'}
             </span>
             <span className="text-lg font-black text-amber-300 tracking-wider">
-              #{user.numero_socio || '1042'}
+              {user.numero_socio ? `#${user.numero_socio}` : isSocioProtectorActivo ? '#PROT' : '#REG'}
             </span>
           </div>
         </div>
@@ -103,12 +105,14 @@ export function CarnetDigital({ user, className = '' }: CarnetDigitalProps) {
                     <span className="text-2xl font-bold uppercase">
                       {user.nombre.charAt(0)}{user.apellido.charAt(0) || 'R'}
                     </span>
-                    <span className="text-[9px] text-blue-200 mt-1 uppercase font-semibold">Socio</span>
+                    <span className="text-[9px] text-blue-200 mt-1 uppercase font-semibold">
+                      {user.role === 'usuario' ? 'Usuario' : 'Socio'}
+                    </span>
                   </div>
                 )}
               </div>
-              <span className="mt-1.5 text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-white/15 text-white tracking-wide border border-white/10">
-                {user.categoria_socio || 'Activo'}
+              <span className="mt-1.5 text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-white/15 text-white tracking-wide border border-white/10 text-center">
+                {user.role === 'usuario' ? 'Usuario' : user.categoria_socio || 'Activo'}
               </span>
             </div>
 
@@ -121,6 +125,12 @@ export function CarnetDigital({ user, className = '' }: CarnetDigitalProps) {
                 <p className="text-base font-bold text-white capitalize leading-snug">
                   {user.nombre} {user.apellido}
                 </p>
+                {/* Insignia discreta de Socio Protector */}
+                {isSocioProtectorActivo && (
+                  <div className="mt-1.5 inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-rose-500/25 border border-rose-400/40 text-rose-100 text-[11px] font-bold shadow-sm backdrop-blur-sm">
+                    <span>Socio Protector ❤️</span>
+                  </div>
+                )}
               </div>
 
               <div>

@@ -155,7 +155,7 @@ export default function InstalarPage() {
                   </span>
                   <div>
                     <p className="text-xs font-bold text-slate-800">
-                      Toca el botón "Compartir" de Safari
+                      Toca el botón &ldquo;Compartir&rdquo; de Safari
                     </p>
                     <p className="text-[11px] text-slate-500 mt-0.5 flex items-center gap-1">
                       Es el ícono con un cuadrado y una flecha hacia arriba (<Share className="w-3.5 h-3.5 text-blue-600 inline" />) ubicado en la barra inferior de Safari.
@@ -169,7 +169,7 @@ export default function InstalarPage() {
                   </span>
                   <div>
                     <p className="text-xs font-bold text-slate-800">
-                      Selecciona "Agregar a la pantalla de inicio"
+                      Selecciona &ldquo;Agregar a la pantalla de inicio&rdquo;
                     </p>
                     <p className="text-[11px] text-slate-500 mt-0.5 flex items-center gap-1">
                       Desliza hacia abajo en las opciones hasta encontrar el ícono con el signo más (<PlusSquare className="w-3.5 h-3.5 text-slate-700 inline" />).
@@ -183,7 +183,7 @@ export default function InstalarPage() {
                   </span>
                   <div>
                     <p className="text-xs font-bold text-slate-800">
-                      Toca "Agregar" arriba a la derecha
+                      Toca &ldquo;Agregar&rdquo; arriba a la derecha
                     </p>
                     <p className="text-[11px] text-slate-500 mt-0.5">
                       ¡Listo! Ya tendrás el escudo de la Biblioteca en tu pantalla de inicio junto a tus otras aplicaciones.

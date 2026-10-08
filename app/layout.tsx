@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { AuthProvider } from '@/lib/auth/AuthContext';
+import { LibrosProvider } from '@/lib/context/LibrosContext';
 import { Header } from '@/components/navigation/Header';
 import { BottomNav } from '@/components/navigation/BottomNav';
 import { ServiceWorkerRegister } from '@/components/pwa/ServiceWorkerRegister';
@@ -45,14 +46,17 @@ export default function RootLayout({
       </head>
       <body className="h-full flex flex-col bg-[#EDF5FD] text-slate-900 font-sans antialiased selection:bg-roncedo-celeste selection:text-white">
         <AuthProvider>
-          <ServiceWorkerRegister />
-          <Header />
-          <div className="flex-1">
-            {children}
-          </div>
-          <BottomNav />
+          <LibrosProvider>
+            <ServiceWorkerRegister />
+            <Header />
+            <div className="flex-1">
+              {children}
+            </div>
+            <BottomNav />
+          </LibrosProvider>
         </AuthProvider>
       </body>
     </html>
   );
 }
+

@@ -30,14 +30,15 @@ interface AuthContextType {
   aprobarSolicitud: (solicitudId: string, numeroSocio: string, categoria: CategoriaSocio) => Promise<void>;
   rechazarSolicitud: (solicitudId: string, notas?: string) => Promise<void>;
   actualizarEstadoCuota: (userId: string, nuevoEstado: EstadoCuota) => Promise<void>;
+  actualizarSocioProtector: (userId: string, data: Partial<UserProfile>) => Promise<void>;
   switchUserRoleDemo: (role: UserRole) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const STORAGE_KEY_USER = 'roncedo_current_user_v1';
-const STORAGE_KEY_USERS = 'roncedo_all_users_v1';
-const STORAGE_KEY_SOLICITUDES = 'roncedo_solicitudes_v1';
+const STORAGE_KEY_USER = 'roncedo_current_user_v2';
+const STORAGE_KEY_USERS = 'roncedo_all_users_v2';
+const STORAGE_KEY_SOLICITUDES = 'roncedo_solicitudes_v2';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -395,6 +396,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const actualizarSocioProtector = async (userId: string, data: Partial<UserProfile>) => {
+    const updatedUsers = allUsers.map(u => {
+      if (u.id === userId) {
+        return { ...u, ...data };
+      }
+      return u;
+    });
+    persistAllUsers(updatedUsers);
+
+    if (user && user.id === userId) {
+      persistUser({ ...user, ...data });
+    }
+
+    if (isSupabaseConfigured && supabase) {
+      try {
+        await supabase.from('profiles').update(data).eq('id', userId);
+      } catch (err) {
+        console.warn('Error sincronizando socio protector con Supabase:', err);
+      }
+    }
+  };
+
   const switchUserRoleDemo = (role: UserRole) => {
     const sample = allUsers.find(u => u.role === role);
     if (sample) {
@@ -423,6 +446,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         aprobarSolicitud,
         rechazarSolicitud,
         actualizarEstadoCuota,
+        actualizarSocioProtector,
         switchUserRoleDemo,
       }}
     >

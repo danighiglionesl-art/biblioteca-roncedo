@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '@/lib/auth/AuthContext';
-import { ShieldCheck, User as UserIcon, LogOut, Download, Sparkles, BookOpen } from 'lucide-react';
+import { ShieldCheck, User as UserIcon, LogOut, Download, Sparkles, BookOpen, Heart } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export function Header() {
@@ -71,6 +71,16 @@ export function Header() {
                 )}
               </span>
             </div>
+
+            {/* Acceso a Socio Protector */}
+            <Link
+              href="/socio-protector"
+              className="flex items-center gap-1.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 hover:text-white text-xs px-2.5 py-1.5 rounded-lg border border-rose-400/30 transition-colors shadow-sm"
+              title="Socio Protector"
+            >
+              <Heart className="w-3.5 h-3.5 text-rose-400 fill-rose-400" />
+              <span className="hidden sm:inline font-bold">Socio Protector</span>
+            </Link>
 
             {/* Acceso a Instalar PWA */}
             <Link

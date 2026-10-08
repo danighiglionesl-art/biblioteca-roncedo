@@ -21,6 +21,7 @@ import {
   Heart,
   Clock,
   MapPin,
+  Globe2,
 } from 'lucide-react';
 
 export default function HomePage() {
@@ -43,18 +44,30 @@ export default function HomePage() {
     },
     {
       titulo: 'Mi Biblioteca',
-      descripcion: 'Mis préstamos, reservas y actividades',
+      descripcion: 'Acceso a Biblioteca Física y Digital, préstamos y reservas',
       href: '/mi-biblioteca',
       icon: Library,
       color: 'from-sky-600 to-blue-700',
+      badge: '2 Accesos',
+      badgeColor: 'bg-roncedo-navy/10 text-roncedo-navy',
     },
     {
-      titulo: 'Libros y Catálogo',
-      descripcion: 'Buscador, disponibilidad física y reservas',
+      titulo: 'Biblioteca Física',
+      descripcion: '1.283 libros en sala, estanterías y préstamos',
       href: '/libros',
       icon: BookOpen,
       color: 'from-amber-600 to-amber-800',
-      etapa: 'Etapa 2',
+      badge: '1.283 Libros',
+      badgeColor: 'bg-emerald-500/20 text-emerald-800',
+    },
+    {
+      titulo: 'Biblioteca Digital',
+      descripcion: 'Gutenberg, Wikisource, Cervantes y Open Library',
+      href: '/biblioteca-digital',
+      icon: Globe2,
+      color: 'from-blue-700 to-indigo-900',
+      badge: 'Online',
+      badgeColor: 'bg-blue-500/20 text-blue-800',
     },
     {
       titulo: 'Archivo Fotográfico',
@@ -62,7 +75,8 @@ export default function HomePage() {
       href: '/fotos',
       icon: Camera,
       color: 'from-emerald-600 to-teal-800',
-      etapa: 'Etapa 3',
+      badge: 'Fototeca Activa',
+      badgeColor: 'bg-emerald-500/20 text-emerald-800 border-emerald-300',
     },
     {
       titulo: 'Archivo de Actas',
@@ -168,7 +182,42 @@ export default function HomePage() {
       </section>
 
       {/* Accesos Principales (Los 8 Módulos de la Biblioteca con Íconos Celestes Uniformes) */}
-      <main className="max-w-6xl mx-auto px-4 -mt-6">
+      <main className="max-w-6xl mx-auto px-4 -mt-6 space-y-6">
+        {/* Banner Destacado: Socio Protector */}
+        <div className="bg-gradient-to-r from-[#8B1E3F] via-[#A82A4C] to-[#BA3D60] text-white rounded-3xl p-5 shadow-lg border border-white/20 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-3.5">
+            <div className="w-12 h-12 rounded-2xl bg-white/20 border border-white/30 flex items-center justify-center text-white flex-shrink-0 shadow-sm">
+              <Heart className="w-6 h-6 fill-white" />
+            </div>
+            <div>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-[10px] font-black uppercase tracking-wider bg-white/20 px-2.5 py-0.5 rounded-full border border-white/20 backdrop-blur-sm">
+                  Campaña Permanente
+                </span>
+                {user.es_socio_protector && (
+                  <span className="text-[10px] font-extrabold bg-white text-rose-800 px-2.5 py-0.5 rounded-full shadow-sm">
+                    ¡Sos Socio Protector {user.tipo_socio_protector}! ❤️
+                  </span>
+                )}
+              </div>
+              <h3 className="text-base sm:text-lg font-black mt-1">
+                Socio Protector: Tu aporte mensual transforma la biblioteca
+              </h3>
+              <p className="text-xs text-rose-100 max-w-xl">
+                Sumate con un aporte recurrente desde $2.000/mes por Mercado Pago para sostener nuevos libros, talleres y actividades sociales de Alcira Gigena.
+              </p>
+            </div>
+          </div>
+          <Link
+            href="/socio-protector"
+            className="px-5 py-2.5 rounded-xl bg-white text-rose-900 hover:bg-rose-50 text-xs font-black shadow-md transition-all flex items-center gap-1.5 flex-shrink-0 active:scale-95"
+          >
+            <Heart className="w-3.5 h-3.5 fill-current text-rose-600" />
+            <span>{user.es_socio_protector ? 'Ver mi Aporte' : 'Quiero Colaborar'}</span>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+
         <div className="bg-white rounded-3xl p-5 sm:p-7 shadow-card border border-blue-200/80">
           <div className="flex items-center justify-between mb-5">
             <div>

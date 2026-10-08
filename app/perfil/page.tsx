@@ -25,7 +25,9 @@ import {
   Globe,
   Home,
   FileText,
+  Heart,
 } from 'lucide-react';
+import { formatFechaArgentina } from '@/lib/utils';
 
 const LOCALIDADES_POR_PROVINCIA: Record<string, string[]> = LOCALIDADES_DATA_RAW;
 
@@ -90,29 +92,27 @@ export default function PerfilPage() {
   const { user, updateProfile, submitSolicitudSocio, solicitudes } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  if (!user) return null;
-
   // Formulario de datos personales
-  const [nombre, setNombre] = useState(user.nombre || '');
-  const [apellido, setApellido] = useState(user.apellido || '');
-  const [dni, setDni] = useState(user.dni || '');
-  const [fechaNacimiento, setFechaNacimiento] = useState(user.fecha_nacimiento || '');
-  const [sexo, setSexo] = useState<string>(user.sexo || 'Prefiero no decirlo');
-  const [whatsappCodigo, setWhatsappCodigo] = useState(user.whatsapp_codigo || '+54');
-  const [whatsapp, setWhatsapp] = useState(user.whatsapp || '');
-  const [email, setEmail] = useState(user.email || '');
-  const [pais, setPais] = useState(user.pais || 'Argentina');
-  const [provincia, setProvincia] = useState(user.provincia || 'Córdoba');
-  const [provinciaManual, setProvinciaManual] = useState(user.provincia || '');
-  const [localidad, setLocalidad] = useState(user.localidad || 'Alcira Gigena');
+  const [nombre, setNombre] = useState(user?.nombre || '');
+  const [apellido, setApellido] = useState(user?.apellido || '');
+  const [dni, setDni] = useState(user?.dni || '');
+  const [fechaNacimiento, setFechaNacimiento] = useState(user?.fecha_nacimiento || '');
+  const [sexo, setSexo] = useState<string>(user?.sexo || 'Prefiero no decirlo');
+  const [whatsappCodigo, setWhatsappCodigo] = useState(user?.whatsapp_codigo || '+54');
+  const [whatsapp, setWhatsapp] = useState(user?.whatsapp || '');
+  const [email, setEmail] = useState(user?.email || '');
+  const [pais, setPais] = useState(user?.pais || 'Argentina');
+  const [provincia, setProvincia] = useState(user?.provincia || 'Córdoba');
+  const [provinciaManual, setProvinciaManual] = useState(user?.provincia || '');
+  const [localidad, setLocalidad] = useState(user?.localidad || 'Alcira Gigena');
   const [esOtraLocalidad, setEsOtraLocalidad] = useState(false);
   const [localidadManual, setLocalidadManual] = useState('');
-  const [codigoPostal, setCodigoPostal] = useState(user.codigo_postal || '5811');
-  const [barrio, setBarrio] = useState(user.barrio || '');
-  const [calle, setCalle] = useState(user.calle || '');
-  const [numero, setNumero] = useState(user.numero || '');
-  const [observaciones, setObservaciones] = useState(user.observaciones || '');
-  const [avatarUrl, setAvatarUrl] = useState(user.avatar_url || '');
+  const [codigoPostal, setCodigoPostal] = useState(user?.codigo_postal || '5811');
+  const [barrio, setBarrio] = useState(user?.barrio || '');
+  const [calle, setCalle] = useState(user?.calle || '');
+  const [numero, setNumero] = useState(user?.numero || '');
+  const [observaciones, setObservaciones] = useState(user?.observaciones || '');
+  const [avatarUrl, setAvatarUrl] = useState(user?.avatar_url || '');
 
   // Localidades disponibles para la provincia seleccionada
   const localidadesDisponibles = useMemo(() => {
@@ -160,10 +160,10 @@ export default function PerfilPage() {
 
   // Buscar si tiene solicitud pendiente
   const miSolicitudPendiente = solicitudes.find(
-    (s) => s.user_id === user.id && s.estado === 'pendiente'
+    (s) => s.user_id === user?.id && s.estado === 'pendiente'
   );
 
-  const isSocio = user.role === 'socio' || user.role === 'admin';
+  const isSocio = user?.role === 'socio' || user?.role === 'admin';
 
   // Manejador para subir foto de perfil
   const handleFotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -288,6 +288,8 @@ export default function PerfilPage() {
     }
   };
 
+  if (!user) return null;
+
   return (
     <div className="min-h-screen bg-[#E5F2FE] pb-28 pt-6 px-4">
       <div className="max-w-3xl mx-auto space-y-6">
@@ -379,6 +381,130 @@ export default function PerfilPage() {
               <CreditCard className="w-4 h-4 text-roncedo-gold" />
               <span>Ver Carnet</span>
             </Link>
+          )}
+        </div>
+
+        {/* Ficha Institucional: Condición de Socio Protector */}
+        <div className="bg-white rounded-3xl p-6 shadow-card border border-rose-100 relative overflow-hidden">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-600 shadow-sm flex-shrink-0">
+                <Heart className="w-6 h-6 fill-rose-500" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-base font-extrabold text-slate-900">
+                    Socio Protector
+                  </h3>
+                  {user.es_socio_protector ? (
+                    <span
+                      className={`text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full border ${
+                        user.estado_socio_protector === 'activo'
+                          ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
+                          : user.estado_socio_protector === 'pendiente'
+                          ? 'bg-amber-50 text-amber-700 border-amber-300'
+                          : 'bg-slate-100 text-slate-600 border-slate-300'
+                      }`}
+                    >
+                      {user.estado_socio_protector === 'activo'
+                        ? 'Activo'
+                        : user.estado_socio_protector === 'pendiente'
+                        ? 'Pendiente'
+                        : 'Inactivo'}
+                    </span>
+                  ) : (
+                    <span className="text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-500 border border-slate-200">
+                      No adherido
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Aporte voluntario mensual para el sostenimiento de las actividades culturales y sociales.
+                </p>
+              </div>
+            </div>
+
+            <Link
+              href="/socio-protector"
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 text-white text-xs font-bold rounded-xl shadow-sm transition-all flex-shrink-0"
+            >
+              <Heart className="w-3.5 h-3.5 fill-current" />
+              <span>{user.es_socio_protector ? 'Ver o Cambiar Plan' : 'Quiero Colaborar'}</span>
+            </Link>
+          </div>
+
+          {/* Grilla de Datos del Socio Protector */}
+          {user.es_socio_protector ? (
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 text-xs">
+              <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                <span className="text-[10px] uppercase font-bold text-slate-400 block">
+                  Categoría
+                </span>
+                <span className="font-extrabold text-slate-900 mt-0.5 block text-sm">
+                  {user.tipo_socio_protector || 'Bronce'}
+                </span>
+              </div>
+
+              <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                <span className="text-[10px] uppercase font-bold text-slate-400 block">
+                  Aporte Mensual
+                </span>
+                <span className="font-extrabold text-emerald-700 mt-0.5 block text-sm">
+                  ${user.importe_mensual?.toLocaleString('es-AR') || '2.000'} / mes
+                </span>
+              </div>
+
+              <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                <span className="text-[10px] uppercase font-bold text-slate-400 block">
+                  Proveedor de Pago
+                </span>
+                <span className="font-extrabold text-slate-900 mt-0.5 block capitalize">
+                  {user.proveedor_pago === 'mercadopago' ? 'Mercado Pago' : user.proveedor_pago || 'Mercado Pago'}
+                </span>
+              </div>
+
+              <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                <span className="text-[10px] uppercase font-bold text-slate-400 block">
+                  ID Suscripción
+                </span>
+                <span className="font-mono font-bold text-slate-700 mt-0.5 block truncate text-[11px]">
+                  {user.id_suscripcion_externa || 'Pendiente'}
+                </span>
+              </div>
+
+              <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                <span className="text-[10px] uppercase font-bold text-slate-400 block">
+                  Fecha de Adhesión
+                </span>
+                <span className="font-semibold text-slate-800 mt-0.5 block">
+                  {formatFechaArgentina(user.fecha_adhesion)}
+                </span>
+              </div>
+
+              <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                <span className="text-[10px] uppercase font-bold text-slate-400 block">
+                  Último Pago
+                </span>
+                <span className="font-semibold text-slate-800 mt-0.5 block">
+                  {formatFechaArgentina(user.fecha_ultimo_pago)}
+                </span>
+              </div>
+
+              <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100 col-span-2">
+                <span className="text-[10px] uppercase font-bold text-slate-400 block">
+                  Próximo Vencimiento
+                </span>
+                <span className="font-semibold text-slate-800 mt-0.5 block">
+                  {user.proximo_vencimiento ? formatFechaArgentina(user.proximo_vencimiento) : 'Renovación mensual automática'}
+                </span>
+              </div>
+            </div>
+          ) : (
+            <div className="pt-4 text-xs text-slate-500 flex items-center justify-between">
+              <p>
+                Aún no estás adherido como Socio Protector. Con un aporte desde $2.000 mensuales ayudas a sostener la biblioteca.
+              </p>
+            </div>
           )}
         </div>
 
