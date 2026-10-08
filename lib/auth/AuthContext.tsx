@@ -64,7 +64,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       const storedUser = localStorage.getItem(STORAGE_KEY_USER);
       if (storedUser) {
-        setUser(JSON.parse(storedUser));
+        const parsed = JSON.parse(storedUser);
+        // Si el usuario en cache era el demo viejo admin, reemplazar por socio activo por defecto
+        if (parsed.id === 'user-admin-01' || parsed.email === 'admin@bibliotecaroncedo.ar') {
+          const defaultUser = INITIAL_USERS[1];
+          setUser(defaultUser);
+          localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(defaultUser));
+        } else {
+          setUser(parsed);
+        }
       } else {
         // Por defecto en la primera carga, usuario logueado como socio demo para explorar
         const defaultUser = INITIAL_USERS[1]; // Socio activo Pedro González
@@ -100,18 +108,64 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem(STORAGE_KEY_SOLICITUDES, JSON.stringify(solsList));
   };
 
-  const loginWithEmail = async (email: string, pass: string) => {
+  const loginWithEmail = async (emailOrUsername: string, pass: string) => {
     setIsLoading(true);
     try {
-      if (isSupabaseConfigured && supabase) {
-        const { data, error } = await supabase.auth.signInWithPassword({ email, password: pass });
-        if (error) throw error;
-        // En Supabase buscaríamos el profile en la tabla profiles
+      const cleanInput = emailOrUsername.trim().toLowerCase();
+      const cleanPass = pass.trim();
+
+      // Autenticación Oficial del Administrador de la Biblioteca Roncedo
+      if (cleanInput === 'biblioroncedo' || cleanInput === 'biblioroncedo@bibliotecaroncedo.ar') {
+        if (cleanPass !== 'Roncedo-2026') {
+          return { success: false, error: 'Contraseña incorrecta para el usuario de Administración.' };
+        }
+
+        const adminUser: UserProfile = {
+          id: 'user-admin-roncedo',
+          username: 'biblioroncedo',
+          email: 'biblioroncedo@bibliotecaroncedo.ar',
+          role: 'admin',
+          nombre: 'Biblioteca',
+          apellido: 'Roncedo',
+          dni: '1926-RONCEDO',
+          fecha_nacimiento: '1926-05-01',
+          sexo: 'Prefiero no decirlo',
+          telefono: '+54 9 358 4887722',
+          whatsapp_codigo: '+54',
+          whatsapp: '93584887722',
+          pais: 'Argentina',
+          provincia: 'Córdoba',
+          localidad: 'Alcira Gigena',
+          codigo_postal: '5811',
+          barrio: 'Centro',
+          calle: 'Belgrano',
+          numero: '450',
+          domicilio: 'Belgrano 450',
+          observaciones: 'Cuenta Oficial de Administración de Biblioteca Roncedo.',
+          avatar_url: '/images/escudo-roncedo.png',
+          numero_socio: 'ADMIN-01',
+          categoria_socio: 'Honorario',
+          fecha_alta_socio: '1926-05-01',
+          estado_cuota: 'al_dia',
+          created_at: '1926-05-01T00:00:00Z',
+        };
+
+        const otherUsers = allUsers.filter(u => u.id !== 'user-admin-roncedo' && u.email !== 'admin@bibliotecaroncedo.ar');
+        const updatedList = [adminUser, ...otherUsers];
+        persistAllUsers(updatedList);
+        persistUser(adminUser);
+        return { success: true };
       }
 
-      // Fallback local robusto
-      const cleanEmail = email.trim().toLowerCase();
-      const existingUser = allUsers.find(u => u.email.toLowerCase() === cleanEmail);
+      if (isSupabaseConfigured && supabase) {
+        const { data, error } = await supabase.auth.signInWithPassword({ email: emailOrUsername, password: pass });
+        if (error) throw error;
+      }
+
+      // Fallback local robusto (busca por email o username)
+      const existingUser = allUsers.find(
+        u => u.email.toLowerCase() === cleanInput || (u.username && u.username.toLowerCase() === cleanInput)
+      );
 
       if (existingUser) {
         persistUser(existingUser);
@@ -121,8 +175,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Si no existe pero introdujo credenciales, creamos una sesión con rol 'usuario'
       const newUser: UserProfile = {
         id: `user-${Date.now()}`,
-        email: cleanEmail,
-        nombre: cleanEmail.split('@')[0],
+        email: cleanInput.includes('@') ? cleanInput : `${cleanInput}@usuario.ar`,
+        username: cleanInput,
+        nombre: cleanInput.split('@')[0],
         apellido: '',
         role: 'usuario',
         created_at: new Date().toISOString(),

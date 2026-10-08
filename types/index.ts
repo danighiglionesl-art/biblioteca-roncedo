@@ -9,6 +9,7 @@ export type SexoOption = 'Mujer' | 'Hombre' | 'Prefiero no decirlo';
 export interface UserProfile {
   id: string;
   email: string;
+  username?: string;
   role: UserRole;
   nombre: string;
   apellido: string;

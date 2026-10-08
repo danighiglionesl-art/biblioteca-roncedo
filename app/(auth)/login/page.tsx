@@ -88,7 +88,7 @@ export default function LoginPage() {
     }
   };
 
-  const quickDemoLogin = (role: 'admin' | 'socio' | 'usuario') => {
+  const quickDemoLogin = (role: 'socio' | 'usuario') => {
     switchUserRoleDemo(role);
     router.push('/home');
   };
@@ -239,16 +239,16 @@ export default function LoginPage() {
 
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">
-                Correo Electrónico
+                {mode === 'login' ? 'Usuario o Correo Electrónico' : 'Correo Electrónico'}
               </label>
               <div className="relative">
                 <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
                 <input
-                  type="email"
+                  type={mode === 'login' ? 'text' : 'email'}
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="ejemplo@correo.com"
+                  placeholder={mode === 'login' ? 'biblioroncedo o correo electrónico' : 'ejemplo@correo.com'}
                   className="w-full pl-10 pr-3 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-roncedo-blue text-sm"
                 />
               </div>
@@ -318,24 +318,18 @@ export default function LoginPage() {
             <span>Accesos Rápidos de Prueba (1 Clic)</span>
           </div>
           <p className="text-[11px] text-slate-300 mb-3">
-            Para evaluar de inmediato los 3 niveles del sistema sin necesidad de tipear:
+            Para evaluar de inmediato los perfiles de prueba:
           </p>
-          <div className="grid grid-cols-3 gap-2">
-            <button
-              onClick={() => quickDemoLogin('admin')}
-              className="py-2 px-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 rounded-xl text-xs font-semibold border border-amber-400/30 transition-colors"
-            >
-              Administrador
-            </button>
+          <div className="grid grid-cols-2 gap-3">
             <button
               onClick={() => quickDemoLogin('socio')}
-              className="py-2 px-2 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-200 rounded-xl text-xs font-semibold border border-emerald-400/30 transition-colors"
+              className="py-2.5 px-3 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-200 rounded-xl text-xs font-semibold border border-emerald-400/30 transition-colors"
             >
               Socio Activo
             </button>
             <button
               onClick={() => quickDemoLogin('usuario')}
-              className="py-2 px-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-200 rounded-xl text-xs font-semibold border border-blue-400/30 transition-colors"
+              className="py-2.5 px-3 bg-blue-500/20 hover:bg-blue-500/30 text-blue-200 rounded-xl text-xs font-semibold border border-blue-400/30 transition-colors"
             >
               Nuevo Usuario
             </button>
