@@ -21,7 +21,8 @@ export default {
         },
       },
       fontFamily: {
-        sans: ["var(--font-geist-sans)", "system-ui", "-apple-system", "sans-serif"],
+        sans: ["Gotham", "-apple-system", "BlinkMacSystemFont", "sans-serif"],
+        gotham: ["Gotham", "-apple-system", "BlinkMacSystemFont", "sans-serif"],
       },
       boxShadow: {
         card: "0 4px 20px -2px rgba(16, 42, 78, 0.08)",
