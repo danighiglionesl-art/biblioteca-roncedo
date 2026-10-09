@@ -82,11 +82,12 @@ export default function HomePage() {
     },
     {
       titulo: 'Archivo de Actas',
-      descripcion: 'Actas fundacionales, firmas y OCR',
+      descripcion: '102 folios (1926-1932), fundación, firmas y visor HD',
       href: '/actas',
       icon: FileText,
       color: 'from-slate-700 to-slate-900',
-      etapa: 'Etapa 4',
+      badge: '102 Folios HD',
+      badgeColor: 'bg-emerald-500/20 text-emerald-800 border-emerald-300',
     },
     {
       titulo: 'Eventos y Talleres',
