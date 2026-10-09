@@ -34,8 +34,10 @@ import {
   Calendar,
   RefreshCw,
   Sparkles,
+  Newspaper,
 } from 'lucide-react';
 import { GestionPortadas } from '@/components/admin/GestionPortadas';
+import { GestionNovedades } from '@/components/admin/GestionNovedades';
 
 export default function AdminPage() {
   const {
@@ -48,8 +50,26 @@ export default function AdminPage() {
     actualizarSocioProtector,
   } = useAuth();
 
-  const [activeTab, setActiveTab] = useState<'portadas' | 'solicitudes' | 'padron' | 'protectores' | 'usuarios'>('portadas');
+  const [activeTab, setActiveTab] = useState<'portadas' | 'novedades' | 'protectores' | 'solicitudes' | 'padron' | 'usuarios'>('portadas');
   const [searchTerm, setSearchTerm] = useState('');
+
+  // Leer pestaña desde query param si viene especificada
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const tabParam = params.get('tab');
+      if (
+        tabParam === 'novedades' ||
+        tabParam === 'protectores' ||
+        tabParam === 'solicitudes' ||
+        tabParam === 'padron' ||
+        tabParam === 'usuarios' ||
+        tabParam === 'portadas'
+      ) {
+        setActiveTab(tabParam as any);
+      }
+    }
+  }, []);
   
   // Modal de aprobación de solicitud de socio
   const [modalSolId, setModalSolId] = useState<string | null>(null);
@@ -349,7 +369,7 @@ export default function AdminPage() {
         </div>
 
         {/* Pestañas de Gestión */}
-        <div className="grid grid-cols-2 sm:grid-cols-5 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm gap-1 text-xs font-bold">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm gap-1 text-xs font-bold">
           <button
             onClick={() => setActiveTab('portadas')}
             className={`py-2.5 rounded-xl transition-colors flex items-center justify-center gap-1.5 ${
@@ -359,7 +379,19 @@ export default function AdminPage() {
             }`}
           >
             <Sparkles className={`w-4 h-4 ${activeTab === 'portadas' ? 'text-roncedo-gold' : 'text-amber-500'}`} />
-            <span>Gestión de Portadas</span>
+            <span>Portadas</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('novedades')}
+            className={`py-2.5 rounded-xl transition-colors flex items-center justify-center gap-1.5 ${
+              activeTab === 'novedades'
+                ? 'bg-gradient-to-r from-blue-700 to-indigo-800 text-white shadow-sm'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <Newspaper className={`w-4 h-4 ${activeTab === 'novedades' ? 'text-roncedo-celeste' : 'text-blue-600'}`} />
+            <span>Novedades</span>
           </button>
 
           <button
@@ -371,7 +403,7 @@ export default function AdminPage() {
             }`}
           >
             <Heart className={`w-4 h-4 ${activeTab === 'protectores' ? 'text-rose-300 fill-rose-300' : 'text-rose-500'}`} />
-            <span>Socios Protectores ({protectoresTodos.length})</span>
+            <span>Protectores ({protectoresTodos.length})</span>
           </button>
 
           <button
@@ -395,7 +427,7 @@ export default function AdminPage() {
             }`}
           >
             <Users className="w-4 h-4" />
-            <span>Padrón Socios ({totalSocios.length})</span>
+            <span>Padrón ({totalSocios.length})</span>
           </button>
 
           <button
@@ -413,6 +445,9 @@ export default function AdminPage() {
 
         {/* Pestaña: Gestión de Portadas */}
         {activeTab === 'portadas' && <GestionPortadas />}
+
+        {/* Pestaña: Gestión de Novedades (ABM con hasta 5 fotos) */}
+        {activeTab === 'novedades' && <GestionNovedades />}
 
         {/* Pestaña: Socios Protectores */}
         {activeTab === 'protectores' && (

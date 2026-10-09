@@ -27,7 +27,11 @@
         "numero_socio": "1012",
         "fecha_solicitud": "2026-03-28T10:00:00Z"
       }
-    ]
+    ],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-2",
@@ -50,7 +54,11 @@
       "fecha_prestamo": "2026-04-01",
       "fecha_devolucion_prevista": "2026-04-18"
     },
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-3",
@@ -64,9 +72,13 @@
     "procedencia": "Donación",
     "donante_o_detalle": "Battaglino, Roberto",
     "topografia_ubicacion": "",
-    "portada_url": "",
+    "portada_url": "https://covers.openlibrary.org/b/id/9042473-L.jpg?default=false",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "aprobada",
+    "portada_fuente": "open_library",
+    "portada_confianza": "alta",
+    "portada_detalles": "Coincidencia exacta de obra en Open Library (\"El futbol a sol y sombra\")."
   },
   {
     "id": "libro-4",
@@ -82,7 +94,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-5",
@@ -98,7 +114,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-6",
@@ -112,9 +132,13 @@
     "procedencia": "Donación",
     "donante_o_detalle": "Battaglino, Roberto",
     "topografia_ubicacion": "",
-    "portada_url": "",
+    "portada_url": "https://covers.openlibrary.org/b/id/3344945-L.jpg?default=false",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "aprobada",
+    "portada_fuente": "open_library",
+    "portada_confianza": "alta",
+    "portada_detalles": "Coincidencia exacta de obra en Open Library (\"La era del fútbol\")."
   },
   {
     "id": "libro-7",
@@ -128,9 +152,13 @@
     "procedencia": "Donación",
     "donante_o_detalle": "Battaglino, Roberto",
     "topografia_ubicacion": "",
-    "portada_url": "",
+    "portada_url": "https://covers.openlibrary.org/b/id/3347302-L.jpg?default=false",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "aprobada",
+    "portada_fuente": "open_library",
+    "portada_confianza": "alta",
+    "portada_detalles": "Coincidencia exacta de obra en Open Library (\"Cuentos de Futbol Argentino\")."
   },
   {
     "id": "libro-8",
@@ -146,7 +174,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-9",
@@ -162,7 +194,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-10",
@@ -178,7 +214,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-11",
@@ -194,7 +234,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-12",
@@ -210,7 +254,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-13",
@@ -226,7 +274,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-14",
@@ -240,9 +292,13 @@
     "procedencia": "Donación",
     "donante_o_detalle": "Perassi, V.",
     "topografia_ubicacion": "",
-    "portada_url": "",
+    "portada_url": "https://covers.openlibrary.org/b/id/5259925-L.jpg?default=false",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "aprobada",
+    "portada_fuente": "open_library",
+    "portada_confianza": "alta",
+    "portada_detalles": "Coincidencia por título y confirmación de editorial/año (\"del Diario Intimo de Un Chico Rubio y Otras Historias Futboleras\")."
   },
   {
     "id": "libro-15",
@@ -258,7 +314,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-16",
@@ -274,7 +334,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-17",
@@ -290,7 +354,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-18",
@@ -304,9 +372,13 @@
     "procedencia": "Donación",
     "donante_o_detalle": "Perassi, V.",
     "topografia_ubicacion": "",
-    "portada_url": "",
+    "portada_url": "https://covers.openlibrary.org/b/id/12341487-L.jpg?default=false",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "aprobada",
+    "portada_fuente": "open_library",
+    "portada_confianza": "alta",
+    "portada_detalles": "Coincidencia exacta de obra en Open Library (\"Fútbol, dinámica de lo impensado\")."
   },
   {
     "id": "libro-19",
@@ -320,9 +392,13 @@
     "procedencia": "Donación",
     "donante_o_detalle": "Perassi, V.",
     "topografia_ubicacion": "",
-    "portada_url": "",
+    "portada_url": "https://covers.openlibrary.org/b/id/10639225-L.jpg?default=false",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "pendiente_revision",
+    "portada_fuente": "open_library",
+    "portada_confianza": "media",
+    "portada_detalles": "Posible coincidencia encontrada (\"Don Julio\"). Pendiente de revisión del administrador."
   },
   {
     "id": "libro-20",
@@ -336,9 +412,13 @@
     "procedencia": "Donación",
     "donante_o_detalle": "Perassi, V.",
     "topografia_ubicacion": "",
-    "portada_url": "",
+    "portada_url": "https://covers.openlibrary.org/b/id/13484129-L.jpg?default=false",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "aprobada",
+    "portada_fuente": "open_library",
+    "portada_confianza": "alta",
+    "portada_detalles": "Coincidencia exacta de obra en Open Library (\"Puro fútbol\")."
   },
   {
     "id": "libro-21",
@@ -354,7 +434,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-22",
@@ -368,9 +452,13 @@
     "procedencia": "Donación",
     "donante_o_detalle": "Marguch, J.",
     "topografia_ubicacion": "",
-    "portada_url": "",
+    "portada_url": "https://covers.openlibrary.org/b/id/3841350-L.jpg?default=false",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "aprobada",
+    "portada_fuente": "open_library",
+    "portada_confianza": "alta",
+    "portada_detalles": "Coincidencia exacta de obra en Open Library (\"El negocio del fútbol\")."
   },
   {
     "id": "libro-23",
@@ -386,7 +474,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-24",
@@ -402,7 +494,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-25",
@@ -418,7 +514,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-26",
@@ -434,7 +534,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-27",
@@ -450,7 +554,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-28",
@@ -466,7 +574,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-29",
@@ -480,9 +592,13 @@
     "procedencia": "Donación",
     "donante_o_detalle": "Marguch, J.",
     "topografia_ubicacion": "",
-    "portada_url": "",
+    "portada_url": "https://covers.openlibrary.org/b/id/3346409-L.jpg?default=false",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "aprobada",
+    "portada_fuente": "open_library",
+    "portada_confianza": "alta",
+    "portada_detalles": "Coincidencia exacta de obra en Open Library (\"Memorias de Un Periodista Deportivo\")."
   },
   {
     "id": "libro-30",
@@ -498,7 +614,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-31",
@@ -514,7 +634,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-32",
@@ -530,7 +654,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-33",
@@ -544,9 +672,13 @@
     "procedencia": "Donación",
     "donante_o_detalle": "Marguch, J.",
     "topografia_ubicacion": "",
-    "portada_url": "",
+    "portada_url": "https://covers.openlibrary.org/b/id/3344945-L.jpg?default=false",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "aprobada",
+    "portada_fuente": "open_library",
+    "portada_confianza": "alta",
+    "portada_detalles": "Coincidencia exacta de obra en Open Library (\"La era del fútbol\")."
   },
   {
     "id": "libro-34",
@@ -562,7 +694,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-35",
@@ -578,7 +714,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-36",
@@ -594,7 +734,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-37",
@@ -610,7 +754,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-38",
@@ -626,7 +774,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-39",
@@ -640,9 +792,13 @@
     "procedencia": "Donación",
     "donante_o_detalle": "Marguch, J.",
     "topografia_ubicacion": "",
-    "portada_url": "",
+    "portada_url": "https://covers.openlibrary.org/b/id/5266787-L.jpg?default=false",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "pendiente_revision",
+    "portada_fuente": "open_library",
+    "portada_confianza": "media",
+    "portada_detalles": "Posible coincidencia encontrada (\"Historia del Futbol, del juego al deporte/History of soccer, from a game to a sport\"). Pendiente de revisión del administrador."
   },
   {
     "id": "libro-40",
@@ -656,9 +812,13 @@
     "procedencia": "Donación",
     "donante_o_detalle": "Marguch, J.",
     "topografia_ubicacion": "",
-    "portada_url": "",
+    "portada_url": "https://covers.openlibrary.org/b/id/12341487-L.jpg?default=false",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "aprobada",
+    "portada_fuente": "open_library",
+    "portada_confianza": "alta",
+    "portada_detalles": "Coincidencia exacta de obra en Open Library (\"Fútbol, dinámica de lo impensado\")."
   },
   {
     "id": "libro-41",
@@ -674,7 +834,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-42",
@@ -690,7 +854,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-43",
@@ -706,7 +874,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-44",
@@ -720,9 +892,13 @@
     "procedencia": "Donación",
     "donante_o_detalle": "Marguch, J.",
     "topografia_ubicacion": "",
-    "portada_url": "",
+    "portada_url": "https://covers.openlibrary.org/b/id/3347397-L.jpg?default=false",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "aprobada",
+    "portada_fuente": "open_library",
+    "portada_confianza": "alta",
+    "portada_detalles": "Coincidencia exacta de obra en Open Library (\"El Miedo Escenico y Otras Hierbas\")."
   },
   {
     "id": "libro-45",
@@ -738,7 +914,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-46",
@@ -752,9 +932,13 @@
     "procedencia": "Donación",
     "donante_o_detalle": "Marguch, J.",
     "topografia_ubicacion": "",
-    "portada_url": "",
+    "portada_url": "https://covers.openlibrary.org/b/id/12706267-L.jpg?default=false",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "pendiente_revision",
+    "portada_fuente": "open_library",
+    "portada_confianza": "media",
+    "portada_detalles": "Posible coincidencia encontrada (\"Jorge Valdano\"). Pendiente de revisión del administrador."
   },
   {
     "id": "libro-47",
@@ -770,7 +954,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-48",
@@ -786,7 +974,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-49",
@@ -802,7 +994,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-50",
@@ -818,7 +1014,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-51",
@@ -834,7 +1034,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-52",
@@ -850,7 +1054,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-53",
@@ -866,7 +1074,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-54",
@@ -882,7 +1094,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-55",
@@ -896,9 +1112,13 @@
     "procedencia": "Donación",
     "donante_o_detalle": "Muzzio, A.",
     "topografia_ubicacion": "",
-    "portada_url": "",
+    "portada_url": "https://covers.openlibrary.org/b/id/5233559-L.jpg?default=false",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "aprobada",
+    "portada_fuente": "open_library",
+    "portada_confianza": "alta",
+    "portada_detalles": "Coincidencia exacta de obra en Open Library (\"Metodologia de La Educacion Fisica\")."
   },
   {
     "id": "libro-56",
@@ -914,7 +1134,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-57",
@@ -930,7 +1154,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-58",
@@ -946,7 +1174,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-59",
@@ -962,7 +1194,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-60",
@@ -978,7 +1214,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-61",
@@ -994,7 +1234,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-62",
@@ -1010,7 +1254,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-63",
@@ -1026,7 +1274,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-64",
@@ -1042,7 +1294,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-65",
@@ -1056,9 +1312,13 @@
     "procedencia": "Donación",
     "donante_o_detalle": "Muzzio, A.",
     "topografia_ubicacion": "",
-    "portada_url": "",
+    "portada_url": "https://covers.openlibrary.org/b/id/3347635-L.jpg?default=false",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "aprobada",
+    "portada_fuente": "open_library",
+    "portada_confianza": "alta",
+    "portada_detalles": "Coincidencia exacta de obra en Open Library (\"Tecnicas Atleticas\")."
   },
   {
     "id": "libro-66",
@@ -1074,7 +1334,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-67",
@@ -1088,9 +1352,13 @@
     "procedencia": "Donación",
     "donante_o_detalle": "Muzzio, A.",
     "topografia_ubicacion": "",
-    "portada_url": "",
+    "portada_url": "https://covers.openlibrary.org/b/id/3347633-L.jpg?default=false",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "aprobada",
+    "portada_fuente": "open_library",
+    "portada_confianza": "alta",
+    "portada_detalles": "Coincidencia exacta de obra en Open Library (\"Preparacion Fisica Para Deportes de Equipos\")."
   },
   {
     "id": "libro-68",
@@ -1104,9 +1372,13 @@
     "procedencia": "Donación",
     "donante_o_detalle": "Muzzio, A.",
     "topografia_ubicacion": "",
-    "portada_url": "",
+    "portada_url": "https://covers.openlibrary.org/b/id/3347625-L.jpg?default=false",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "pendiente_revision",
+    "portada_fuente": "open_library",
+    "portada_confianza": "media",
+    "portada_detalles": "Posible coincidencia encontrada (\"Minivoleibol\"). Pendiente de revisión del administrador."
   },
   {
     "id": "libro-69",
@@ -1122,7 +1394,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-70",
@@ -1136,9 +1412,13 @@
     "procedencia": "Donación",
     "donante_o_detalle": "Muzzio, A.",
     "topografia_ubicacion": "",
-    "portada_url": "",
+    "portada_url": "https://covers.openlibrary.org/b/id/3347620-L.jpg?default=false",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "aprobada",
+    "portada_fuente": "open_library",
+    "portada_confianza": "alta",
+    "portada_detalles": "Coincidencia exacta de obra en Open Library (\"Entrenamiento del Basquetbolista\")."
   },
   {
     "id": "libro-71",
@@ -1152,9 +1432,13 @@
     "procedencia": "Donación",
     "donante_o_detalle": "Muzzio, A.",
     "topografia_ubicacion": "",
-    "portada_url": "",
+    "portada_url": "https://covers.openlibrary.org/b/id/3347619-L.jpg?default=false",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "aprobada",
+    "portada_fuente": "open_library",
+    "portada_confianza": "alta",
+    "portada_detalles": "Coincidencia exacta de obra en Open Library (\"Enciclopedia de La Musculacion Deportiva\")."
   },
   {
     "id": "libro-72",
@@ -1170,7 +1454,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-73",
@@ -1186,7 +1474,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-74",
@@ -1202,7 +1494,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-75",
@@ -1218,7 +1514,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-76",
@@ -1234,7 +1534,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-77",
@@ -1250,7 +1554,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-78",
@@ -1266,7 +1574,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-79",
@@ -1282,7 +1594,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-80",
@@ -1296,9 +1612,13 @@
     "procedencia": "Donación",
     "donante_o_detalle": "Muzzio, A.",
     "topografia_ubicacion": "",
-    "portada_url": "",
+    "portada_url": "https://covers.openlibrary.org/b/id/3347672-L.jpg?default=false",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "aprobada",
+    "portada_fuente": "open_library",
+    "portada_confianza": "alta",
+    "portada_detalles": "Coincidencia exacta de obra en Open Library (\"Futbol. Entrenamiento Con Pelotas\")."
   },
   {
     "id": "libro-81",
@@ -1314,7 +1634,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-82",
@@ -1328,9 +1652,13 @@
     "procedencia": "Donación",
     "donante_o_detalle": "Muzzio, A.",
     "topografia_ubicacion": "",
-    "portada_url": "",
+    "portada_url": "https://covers.openlibrary.org/b/id/3343837-L.jpg?default=false",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "aprobada",
+    "portada_fuente": "open_library",
+    "portada_confianza": "alta",
+    "portada_detalles": "Coincidencia exacta de obra en Open Library (\"Fisiologia del Ejercicio\")."
   },
   {
     "id": "libro-83",
@@ -1346,7 +1674,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-84",
@@ -1362,7 +1694,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-85",
@@ -1378,7 +1714,11 @@
     "topografia_ubicacion": "Tomo 1",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-86",
@@ -1394,7 +1734,11 @@
     "topografia_ubicacion": "Tomo 2",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-87",
@@ -1410,7 +1754,11 @@
     "topografia_ubicacion": "Carpeta + 8 fasc.",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-88",
@@ -1424,9 +1772,13 @@
     "procedencia": "Donación",
     "donante_o_detalle": "Pacho, J.C.",
     "topografia_ubicacion": "Tomo 2",
-    "portada_url": "",
+    "portada_url": "https://covers.openlibrary.org/b/id/13456799-L.jpg?default=false",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "aprobada",
+    "portada_fuente": "open_library",
+    "portada_confianza": "alta",
+    "portada_detalles": "Coincidencia exacta de obra en Open Library (\"Tratado general de ajedrez - Rudimentos\")."
   },
   {
     "id": "libro-89",
@@ -1440,9 +1792,13 @@
     "procedencia": "Donación",
     "donante_o_detalle": "Pacho, J.C.",
     "topografia_ubicacion": "Tomo 3",
-    "portada_url": "",
+    "portada_url": "https://covers.openlibrary.org/b/id/13456923-L.jpg?default=false",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "aprobada",
+    "portada_fuente": "open_library",
+    "portada_confianza": "alta",
+    "portada_detalles": "Coincidencia exacta de obra en Open Library (\"Tratado General De Ajedrez, Iv\")."
   },
   {
     "id": "libro-90",
@@ -1458,7 +1814,11 @@
     "topografia_ubicacion": "Tomo 4",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-91",
@@ -1474,7 +1834,11 @@
     "topografia_ubicacion": "Tomo 1",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-92",
@@ -1490,7 +1854,11 @@
     "topografia_ubicacion": "Tomo 2",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-93",
@@ -1506,7 +1874,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-94",
@@ -1522,7 +1894,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-95",
@@ -1538,7 +1914,11 @@
     "topografia_ubicacion": "FUTBOL / FUTBOL ARGENTINO",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-96",
@@ -1554,7 +1934,11 @@
     "topografia_ubicacion": "Tomo 1",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-97",
@@ -1570,7 +1954,11 @@
     "topografia_ubicacion": "Tomo 2",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-98",
@@ -1586,7 +1974,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-99",
@@ -1602,7 +1994,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-100",
@@ -1618,7 +2014,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-101",

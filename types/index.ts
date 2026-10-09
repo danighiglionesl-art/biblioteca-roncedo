@@ -135,8 +135,12 @@ export interface NovedadInstitucional {
   contenido: string;
   fecha: string;
   imagen_url?: string;
+  imagenes?: string[]; // Hasta 5 fotografías por novedad
   categoria: 'Institucional' | 'Cultura' | 'Libros' | 'Archivo';
   destacado?: boolean;
+  autor?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 // =====================================================================

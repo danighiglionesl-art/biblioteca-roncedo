@@ -23,11 +23,39 @@ import {
   MapPin,
   Globe2,
   MessageCircle,
+  Settings,
+  Image as ImageIcon,
+  Star,
 } from 'lucide-react';
 import { CONTACTO_BIBLIOTECA } from '@/lib/constants/contacto';
+import { NovedadInstitucional } from '@/types';
+import { getNovedades } from '@/lib/supabase/novedades';
+import { ModalDetalleNovedad } from '@/components/novedades/ModalDetalleNovedad';
 
 export default function HomePage() {
   const { user } = useAuth();
+  const [novedades, setNovedades] = React.useState<NovedadInstitucional[]>([]);
+  const [novedadSeleccionada, setNovedadSeleccionada] = React.useState<NovedadInstitucional | null>(null);
+
+  React.useEffect(() => {
+    let isMounted = true;
+    const fetchNovedades = async () => {
+      try {
+        const data = await getNovedades();
+        if (isMounted) setNovedades(data);
+      } catch (err) {
+        console.error('Error cargando novedades:', err);
+      }
+    };
+    fetchNovedades();
+
+    const handleUpdate = () => fetchNovedades();
+    window.addEventListener('roncedo_novedades_updated', handleUpdate);
+    return () => {
+      isMounted = false;
+      window.removeEventListener('roncedo_novedades_updated', handleUpdate);
+    };
+  }, []);
 
   if (!user) return null;
 
@@ -46,29 +74,20 @@ export default function HomePage() {
     },
     {
       titulo: 'Mi Biblioteca',
-      descripcion: 'Acceso a Biblioteca Física y Digital, préstamos y reservas',
+      descripcion: '1.283 libros en sala, estanterías, préstamos y fichas',
       href: '/mi-biblioteca',
       icon: Library,
       color: 'from-sky-600 to-blue-700',
-      badge: '2 Accesos',
-      badgeColor: 'bg-roncedo-navy/10 text-roncedo-navy',
-    },
-    {
-      titulo: 'Biblioteca Física',
-      descripcion: '1.283 libros en sala, estanterías y préstamos',
-      href: '/libros',
-      icon: BookOpen,
-      color: 'from-amber-600 to-amber-800',
       badge: '1.283 Libros',
       badgeColor: 'bg-emerald-500/20 text-emerald-800',
     },
     {
       titulo: 'Biblioteca Digital',
-      descripcion: 'Gutenberg, Wikisource, Cervantes y Open Library',
+      descripcion: 'Obras clásicas, lectura online y descargas libres',
       href: '/biblioteca-digital',
       icon: Globe2,
       color: 'from-blue-700 to-indigo-900',
-      badge: 'Online',
+      badge: 'Colección Digital',
       badgeColor: 'bg-blue-500/20 text-blue-800',
     },
     {
@@ -289,7 +308,7 @@ export default function HomePage() {
 
         {/* Novedades y Noticias Institucionales */}
         <section className="mt-8">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
             <div>
               <h2 className="text-lg sm:text-xl font-extrabold text-slate-900">
                 Novedades de la Biblioteca
@@ -298,42 +317,92 @@ export default function HomePage() {
                 Últimas noticias, anuncios de actividades y vida social del club
               </p>
             </div>
+
+            {user.role === 'admin' && (
+              <Link
+                href="/admin?tab=novedades"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-roncedo-navy text-white text-xs font-bold hover:bg-blue-900 transition-colors shadow-sm self-start sm:self-auto"
+              >
+                <Settings className="w-3.5 h-3.5 text-roncedo-celeste" />
+                <span>Gestionar Novedades (ABM)</span>
+              </Link>
+            )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {NOVEDADES_INICIALES.map((nov) => (
-              <article
-                key={nov.id}
-                className="bg-white rounded-2xl p-5 shadow-card border border-slate-200/80 hover:shadow-md transition-shadow flex flex-col justify-between"
-              >
-                <div>
-                  <div className="flex items-center justify-between mb-3 text-xs">
-                    <span className="bg-roncedo-sky text-roncedo-navy font-bold px-2.5 py-0.5 rounded-full text-[11px]">
-                      {nov.categoria}
-                    </span>
-                    <span className="text-slate-400 flex items-center gap-1 text-[11px]">
-                      <Clock className="w-3 h-3" />
-                      {nov.fecha}
-                    </span>
-                  </div>
-                  <h3 className="text-base font-bold text-slate-900 leading-snug">
-                    {nov.titulo}
-                  </h3>
-                  <p className="text-xs text-slate-600 mt-2 leading-relaxed">
-                    {nov.bajada}
-                  </p>
-                </div>
+            {novedades.map((nov) => {
+              const fotos = nov.imagenes && nov.imagenes.length > 0
+                ? nov.imagenes
+                : nov.imagen_url
+                ? [nov.imagen_url]
+                : [];
 
-                <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
-                  <span className="text-[11px] text-slate-500 font-medium">
-                    Biblioteca Roncedo
-                  </span>
-                  <span className="text-xs font-bold text-roncedo-blue flex items-center gap-1">
-                    Leer más <ChevronRight className="w-3 h-3" />
-                  </span>
-                </div>
-              </article>
-            ))}
+              return (
+                <article
+                  key={nov.id}
+                  onClick={() => setNovedadSeleccionada(nov)}
+                  className="bg-white rounded-2xl shadow-card border border-slate-200/80 hover:shadow-lg transition-all flex flex-col justify-between overflow-hidden cursor-pointer group"
+                >
+                  <div>
+                    {fotos.length > 0 && (
+                      <div className="relative h-44 w-full bg-slate-900 overflow-hidden">
+                        <Image
+                          src={fotos[0]}
+                          alt={nov.titulo}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-300"
+                          unoptimized
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent pointer-events-none" />
+
+                        {fotos.length > 1 && (
+                          <div className="absolute bottom-2.5 right-2.5 bg-black/75 backdrop-blur-sm text-white px-2 py-0.5 rounded-full text-[10px] font-bold flex items-center gap-1 border border-white/20">
+                            <ImageIcon className="w-3 h-3 text-roncedo-celeste" />
+                            <span>{fotos.length} fotos</span>
+                          </div>
+                        )}
+
+                        {nov.destacado && (
+                          <div className="absolute top-2.5 left-2.5 bg-amber-500 text-slate-950 font-black px-2 py-0.5 rounded-full text-[10px] flex items-center gap-1 shadow-md">
+                            <Star className="w-3 h-3 fill-current" />
+                            <span>Destacada</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    <div className="p-5">
+                      <div className="flex items-center justify-between mb-3 text-xs">
+                        <span className="bg-roncedo-sky text-roncedo-navy font-bold px-2.5 py-0.5 rounded-full text-[11px]">
+                          {nov.categoria}
+                        </span>
+                        <span className="text-slate-400 flex items-center gap-1 text-[11px]">
+                          <Clock className="w-3 h-3" />
+                          {nov.fecha}
+                        </span>
+                      </div>
+                      <h3 className="text-base font-bold text-slate-900 leading-snug group-hover:text-roncedo-blue transition-colors">
+                        {nov.titulo}
+                      </h3>
+                      <p className="text-xs text-slate-600 mt-2 leading-relaxed line-clamp-3">
+                        {nov.bajada}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="p-5 pt-0">
+                    <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+                      <span className="text-[11px] text-slate-500 font-medium">
+                        Biblioteca Roncedo
+                      </span>
+                      <span className="text-xs font-bold text-roncedo-blue flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
+                        Leer más <ChevronRight className="w-3 h-3" />
+                      </span>
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
           </div>
         </section>
 
