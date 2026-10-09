@@ -340,3 +340,80 @@ CREATE POLICY "Eliminación de fotos en storage"
 ON storage.objects FOR DELETE
 USING (bucket_id = 'fototeca');
 
+-- =====================================================================
+-- 9. TABLA DE ACTAS HISTÓRICAS (ARCHIVO DIGITAL DE ACTAS)
+-- =====================================================================
+
+CREATE TABLE IF NOT EXISTS public.actas_historicas (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  numero_acta TEXT NOT NULL,
+  libro TEXT DEFAULT 'Libro N° 1 de Actas' NOT NULL,
+  folio_inicio INTEGER DEFAULT 1 NOT NULL,
+  folio_fin INTEGER DEFAULT 1 NOT NULL,
+  pagina_archivo_inicio INTEGER DEFAULT 1 NOT NULL,
+  pagina_archivo_fin INTEGER DEFAULT 1 NOT NULL,
+  fecha DATE NOT NULL,
+  anio INTEGER NOT NULL,
+  titulo TEXT NOT NULL,
+  tipo_reunion TEXT DEFAULT 'Reunión de Comisión Directiva' NOT NULL,
+  lugar TEXT DEFAULT 'Alcira Gigena, Córdoba',
+  asistentes_count INTEGER DEFAULT 10,
+  resumen TEXT,
+  transcripcion_completa TEXT,
+  firmantes JSONB DEFAULT '[]'::jsonb,
+  temas_tratados TEXT[] DEFAULT '{}',
+  archivos TEXT[] DEFAULT '{}',
+  imagenes_urls TEXT[] DEFAULT '{}',
+  estado_conservacion TEXT DEFAULT 'Excelente',
+  es_destacada BOOLEAN DEFAULT FALSE,
+  notas_archivista TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
+);
+
+-- Índices de aceleración para Actas
+CREATE INDEX IF NOT EXISTS idx_actas_anio ON public.actas_historicas(anio);
+CREATE INDEX IF NOT EXISTS idx_actas_numero ON public.actas_historicas(numero_acta);
+CREATE INDEX IF NOT EXISTS idx_actas_fecha ON public.actas_historicas(fecha);
+CREATE INDEX IF NOT EXISTS idx_actas_trgm_titulo ON public.actas_historicas USING gin (titulo gin_trgm_ops);
+CREATE INDEX IF NOT EXISTS idx_actas_trgm_resumen ON public.actas_historicas USING gin (resumen gin_trgm_ops);
+
+-- Políticas RLS para Actas:
+-- "el usuario o socio protector puede ver las actas solamente, Administrador gestiona"
+ALTER TABLE public.actas_historicas ENABLE ROW LEVEL SECURITY;
+
+-- Lectura: Pública y disponible para todos los usuarios, socios y socios protectores
+CREATE POLICY "Lectura pública de actas"
+  ON public.actas_historicas FOR SELECT
+  USING (true);
+
+-- Inserción / Creación: Únicamente Administradores
+CREATE POLICY "Solo Administrador puede registrar actas"
+  ON public.actas_historicas FOR INSERT
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE profiles.id = auth.uid() AND profiles.role = 'admin'
+    )
+  );
+
+-- Actualización / Edición: Únicamente Administradores
+CREATE POLICY "Solo Administrador puede modificar actas"
+  ON public.actas_historicas FOR UPDATE
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE profiles.id = auth.uid() AND profiles.role = 'admin'
+    )
+  );
+
+-- Eliminación: Únicamente Administradores
+CREATE POLICY "Solo Administrador puede eliminar actas"
+  ON public.actas_historicas FOR DELETE
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE profiles.id = auth.uid() AND profiles.role = 'admin'
+    )
+  );
+
