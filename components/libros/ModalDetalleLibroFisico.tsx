@@ -119,21 +119,21 @@ export function ModalDetalleLibroFisico({
 
           {/* Ficha Principal con Portada y Datos Clave */}
           <div className="flex flex-col sm:flex-row gap-5 items-start bg-slate-50 p-5 rounded-2xl border border-slate-200">
-            {/* Foto de Portada */}
-            <div className="relative w-28 h-40 rounded-2xl border border-slate-300 bg-white shadow-md overflow-hidden flex flex-col items-center justify-center text-slate-400 flex-shrink-0 mx-auto sm:mx-0">
+            {/* Foto de Portada con Proporción Original Preservada */}
+            <div className="relative w-32 h-44 sm:w-40 sm:h-56 rounded-2xl border border-slate-300 bg-white shadow-md overflow-hidden flex flex-col items-center justify-center text-slate-400 flex-shrink-0 mx-auto sm:mx-0 p-1">
               {libro.portada_url ? (
                 <Image
                   src={libro.portada_url}
                   alt={libro.titulo}
                   fill
-                  className="object-cover"
+                  className="object-contain"
                   unoptimized
                 />
               ) : (
                 <div className="text-center p-3">
-                  <BookOpen className="w-8 h-8 mx-auto text-roncedo-celeste mb-1" />
-                  <span className="text-[10px] font-bold text-slate-700 block">Inv. #{libro.numero_inventario}</span>
-                  <span className="text-[8px] text-slate-400">Sin foto de portada</span>
+                  <BookOpen className="w-10 h-10 mx-auto text-roncedo-celeste mb-1.5" />
+                  <span className="text-[11px] font-bold text-slate-700 block">Inv. #{libro.numero_inventario}</span>
+                  <span className="text-[9px] text-slate-400">Sin foto de portada</span>
                 </div>
               )}
             </div>

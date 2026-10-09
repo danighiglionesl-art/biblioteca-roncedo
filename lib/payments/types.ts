@@ -17,6 +17,8 @@ export interface PlanSocioProtector {
   destacado?: boolean;
   imagenMedalla?: string;
   imagenInsignia?: string;
+  descuentoComprasEventos?: string;
+  limitePrestamos?: string;
   beneficios: string[];
 }
 

@@ -43,7 +43,7 @@ export default function RootLayout({
   return (
     <html lang="es" className="h-full">
       <head>
-        <link rel="apple-touch-icon" href="/images/emblema-biblioteca.jpg" />
+        <link rel="apple-touch-icon" href="/images/logo-biblioteca.png" />
       </head>
       <body className="h-full flex flex-col bg-[#EDF5FD] text-slate-900 font-sans antialiased selection:bg-roncedo-celeste selection:text-white">
         <AuthProvider>

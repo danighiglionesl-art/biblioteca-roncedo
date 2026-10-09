@@ -353,11 +353,19 @@ export default function HomePage() {
               <span>Patrimonio y Memoria Colectiva</span>
             </div>
             <h2 className="text-xl sm:text-2xl font-black text-white">
-              C.S. y B. Dr. Lautaro Roncedo • Fundado en 1926
+              Club Sp. y B. Dr. Lautaro Roncedo - Alcira Gigena
             </h2>
-            <p className="text-xs sm:text-sm text-blue-100 mt-2 leading-relaxed">
-              La Biblioteca no es sólo un repositorio de libros: es el custodio de la memoria popular, de las hazañas de nuestro club y del legado social de la comunidad. Juntos construimos el archivo digital más importante de nuestra institución.
-            </p>
+            <div className="text-xs sm:text-sm text-blue-100 mt-3 leading-relaxed space-y-2">
+              <p>
+                La Biblioteca Roncedo es mucho más que un espacio de libros: es la guardiana de nuestra historia, de las hazañas deportivas, de los momentos que nos hicieron grandes y de las generaciones que construyeron la identidad de nuestro Club.
+              </p>
+              <p className="font-bold text-white">
+                Cada fotografía, cada recuerdo y cada historia forman parte de un legado que nos pertenece a todos.
+              </p>
+              <p>
+                Juntos construimos un archivo digital para preservar nuestra historia, mantener viva nuestra identidad y transmitir a las futuras generaciones el orgullo de pertenecer a nuestro Club.
+              </p>
+            </div>
             <div className="mt-4 flex flex-wrap gap-3">
               <Link
                 href="/fotos"

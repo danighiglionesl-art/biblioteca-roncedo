@@ -72,8 +72,18 @@ export default function CarnetPage() {
                       <span className="text-xs">❤️</span>
                     </h3>
                     <p className="text-[11px] text-slate-700 mt-0.5">
-                      Aporte mensual activo de ${user.importe_mensual?.toLocaleString('es-AR') || '2.000'}/mes vía {user.proveedor_pago === 'mercadopago' ? 'Mercado Pago' : user.proveedor_pago || 'Mercado Pago'}. ¡Gracias por apoyar a la Biblioteca!
+                      Aporte mensual activo de ${user.importe_mensual?.toLocaleString('es-AR') || '2.000'}/mes vía {user.proveedor_pago === 'mercadopago' ? 'Mercado Pago' : user.proveedor_pago || 'Mercado Pago'}.
                     </p>
+                    {medallaInfo && (
+                      <div className="flex flex-wrap items-center gap-1.5 mt-1.5 text-[10px] font-bold">
+                        <span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-md border border-emerald-200">
+                          🏷️ {medallaInfo.descuento} en compras y eventos
+                        </span>
+                        <span className="bg-blue-100 text-blue-900 px-2 py-0.5 rounded-md border border-blue-200">
+                          📚 Préstamos: {medallaInfo.prestamos}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
                 <Link

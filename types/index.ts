@@ -170,7 +170,12 @@ export interface LibroFisico {
   procedencia?: string;
   donante_o_detalle?: string;
   topografia_ubicacion?: string;
+  isbn?: string;
   portada_url?: string;
+  estado_portada?: 'aprobada' | 'pendiente_revision' | 'sin_portada';
+  portada_fuente?: 'google_books' | 'open_library' | 'manual' | 'ninguna';
+  portada_confianza?: 'alta' | 'media' | 'baja' | 'ninguna';
+  portada_detalles?: string;
   estado: 'disponible' | 'prestado';
   prestado_a?: PrestadoDetalle;
   lista_espera?: EsperaDetalle[];

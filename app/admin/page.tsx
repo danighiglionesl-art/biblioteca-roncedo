@@ -33,7 +33,9 @@ import {
   DollarSign,
   Calendar,
   RefreshCw,
+  Sparkles,
 } from 'lucide-react';
+import { GestionPortadas } from '@/components/admin/GestionPortadas';
 
 export default function AdminPage() {
   const {
@@ -46,7 +48,7 @@ export default function AdminPage() {
     actualizarSocioProtector,
   } = useAuth();
 
-  const [activeTab, setActiveTab] = useState<'solicitudes' | 'padron' | 'protectores' | 'usuarios'>('protectores');
+  const [activeTab, setActiveTab] = useState<'portadas' | 'solicitudes' | 'padron' | 'protectores' | 'usuarios'>('portadas');
   const [searchTerm, setSearchTerm] = useState('');
   
   // Modal de aprobación de solicitud de socio
@@ -347,7 +349,19 @@ export default function AdminPage() {
         </div>
 
         {/* Pestañas de Gestión */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm gap-1 text-xs font-bold">
+        <div className="grid grid-cols-2 sm:grid-cols-5 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm gap-1 text-xs font-bold">
+          <button
+            onClick={() => setActiveTab('portadas')}
+            className={`py-2.5 rounded-xl transition-colors flex items-center justify-center gap-1.5 ${
+              activeTab === 'portadas'
+                ? 'bg-gradient-to-r from-roncedo-navy to-[#1D4A80] text-white shadow-sm'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <Sparkles className={`w-4 h-4 ${activeTab === 'portadas' ? 'text-roncedo-gold' : 'text-amber-500'}`} />
+            <span>Gestión de Portadas</span>
+          </button>
+
           <button
             onClick={() => setActiveTab('protectores')}
             className={`py-2.5 rounded-xl transition-colors flex items-center justify-center gap-1.5 ${
@@ -396,6 +410,9 @@ export default function AdminPage() {
             <span>Usuarios ({allUsers.length})</span>
           </button>
         </div>
+
+        {/* Pestaña: Gestión de Portadas */}
+        {activeTab === 'portadas' && <GestionPortadas />}
 
         {/* Pestaña: Socios Protectores */}
         {activeTab === 'protectores' && (

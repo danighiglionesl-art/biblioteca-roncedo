@@ -3,7 +3,8 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { LibroFisico } from '@/types';
-import { X, Upload, Camera, BookOpen, Save, Trash2, CheckCircle2 } from 'lucide-react';
+import { X, Upload, Camera, BookOpen, Save, Trash2, CheckCircle2, Sparkles } from 'lucide-react';
+import { buscarPortadaLibro } from '@/lib/services/bookCoversService';
 
 interface ModalABMLibroProps {
   libroAEditar?: LibroFisico | null;
@@ -35,6 +36,7 @@ export function ModalABMLibro({
   );
   const [lugar, setLugar] = useState<string>(libroAEditar?.lugar || 'Bs.As.');
   const [editorial, setEditorial] = useState<string>(libroAEditar?.editorial || '');
+  const [isbn, setIsbn] = useState<string>(libroAEditar?.isbn || '');
   const [procedencia, setProcedencia] = useState<string>(libroAEditar?.procedencia || 'Donación');
   const [donante, setDonante] = useState<string>(libroAEditar?.donante_o_detalle || '');
   const [topografia, setTopografia] = useState<string>(libroAEditar?.topografia_ubicacion || '');
@@ -42,7 +44,35 @@ export function ModalABMLibro({
   const [estado, setEstado] = useState<'disponible' | 'prestado'>(libroAEditar?.estado || 'disponible');
 
   const [guardando, setGuardando] = useState(false);
+  const [buscandoPortada, setBuscandoPortada] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const handleBuscarPortadaAuto = async () => {
+    if (!titulo.trim() && !isbn.trim()) {
+      setError('Ingresá al menos el título o el ISBN para buscar la portada.');
+      return;
+    }
+    try {
+      setBuscandoPortada(true);
+      setError(null);
+      const res = await buscarPortadaLibro({
+        titulo: titulo.trim(),
+        autor: autor.trim(),
+        editorial: editorial.trim(),
+        edicion_anio: edicionAnio.trim(),
+        isbn: isbn.trim(),
+      });
+      if (res.portada_url) {
+        setPortadaUrl(res.portada_url);
+      } else {
+        setError('No se encontró portada con coincidencia confiable en Google Books ni Open Library.');
+      }
+    } catch {
+      setError('Error al consultar las APIs de búsqueda.');
+    } finally {
+      setBuscandoPortada(false);
+    }
+  };
 
   // Manejador de subida de foto local (cámara o archivo) mediante FileReader
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -84,6 +114,7 @@ export function ModalABMLibro({
         edicion_anio: edicionAnio.trim(),
         lugar: lugar.trim(),
         editorial: editorial.trim(),
+        isbn: isbn.trim() || undefined,
         procedencia: procedencia.trim(),
         donante_o_detalle: donante.trim(),
         topografia_ubicacion: topografia.trim(),
@@ -135,13 +166,13 @@ export function ModalABMLibro({
 
           {/* Sección Foto de Portada */}
           <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 flex flex-col sm:flex-row items-center gap-4">
-            <div className="relative w-24 h-32 rounded-xl border border-slate-300 bg-white shadow-sm overflow-hidden flex flex-col items-center justify-center text-slate-400 flex-shrink-0">
+            <div className="relative w-24 h-32 rounded-xl border border-slate-300 bg-white shadow-sm overflow-hidden flex flex-col items-center justify-center text-slate-400 flex-shrink-0 p-1">
               {portadaUrl ? (
                 <Image
                   src={portadaUrl}
                   alt="Portada del libro"
                   fill
-                  className="object-cover"
+                  className="object-contain"
                   unoptimized
                 />
               ) : (
@@ -157,10 +188,21 @@ export function ModalABMLibro({
                 Foto de Portada del Libro Físico
               </span>
               <p className="text-[11px] text-slate-500">
-                Subí una fotografía tomada con el celular o pegá un enlace de la tapa.
+                Podés buscarla automáticamente en Google Books / Open Library, o subir una foto.
               </p>
 
               <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={handleBuscarPortadaAuto}
+                  disabled={buscandoPortada || (!titulo.trim() && !isbn.trim())}
+                  className="bg-roncedo-gold hover:bg-amber-400 text-roncedo-navy font-black px-3.5 py-2 rounded-xl flex items-center gap-1.5 transition-colors shadow-sm disabled:opacity-50"
+                  title="Buscar automáticamente en Google Books y Open Library"
+                >
+                  <Sparkles className={`w-4 h-4 ${buscandoPortada ? 'animate-spin' : ''}`} />
+                  <span>{buscandoPortada ? 'Buscando...' : 'Auto-Buscar Portada'}</span>
+                </button>
+
                 <label className="cursor-pointer bg-roncedo-navy hover:bg-blue-900 text-white font-bold px-3 py-2 rounded-xl flex items-center gap-1.5 transition-colors shadow-sm">
                   <Camera className="w-4 h-4 text-roncedo-gold" />
                   <span>Subir / Tomar Foto</span>
@@ -286,6 +328,19 @@ export function ModalABMLibro({
                 value={editorial}
                 onChange={(e) => setEditorial(e.target.value)}
                 placeholder="Ej: Planeta, Sudamericana, Catálogos"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-roncedo-blue focus:bg-white"
+              />
+            </div>
+
+            <div>
+              <label className="block font-bold text-slate-700 uppercase tracking-wider text-[10px] mb-1">
+                ISBN (10 o 13 dígitos)
+              </label>
+              <input
+                type="text"
+                value={isbn}
+                onChange={(e) => setIsbn(e.target.value)}
+                placeholder="Ej: 9789504908906"
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-roncedo-blue focus:bg-white"
               />
             </div>

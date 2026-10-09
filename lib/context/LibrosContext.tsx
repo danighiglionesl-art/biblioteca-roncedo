@@ -10,6 +10,7 @@ import {
   UserProfile,
 } from '@/types';
 import LIBROS_RAW from '@/lib/data/librosFisicos.json';
+import { buscarPortadaLibro, PortadaSearchResult } from '@/lib/services/bookCoversService';
 
 interface LibrosContextType {
   librosFisicos: LibroFisico[];
@@ -26,7 +27,21 @@ interface LibrosContextType {
   agregarLibro: (nuevoLibro: Omit<LibroFisico, 'id'>) => Promise<{ success: boolean; id: string }>;
   actualizarLibro: (id: string, datos: Partial<LibroFisico>) => Promise<{ success: boolean }>;
   eliminarLibro: (id: string) => Promise<{ success: boolean }>;
-  actualizarPortada: (id: string, portadaUrl: string) => Promise<{ success: boolean }>;
+  actualizarPortada: (
+    id: string,
+    portadaUrl: string,
+    metadata?: {
+      estado_portada?: 'aprobada' | 'pendiente_revision' | 'sin_portada';
+      fuente?: 'google_books' | 'open_library' | 'manual' | 'ninguna';
+      confianza?: 'alta' | 'media' | 'baja' | 'ninguna';
+      detalles?: string;
+    }
+  ) => Promise<{ success: boolean }>;
+  aprobarPortada: (id: string) => Promise<{ success: boolean }>;
+  descartarPortada: (id: string) => Promise<{ success: boolean }>;
+  buscarYAsociarPortada: (id: string) => Promise<{ success: boolean; resultado: PortadaSearchResult }>;
+  actualizarLoteLibros: (nuevosLibros: LibroFisico[]) => void;
+  guardarEnServidor: (librosParaGuardar?: LibroFisico[]) => Promise<{ success: boolean; message?: string }>;
   aportarFoto: (datos: { titulo: string; descripcion: string; anio_aproximado?: string; imagen_url: string; user_id: string }) => Promise<{ success: boolean }>;
   restablecerInventarioOriginal: () => void;
 }
@@ -121,7 +136,25 @@ export function LibrosProvider({ children }: { children: React.ReactNode }) {
           setLibrosFisicos(LIBROS_RAW as any);
           localStorage.setItem(STORAGE_KEY_LIBROS, JSON.stringify(LIBROS_RAW));
         } else {
-          setLibrosFisicos(parsed);
+          // Sincronizar portadas e ISBNs nuevos que vengan del archivo base preservando préstamos locales
+          const rawMap = new Map((LIBROS_RAW as any[]).map((r) => [r.id, r]));
+          const merged = parsed.map((item: LibroFisico) => {
+            const raw = rawMap.get(item.id);
+            if (!raw) return item;
+            return {
+              ...item,
+              portada_url: item.portada_url || raw.portada_url || '',
+              isbn: item.isbn || raw.isbn || undefined,
+              estado_portada:
+                item.estado_portada ||
+                raw.estado_portada ||
+                (item.portada_url ? 'aprobada' : raw.portada_url ? 'aprobada' : 'sin_portada'),
+              portada_fuente: item.portada_fuente || raw.portada_fuente || undefined,
+              portada_confianza: item.portada_confianza || raw.portada_confianza || undefined,
+              portada_detalles: item.portada_detalles || raw.portada_detalles || undefined,
+            };
+          });
+          setLibrosFisicos(merged);
         }
       } else {
         setLibrosFisicos(LIBROS_RAW as any);
@@ -382,14 +415,45 @@ export function LibrosProvider({ children }: { children: React.ReactNode }) {
     return { success: true };
   };
 
-  // ABM de libros por Administrador
+  // ABM de libros por Administrador con Automatización Permanente de Portadas
   const agregarLibro = async (nuevo: Omit<LibroFisico, 'id'>): Promise<{ success: boolean; id: string }> => {
     const newId = `libro-${nuevo.numero_inventario || Date.now()}`;
-    const libroCompleto: LibroFisico = {
+    let libroCompleto: LibroFisico = {
       ...nuevo,
       id: newId,
       estado: nuevo.estado || 'disponible',
     };
+
+    // Automatización Permanente: Si no tiene portada manual, buscar automáticamente
+    if (!libroCompleto.portada_url || libroCompleto.portada_url.trim() === '') {
+      try {
+        const resPortada = await buscarPortadaLibro({
+          titulo: libroCompleto.titulo,
+          autor: libroCompleto.autor,
+          editorial: libroCompleto.editorial,
+          edicion_anio: libroCompleto.edicion_anio,
+          isbn: libroCompleto.isbn,
+        });
+
+        if (resPortada.portada_url) {
+          libroCompleto.portada_url = resPortada.portada_url;
+          libroCompleto.estado_portada = resPortada.confianza === 'alta' ? 'aprobada' : 'pendiente_revision';
+          libroCompleto.portada_fuente = resPortada.fuente;
+          libroCompleto.portada_confianza = resPortada.confianza;
+          libroCompleto.portada_detalles = resPortada.detalles;
+        } else {
+          libroCompleto.estado_portada = 'sin_portada';
+          libroCompleto.portada_confianza = 'ninguna';
+        }
+      } catch (e) {
+        console.warn('Búsqueda automática de portada falló:', e);
+        libroCompleto.estado_portada = 'sin_portada';
+      }
+    } else {
+      libroCompleto.estado_portada = 'aprobada';
+      libroCompleto.portada_fuente = 'manual';
+      libroCompleto.portada_confianza = 'alta';
+    }
 
     const updated = [libroCompleto, ...librosFisicos];
     persistLibros(updated);
@@ -408,8 +472,91 @@ export function LibrosProvider({ children }: { children: React.ReactNode }) {
     return { success: true };
   };
 
-  const actualizarPortada = async (id: string, portadaUrl: string): Promise<{ success: boolean }> => {
-    return actualizarLibro(id, { portada_url: portadaUrl });
+  const actualizarPortada = async (
+    id: string,
+    portadaUrl: string,
+    metadata?: {
+      estado_portada?: 'aprobada' | 'pendiente_revision' | 'sin_portada';
+      fuente?: 'google_books' | 'open_library' | 'manual' | 'ninguna';
+      confianza?: 'alta' | 'media' | 'baja' | 'ninguna';
+      detalles?: string;
+    }
+  ): Promise<{ success: boolean }> => {
+    return actualizarLibro(id, {
+      portada_url: portadaUrl,
+      estado_portada: metadata?.estado_portada || (portadaUrl ? 'aprobada' : 'sin_portada'),
+      portada_fuente: metadata?.fuente || 'manual',
+      portada_confianza: metadata?.confianza || (portadaUrl ? 'alta' : 'ninguna'),
+      portada_detalles: metadata?.detalles || (portadaUrl ? 'Portada configurada por el administrador' : ''),
+    });
+  };
+
+  const aprobarPortada = async (id: string): Promise<{ success: boolean }> => {
+    return actualizarLibro(id, { estado_portada: 'aprobada' });
+  };
+
+  const descartarPortada = async (id: string): Promise<{ success: boolean }> => {
+    return actualizarLibro(id, {
+      portada_url: '',
+      estado_portada: 'sin_portada',
+      portada_confianza: 'ninguna',
+      portada_detalles: 'Portada descartada por el administrador',
+    });
+  };
+
+  const buscarYAsociarPortada = async (id: string): Promise<{ success: boolean; resultado: PortadaSearchResult }> => {
+    const libro = librosFisicos.find((l) => l.id === id);
+    if (!libro) throw new Error('Libro no encontrado');
+
+    const resultado = await buscarPortadaLibro({
+      titulo: libro.titulo,
+      autor: libro.autor,
+      editorial: libro.editorial,
+      edicion_anio: libro.edicion_anio,
+      isbn: libro.isbn,
+    });
+
+    if (resultado.portada_url) {
+      await actualizarLibro(id, {
+        portada_url: resultado.portada_url,
+        estado_portada: resultado.confianza === 'alta' ? 'aprobada' : 'pendiente_revision',
+        portada_fuente: resultado.fuente,
+        portada_confianza: resultado.confianza,
+        portada_detalles: resultado.detalles,
+      });
+    } else {
+      await actualizarLibro(id, {
+        estado_portada: 'sin_portada',
+        portada_confianza: 'ninguna',
+        portada_detalles: resultado.detalles,
+      });
+    }
+
+    return { success: !!resultado.portada_url, resultado };
+  };
+
+  const actualizarLoteLibros = (nuevosLibros: LibroFisico[]) => {
+    persistLibros(nuevosLibros);
+  };
+
+  const guardarEnServidor = async (
+    librosParaGuardar?: LibroFisico[]
+  ): Promise<{ success: boolean; message?: string }> => {
+    try {
+      const librosASincronizar = librosParaGuardar || librosFisicos;
+      const res = await fetch('/api/admin/portadas', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'sincronizar_archivo',
+          librosActualizados: librosASincronizar,
+        }),
+      });
+      const data = await res.json();
+      return { success: data.success, message: data.message };
+    } catch (err: any) {
+      return { success: false, message: err.message || 'Error al guardar en servidor' };
+    }
   };
 
   const aportarFoto = async (datos: {
@@ -457,6 +604,11 @@ export function LibrosProvider({ children }: { children: React.ReactNode }) {
         actualizarLibro,
         eliminarLibro,
         actualizarPortada,
+        aprobarPortada,
+        descartarPortada,
+        buscarYAsociarPortada,
+        actualizarLoteLibros,
+        guardarEnServidor,
         aportarFoto,
         restablecerInventarioOriginal,
       }}
