@@ -18,6 +18,8 @@ import {
   Library,
   SlidersHorizontal,
   Info,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 import { LibroDigital, FuenteDigital, DisponibilidadDigital } from '@/types';
 import { LIBROS_DIGITALES_CURADOS } from '@/lib/data/librosDigitalesCurados';
@@ -30,6 +32,8 @@ export function BibliotecaDigitalView() {
   const [dispFiltro, setDispFiltro] = useState<'todas' | DisponibilidadDigital>('todas');
   const [soloLatinos, setSoloLatinos] = useState<boolean>(false);
   const [categoriaPill, setCategoriaPill] = useState<string>('todos');
+  const [paginaActual, setPaginaActual] = useState<number>(1);
+  const ITEMS_POR_PAGINA = 24;
 
   const [libros, setLibros] = useState<LibroDigital[]>(LIBROS_DIGITALES_CURADOS);
   const [cargando, setCargando] = useState<boolean>(false);
@@ -37,6 +41,7 @@ export function BibliotecaDigitalView() {
 
   // Ejecutar búsqueda remota unificada con debounce cuando el usuario escribe
   useEffect(() => {
+    setPaginaActual(1);
     if (!query.trim()) {
       setLibros(LIBROS_DIGITALES_CURADOS);
       return;
@@ -109,8 +114,15 @@ export function BibliotecaDigitalView() {
     return result;
   }, [libros, categoriaPill, fuenteFiltro, dispFiltro, soloLatinos]);
 
+  const totalPaginas = Math.ceil(librosFiltrados.length / ITEMS_POR_PAGINA) || 1;
+  const librosPaginados = useMemo(() => {
+    const inicio = (paginaActual - 1) * ITEMS_POR_PAGINA;
+    return librosFiltrados.slice(inicio, inicio + ITEMS_POR_PAGINA);
+  }, [librosFiltrados, paginaActual]);
+
   const aplicarBusquedaRapida = (termino: string, filtroLatino = false) => {
     setQuery(termino);
+    setPaginaActual(1);
     if (filtroLatino) setSoloLatinos(true);
   };
 
@@ -365,27 +377,56 @@ export function BibliotecaDigitalView() {
         </div>
       </div>
 
-      {/* Indicador de Resultados */}
+      {/* Indicador de Resultados y Paginación Superior */}
       <div className="flex items-center justify-between text-xs text-slate-600 px-1">
         <div>
-          <span>Mostrando </span>
-          <strong className="text-slate-900 font-bold">{librosFiltrados.length}</strong>
-          <span> obras disponibles exclusivamente en español</span>
+          Mostrando{' '}
+          <strong className="text-slate-900 font-bold">
+            {librosFiltrados.length === 0 ? 0 : (paginaActual - 1) * ITEMS_POR_PAGINA + 1} -{' '}
+            {Math.min(paginaActual * ITEMS_POR_PAGINA, librosFiltrados.length)}
+          </strong>{' '}
+          de <strong className="text-slate-900 font-bold">{librosFiltrados.length}</strong> obras en español
           {query && (
             <span>
               {' '}para la búsqueda &ldquo;<span className="font-bold text-roncedo-navy">{query}</span>&rdquo;
             </span>
           )}
         </div>
-        <div className="flex items-center gap-1.5 text-[11px] text-slate-500">
-          <Info className="w-3.5 h-3.5 text-roncedo-blue" />
-          <span className="hidden sm:inline">Dominio público y acceso abierto garantizado</span>
-        </div>
+
+        {totalPaginas > 1 && (
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={() => {
+                setPaginaActual((prev) => Math.max(1, prev - 1));
+                window.scrollTo({ top: 380, behavior: 'smooth' });
+              }}
+              disabled={paginaActual === 1}
+              className="p-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 transition-colors"
+              title="Página anterior"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <span className="font-bold text-xs px-2 text-slate-800">
+              {paginaActual} / {totalPaginas}
+            </span>
+            <button
+              onClick={() => {
+                setPaginaActual((prev) => Math.min(totalPaginas, prev + 1));
+                window.scrollTo({ top: 380, behavior: 'smooth' });
+              }}
+              disabled={paginaActual === totalPaginas}
+              className="p-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 transition-colors"
+              title="Página siguiente"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Grilla de Obras Digitales */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        {librosFiltrados.map((libro) => {
+        {librosPaginados.map((libro) => {
           const badge = badgeFuente(libro.fuente);
           const formatoEpub = libro.formatos.find((f) => f.tipo === 'epub');
           const formatoPdf = libro.formatos.find((f) => f.tipo === 'pdf');
@@ -552,6 +593,39 @@ export function BibliotecaDigitalView() {
           );
         })}
       </div>
+
+      {/* Paginación Inferior */}
+      {totalPaginas > 1 && (
+        <div className="flex items-center justify-center gap-2 pt-4">
+          <button
+            onClick={() => {
+              setPaginaActual((prev) => Math.max(1, prev - 1));
+              window.scrollTo({ top: 380, behavior: 'smooth' });
+            }}
+            disabled={paginaActual === 1}
+            className="p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 transition-colors flex items-center gap-1 text-xs font-bold"
+          >
+            <ChevronLeft className="w-4 h-4" />
+            <span>Anterior</span>
+          </button>
+
+          <span className="font-bold text-xs px-3 py-2 bg-white rounded-xl border border-slate-200 text-slate-800">
+            {paginaActual} / {totalPaginas}
+          </span>
+
+          <button
+            onClick={() => {
+              setPaginaActual((prev) => Math.min(totalPaginas, prev + 1));
+              window.scrollTo({ top: 380, behavior: 'smooth' });
+            }}
+            disabled={paginaActual === totalPaginas}
+            className="p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 transition-colors flex items-center gap-1 text-xs font-bold"
+          >
+            <span>Siguiente</span>
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
       {/* Si no se hallan resultados */}
       {librosFiltrados.length === 0 && !cargando && (

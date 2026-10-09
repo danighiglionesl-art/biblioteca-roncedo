@@ -20,7 +20,7 @@ export default function FotosPage() {
           </Link>
 
           <span className="text-[11px] font-semibold text-slate-500">
-            Biblioteca Roncedo • Alcira Gigena
+            Biblioteca Roncedo • Archivo Histórico
           </span>
         </div>
 

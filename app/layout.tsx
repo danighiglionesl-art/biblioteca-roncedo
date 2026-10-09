@@ -8,13 +8,13 @@ import { BotonWhatsappFlotante } from '@/components/common/BotonWhatsappFlotante
 import { ServiceWorkerRegister } from '@/components/pwa/ServiceWorkerRegister';
 
 export const metadata: Metadata = {
-  title: 'Biblioteca Roncedo | Alcira Gigena',
+  title: 'Biblioteca Roncedo | Plataforma Digital Oficial',
   description:
-    'Plataforma digital oficial, carnet de socio con QR y archivo de la Biblioteca Roncedo del Club Sportivo y Biblioteca Dr. Lautaro Roncedo de Alcira Gigena, Córdoba.',
+    'Plataforma digital oficial, carnet de socio con QR y archivo de la Biblioteca Roncedo del Club Sportivo y Biblioteca Dr. Lautaro Roncedo.',
   manifest: '/manifest.json',
   icons: {
-    icon: '/images/escudo-roncedo.jpg',
-    apple: '/images/emblema-biblioteca.jpg',
+    icon: '/images/escudo-roncedo.png',
+    apple: '/images/logo-biblioteca.png',
   },
   applicationName: 'Biblioteca Roncedo',
   appleWebApp: {

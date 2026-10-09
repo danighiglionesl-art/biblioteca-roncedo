@@ -292,7 +292,7 @@ export function LectorDigitalModal({ libro, onClose }: LectorDigitalModalProps) 
 
               <div className="mt-12 pt-6 border-t border-black/10 dark:border-white/10 text-center text-xs opacity-60 space-y-2">
                 <p>Digitalizado por {libro.fuente.toUpperCase()} para difusión cultural libre y gratuita.</p>
-                <p>Biblioteca Club Sportivo y Biblioteca Dr. Lautaro Roncedo • Alcira Gigena</p>
+                <p>Biblioteca Club Sportivo y Biblioteca Dr. Lautaro Roncedo • www.bibliotecaroncedo.ar</p>
               </div>
             </div>
           ) : (

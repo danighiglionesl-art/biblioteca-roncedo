@@ -73,7 +73,7 @@ export default function HomePage() {
     },
     {
       titulo: 'Archivo Fotográfico',
-      descripcion: 'Fotos históricas de Roncedo y Alcira Gigena',
+      descripcion: 'Fotos históricas de Roncedo y de la comunidad',
       href: '/fotos',
       icon: Camera,
       color: 'from-emerald-600 to-teal-800',
@@ -337,11 +337,11 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Sección de Identidad y Pertenencia (Alcira Gigena) */}
+        {/* Sección de Identidad y Pertenencia Institucional */}
         <section className="mt-8 bg-gradient-to-br from-[#0F2D54] via-[#1A4E8C] to-[#4585D4] text-white rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden border border-white/20">
           <div className="absolute right-0 bottom-0 opacity-15 pointer-events-none w-80 h-80 -mr-10 -mb-10">
             <Image
-              src="/images/emblema-biblioteca.jpg"
+              src="/images/logo-biblioteca.png"
               alt="Fondo"
               fill
               className="object-contain"
@@ -353,10 +353,10 @@ export default function HomePage() {
               <span>Patrimonio y Memoria Colectiva</span>
             </div>
             <h2 className="text-xl sm:text-2xl font-black text-white">
-              C.S. y B. Dr. Lautaro Roncedo • Alcira Gigena
+              C.S. y B. Dr. Lautaro Roncedo • Fundado en 1926
             </h2>
             <p className="text-xs sm:text-sm text-blue-100 mt-2 leading-relaxed">
-              La Biblioteca no es sólo un repositorio de libros: es el custodio de la memoria popular de Alcira Gigena, de las hazañas de nuestro club y del legado social de la comunidad. Juntos construimos el archivo digital más importante de Alcira Gigena.
+              La Biblioteca no es sólo un repositorio de libros: es el custodio de la memoria popular, de las hazañas de nuestro club y del legado social de la comunidad. Juntos construimos el archivo digital más importante de nuestra institución.
             </p>
             <div className="mt-4 flex flex-wrap gap-3">
               <Link

@@ -259,7 +259,7 @@ export default function MiBibliotecaPage() {
                   Acceso 2
                 </span>
                 <span className="bg-white/20 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-white/20">
-                  4 Plataformas Conectadas
+                  +70.000 Libros en Red
                 </span>
               </div>
 
@@ -358,7 +358,7 @@ export default function MiBibliotecaPage() {
             }`}
           >
             <Globe2 className="w-3.5 h-3.5 text-roncedo-blue" />
-            <span>2. Biblioteca Digital</span>
+            <span>2. Biblioteca Digital (111+)</span>
           </button>
           <button
             onClick={() => setActiveTab('prestamos')}
