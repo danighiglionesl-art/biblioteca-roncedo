@@ -178,6 +178,19 @@ export default function SocioProtectorPage() {
                   )}
 
                   <div>
+                    {/* Medalla Oficial de la Categoría */}
+                    <div className="flex justify-center mb-3">
+                      <div className="relative w-28 h-28 sm:w-32 sm:h-32 transition-transform duration-300 hover:scale-105 drop-shadow-md">
+                        <Image
+                          src={plan.imagenMedalla || `/images/socio-protector/medalla-${plan.tipo.toLowerCase()}.png`}
+                          alt={`Medalla ${plan.tipo}`}
+                          fill
+                          className="object-contain"
+                          priority
+                        />
+                      </div>
+                    </div>
+
                     {/* Título y Monto del Plan */}
                     <div className="text-center pb-5 border-b border-slate-100">
                       <span

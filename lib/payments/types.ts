@@ -15,6 +15,8 @@ export interface PlanSocioProtector {
   descripcion: string;
   mercadoPagoUrl: string;
   destacado?: boolean;
+  imagenMedalla?: string;
+  imagenInsignia?: string;
   beneficios: string[];
 }
 

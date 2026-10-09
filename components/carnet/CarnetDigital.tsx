@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { QRCodeSVG } from 'qrcode.react';
 import { UserProfile } from '@/types';
 import { formatFechaArgentina } from '@/lib/utils';
+import { obtenerMedallaProtector } from '@/lib/payments/plans';
 import { CheckCircle2, AlertCircle, Share2, Maximize2, Shield, Calendar, QrCode } from 'lucide-react';
 
 interface CarnetDigitalProps {
@@ -17,6 +18,9 @@ export function CarnetDigital({ user, className = '' }: CarnetDigitalProps) {
 
   const isCuotaAlDia = (user.estado_cuota || 'al_dia') === 'al_dia';
   const isSocioProtectorActivo = user.estado_socio_protector === 'activo';
+  const medallaInfo = isSocioProtectorActivo
+    ? obtenerMedallaProtector(user.tipo_socio_protector)
+    : undefined;
 
   // Payload seguro para el QR institucional
   const qrData = JSON.stringify({
@@ -77,13 +81,28 @@ export function CarnetDigital({ user, className = '' }: CarnetDigitalProps) {
               </p>
             </div>
           </div>
-          <div className="text-right">
-            <span className="text-[9px] uppercase tracking-wider text-slate-400 block font-semibold">
-              {user.numero_socio ? 'N° DE SOCIO' : 'IDENTIFICADOR'}
-            </span>
-            <span className="text-lg font-black text-amber-300 tracking-wider">
-              {user.numero_socio ? `#${user.numero_socio}` : isSocioProtectorActivo ? '#PROT' : '#REG'}
-            </span>
+          <div className="text-right flex items-center gap-2.5">
+            {isSocioProtectorActivo && medallaInfo && (
+              <div
+                className="relative w-11 h-11 flex-shrink-0 drop-shadow-md hover:scale-105 transition-transform"
+                title={`Socio Protector ${medallaInfo.label}`}
+              >
+                <Image
+                  src={medallaInfo.medalla}
+                  alt={`Medalla ${medallaInfo.label}`}
+                  fill
+                  className="object-contain"
+                />
+              </div>
+            )}
+            <div>
+              <span className="text-[9px] uppercase tracking-wider text-slate-400 block font-semibold">
+                {user.numero_socio ? 'N° DE SOCIO' : 'IDENTIFICADOR'}
+              </span>
+              <span className="text-lg font-black text-amber-300 tracking-wider">
+                {user.numero_socio ? `#${user.numero_socio}` : isSocioProtectorActivo ? '#PROT' : '#REG'}
+              </span>
+            </div>
           </div>
         </div>
 
@@ -125,10 +144,20 @@ export function CarnetDigital({ user, className = '' }: CarnetDigitalProps) {
                 <p className="text-base font-bold text-white capitalize leading-snug">
                   {user.nombre} {user.apellido}
                 </p>
-                {/* Insignia discreta de Socio Protector */}
+                {/* Insignia discreta de Socio Protector con Medalla */}
                 {isSocioProtectorActivo && (
-                  <div className="mt-1.5 inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-rose-500/25 border border-rose-400/40 text-rose-100 text-[11px] font-bold shadow-sm backdrop-blur-sm">
-                    <span>Socio Protector ❤️</span>
+                  <div className="mt-1.5 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-rose-500/25 border border-rose-400/40 text-rose-100 text-[11px] font-bold shadow-sm backdrop-blur-sm">
+                    {medallaInfo && (
+                      <div className="relative w-4 h-4 flex-shrink-0 drop-shadow-sm">
+                        <Image
+                          src={medallaInfo.insignia}
+                          alt={`Medalla ${medallaInfo.label}`}
+                          fill
+                          className="object-contain"
+                        />
+                      </div>
+                    )}
+                    <span>Socio Protector {medallaInfo?.label ? `${medallaInfo.label} ` : ''}❤️</span>
                   </div>
                 )}
               </div>

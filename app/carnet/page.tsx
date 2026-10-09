@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '@/lib/auth/AuthContext';
 import { CarnetDigital } from '@/components/carnet/CarnetDigital';
+import { obtenerMedallaProtector } from '@/lib/payments/plans';
 import {
   CreditCard,
   ShieldCheck,
@@ -23,6 +24,9 @@ export default function CarnetPage() {
   const isSocio = user.role === 'socio' || user.role === 'admin';
   const isSocioProtector = user.estado_socio_protector === 'activo';
   const hasCarnet = isSocio || isSocioProtector;
+  const medallaInfo = isSocioProtector
+    ? obtenerMedallaProtector(user.tipo_socio_protector)
+    : undefined;
 
   return (
     <div className="min-h-screen bg-[#E5F2FE] pb-24 pt-6 px-4">
@@ -48,14 +52,26 @@ export default function CarnetPage() {
 
             {/* Ficha Informativa de Socio Protector si está activo */}
             {isSocioProtector && (
-              <div className="bg-gradient-to-r from-rose-50 to-pink-50 border border-rose-200 rounded-2xl p-4 mb-4 shadow-sm flex items-center justify-between gap-3">
+              <div className="bg-gradient-to-r from-rose-50 via-white to-amber-50/50 border border-rose-200 rounded-2xl p-4 mb-4 shadow-sm flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
-                  <span className="text-2xl">❤️</span>
+                  {medallaInfo ? (
+                    <div className="relative w-12 h-12 flex-shrink-0 drop-shadow-md">
+                      <Image
+                        src={medallaInfo.medalla}
+                        alt={`Medalla ${medallaInfo.label}`}
+                        fill
+                        className="object-contain"
+                      />
+                    </div>
+                  ) : (
+                    <span className="text-2xl">❤️</span>
+                  )}
                   <div>
-                    <h3 className="text-xs font-black text-rose-950 uppercase tracking-wide">
-                      Socio Protector {user.tipo_socio_protector || 'Activo'}
+                    <h3 className="text-xs font-black text-rose-950 uppercase tracking-wide flex items-center gap-1.5">
+                      <span>Socio Protector {user.tipo_socio_protector || 'Activo'}</span>
+                      <span className="text-xs">❤️</span>
                     </h3>
-                    <p className="text-[11px] text-rose-800">
+                    <p className="text-[11px] text-slate-700 mt-0.5">
                       Aporte mensual activo de ${user.importe_mensual?.toLocaleString('es-AR') || '2.000'}/mes vía {user.proveedor_pago === 'mercadopago' ? 'Mercado Pago' : user.proveedor_pago || 'Mercado Pago'}. ¡Gracias por apoyar a la Biblioteca!
                     </p>
                   </div>
