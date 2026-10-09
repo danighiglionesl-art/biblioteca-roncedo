@@ -9,13 +9,20 @@ export default function RoncedoPage() {
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 pb-24 pt-6 px-4">
       <div className="max-w-4xl mx-auto space-y-6">
-        <Link
-          href="/home"
-          className="inline-flex items-center gap-1.5 text-xs font-bold text-roncedo-goldLight hover:underline"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Volver al Inicio</span>
-        </Link>
+        {/* Navegación Superior: Volver al Inicio */}
+        <div className="flex items-center justify-between">
+          <Link
+            href="/home"
+            className="inline-flex items-center gap-2 text-xs font-bold text-roncedo-goldLight hover:text-white transition-colors bg-white/10 backdrop-blur-sm px-3.5 py-2 rounded-xl border border-amber-500/30 shadow-sm"
+          >
+            <ArrowLeft className="w-4 h-4 text-roncedo-gold" />
+            <span>Volver al Inicio</span>
+          </Link>
+
+          <span className="text-[11px] font-semibold text-slate-400">
+            Biblioteca Roncedo • Museo Digital
+          </span>
+        </div>
 
         <div className="bg-gradient-to-br from-slate-900 via-roncedo-navyDark to-blue-950 rounded-3xl p-6 sm:p-8 shadow-2xl border border-amber-500/20 relative overflow-hidden">
           <div className="relative z-10">
