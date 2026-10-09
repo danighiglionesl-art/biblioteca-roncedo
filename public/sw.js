@@ -1,8 +1,12 @@
-const CACHE_NAME = 'roncedo-pwa-v1';
-const ASSETS_TO_CACHE = [
+const CACHE_NAME = 'roncedo-pwa-v5';
+
+const STATIC_ASSETS = [
   '/',
   '/home',
   '/carnet',
+  '/mi-biblioteca',
+  '/libros',
+  '/biblioteca-digital',
   '/instalar',
   '/manifest.json',
   '/images/escudo-roncedo.jpg',
@@ -12,7 +16,7 @@ const ASSETS_TO_CACHE = [
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS_TO_CACHE).catch(() => {});
+      return cache.addAll(STATIC_ASSETS).catch(() => {});
     })
   );
   self.skipWaiting();
@@ -22,37 +26,73 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
       return Promise.all(
-        keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))
+        keys.map((key) => {
+          if (key !== CACHE_NAME) {
+            console.log('[SW] Purgando cache antiguo:', key);
+            return caches.delete(key);
+          }
+        })
       );
     })
   );
   self.clients.claim();
 });
 
-self.addEventListener('fetch', (event) => {
-  // Solo cachear peticiones GET
-  if (event.request.method !== 'GET') return;
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
 
-  event.respondWith(
-    fetch(event.request)
-      .then((response) => {
-        // Clonar la respuesta y actualizar el cache en background
-        if (response && response.status === 200 && response.type === 'basic') {
-          const responseToCache = response.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseToCache);
-          });
-        }
-        return response;
-      })
-      .catch(() => {
-        // Si no hay red, servir desde cache
-        return caches.match(event.request).then((cachedResponse) => {
-          if (cachedResponse) return cachedResponse;
-          if (event.request.headers.get('accept')?.includes('text/html')) {
-            return caches.match('/carnet');
+self.addEventListener('fetch', (event) => {
+  const url = new URL(event.request.url);
+
+  // 1. NUNCA cachear peticiones POST/PUT/DELETE ni rutas de API
+  if (event.request.method !== 'GET' || url.pathname.startsWith('/api/')) {
+    return;
+  }
+
+  // 2. Estrategia NETWORK-FIRST para navegaciones y páginas HTML
+  // Garantiza que en Android siempre se vea la versión más reciente publicada
+  if (event.request.mode === 'navigate' || event.request.headers.get('accept')?.includes('text/html')) {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          if (response && response.status === 200) {
+            const copy = response.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, copy);
+            });
           }
-        });
-      })
+          return response;
+        })
+        .catch(() => {
+          // Si no hay red, servir desde cache
+          return caches.match(event.request).then((cached) => {
+            if (cached) return cached;
+            return caches.match('/mi-biblioteca') || caches.match('/home');
+          });
+        })
+    );
+    return;
+  }
+
+  // 3. Estrategia STALE-WHILE-REVALIDATE para recursos estáticos (CSS, JS, imágenes, fuentes)
+  event.respondWith(
+    caches.match(event.request).then((cachedResponse) => {
+      const fetchPromise = fetch(event.request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+            const responseToCache = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, responseToCache);
+            });
+          }
+          return networkResponse;
+        })
+        .catch(() => null);
+
+      return cachedResponse || fetchPromise;
+    })
   );
 });

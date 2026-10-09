@@ -33,10 +33,10 @@ interface LibrosContextType {
 
 const LibrosContext = createContext<LibrosContextType | undefined>(undefined);
 
-const STORAGE_KEY_LIBROS = 'roncedo_libros_fisicos_v2';
-const STORAGE_KEY_PRESTAMOS = 'roncedo_prestamos_v2';
-const STORAGE_KEY_RESERVAS = 'roncedo_reservas_v2';
-const STORAGE_KEY_FOTOS = 'roncedo_fotos_aportadas_v2';
+const STORAGE_KEY_LIBROS = 'roncedo_libros_fisicos_v3';
+const STORAGE_KEY_PRESTAMOS = 'roncedo_prestamos_v3';
+const STORAGE_KEY_RESERVAS = 'roncedo_reservas_v3';
+const STORAGE_KEY_FOTOS = 'roncedo_fotos_aportadas_v3';
 
 const PRESTAMOS_INICIALES: PrestamoActivo[] = [
   {
@@ -116,8 +116,15 @@ export function LibrosProvider({ children }: { children: React.ReactNode }) {
     try {
       const storedLibros = localStorage.getItem(STORAGE_KEY_LIBROS);
       if (storedLibros) {
-        setLibrosFisicos(JSON.parse(storedLibros));
+        const parsed = JSON.parse(storedLibros);
+        if (!Array.isArray(parsed) || parsed.length < (LIBROS_RAW as any).length) {
+          setLibrosFisicos(LIBROS_RAW as any);
+          localStorage.setItem(STORAGE_KEY_LIBROS, JSON.stringify(LIBROS_RAW));
+        } else {
+          setLibrosFisicos(parsed);
+        }
       } else {
+        setLibrosFisicos(LIBROS_RAW as any);
         localStorage.setItem(STORAGE_KEY_LIBROS, JSON.stringify(LIBROS_RAW));
       }
 
