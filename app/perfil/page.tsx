@@ -28,6 +28,7 @@ import {
   Heart,
 } from 'lucide-react';
 import { formatFechaArgentina } from '@/lib/utils';
+import { obtenerMedallaProtector } from '@/lib/payments/plans';
 
 const LOCALIDADES_POR_PROVINCIA: Record<string, string[]> = LOCALIDADES_DATA_RAW;
 
@@ -436,13 +437,28 @@ export default function PerfilPage() {
           {/* Grilla de Datos del Socio Protector */}
           {user.es_socio_protector ? (
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 text-xs">
-              <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
-                <span className="text-[10px] uppercase font-bold text-slate-400 block">
-                  Categoría
-                </span>
-                <span className="font-extrabold text-slate-900 mt-0.5 block text-sm">
-                  {user.tipo_socio_protector || 'Bronce'}
-                </span>
+              <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100 flex items-center gap-2.5">
+                {(() => {
+                  const medalla = obtenerMedallaProtector(user.tipo_socio_protector);
+                  return medalla ? (
+                    <div className="relative w-8 h-8 flex-shrink-0 drop-shadow-sm">
+                      <Image
+                        src={medalla.insignia}
+                        alt={`Medalla ${medalla.label}`}
+                        fill
+                        className="object-contain"
+                      />
+                    </div>
+                  ) : null;
+                })()}
+                <div>
+                  <span className="text-[10px] uppercase font-bold text-slate-400 block">
+                    Categoría
+                  </span>
+                  <span className="font-extrabold text-slate-900 mt-0.5 block text-sm">
+                    {user.tipo_socio_protector || 'Bronce'}
+                  </span>
+                </div>
               </div>
 
               <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
