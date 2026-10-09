@@ -20,6 +20,8 @@ import {
   Users,
   Edit,
   Library,
+  LayoutGrid,
+  LayoutList,
 } from 'lucide-react';
 import { ModalDetalleLibroFisico } from './ModalDetalleLibroFisico';
 import { ModalABMLibro } from './ModalABMLibro';
@@ -43,6 +45,7 @@ export function BibliotecaFisicaView() {
   const [busqueda, setBusqueda] = useState('');
   const [filtroEstado, setFiltroEstado] = useState<'todos' | 'disponible' | 'prestado'>('todos');
   const [filtroTopografia, setFiltroTopografia] = useState<string>('todas');
+  const [modoVista, setModoVista] = useState<'tarjetas' | 'visual'>('tarjetas');
   const [paginaActual, setPaginaActual] = useState(1);
 
   // Modales
@@ -275,6 +278,30 @@ export function BibliotecaFisicaView() {
               ))}
             </select>
           </div>
+
+          {/* Alternador de Modo de Vista (Fichas vs Biblioteca Visual) */}
+          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
+            <button
+              onClick={() => setModoVista('tarjetas')}
+              className={`p-1.5 rounded-lg transition-colors flex items-center gap-1 text-[11px] font-bold ${
+                modoVista === 'tarjetas' ? 'bg-white text-roncedo-navy shadow-sm' : 'text-slate-500 hover:text-slate-800'
+              }`}
+              title="Vista Detallada de Fichas"
+            >
+              <LayoutList className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Fichas</span>
+            </button>
+            <button
+              onClick={() => setModoVista('visual')}
+              className={`p-1.5 rounded-lg transition-colors flex items-center gap-1 text-[11px] font-bold ${
+                modoVista === 'visual' ? 'bg-white text-roncedo-navy shadow-sm' : 'text-slate-500 hover:text-slate-800'
+              }`}
+              title="Biblioteca Visual (Portadas)"
+            >
+              <LayoutGrid className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Portadas</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -314,111 +341,178 @@ export function BibliotecaFisicaView() {
         )}
       </div>
 
-      {/* Grilla de Libros Físicos */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {librosPaginados.map((libro) => {
-          const estaPrestado = libro.estado === 'prestado';
+      {/* Grilla de Libros Físicos (Fichas o Biblioteca Visual) */}
+      {modoVista === 'visual' ? (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
+          {librosPaginados.map((libro) => {
+            const estaPrestado = libro.estado === 'prestado';
 
-          return (
-            <div
-              key={libro.id}
-              className="bg-white rounded-3xl p-4 shadow-card border border-blue-200/80 hover:shadow-lg transition-all duration-200 flex flex-col justify-between group"
-            >
-              <div>
-                {/* Cabecera de la tarjeta: Nº Inventario y Estado */}
-                <div className="flex items-center justify-between gap-2 mb-3">
-                  <span className="text-[10px] font-black uppercase tracking-wider bg-slate-100 text-roncedo-navy px-2 py-0.5 rounded-lg border border-slate-200">
-                    Inv. #{libro.numero_inventario}
-                  </span>
-
-                  {estaPrestado ? (
-                    <span className="bg-red-50 text-red-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-red-200 flex items-center gap-1">
-                      <Clock className="w-2.5 h-2.5" />
-                      Prestado
-                    </span>
-                  ) : (
-                    <span className="bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1">
-                      <CheckCircle2 className="w-2.5 h-2.5" />
-                      Disponible
-                    </span>
-                  )}
-                </div>
-
-                {/* Portada y Título */}
-                <div className="flex gap-3 items-start mb-3">
+            return (
+              <div
+                key={libro.id}
+                onClick={() => setLibroSeleccionado(libro)}
+                className="bg-white rounded-2xl p-2.5 shadow-card border border-blue-200/80 hover:shadow-xl hover:border-roncedo-blue transition-all duration-200 cursor-pointer flex flex-col justify-between group relative overflow-hidden"
+              >
+                {/* Portada Hero con Proporción Original Preservada */}
+                <div className="relative w-full aspect-[2/3] rounded-xl overflow-hidden bg-slate-100 border border-slate-200 shadow-sm flex items-center justify-center p-1 mb-2">
                   {libro.portada_url ? (
-                    <div className="relative w-14 h-20 flex-shrink-0 rounded-xl overflow-hidden shadow border border-slate-200 bg-slate-100">
-                      <Image
-                        src={libro.portada_url}
-                        alt={libro.titulo}
-                        fill
-                        sizes="56px"
-                        className="object-cover group-hover:scale-105 transition-transform"
-                        unoptimized
-                      />
-                    </div>
+                    <Image
+                      src={libro.portada_url}
+                      alt={libro.titulo}
+                      fill
+                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 16vw"
+                      className="object-contain group-hover:scale-105 transition-transform duration-200"
+                      unoptimized
+                    />
                   ) : (
-                    <div className="w-14 h-20 flex-shrink-0 rounded-xl bg-gradient-to-br from-roncedo-navy to-[#2B6CB5] text-white flex flex-col items-center justify-center p-1 text-center shadow">
-                      <BookOpen className="w-4 h-4 text-roncedo-gold mb-0.5" />
-                      <span className="text-[8px] font-black leading-tight line-clamp-1">
+                    <div className="w-full h-full bg-gradient-to-br from-roncedo-navy to-[#2B6CB5] text-white flex flex-col items-center justify-center p-2 text-center rounded-lg shadow-inner">
+                      <BookOpen className="w-8 h-8 text-roncedo-gold mb-1" />
+                      <span className="text-[10px] font-black leading-tight line-clamp-1">
                         #{libro.numero_inventario}
                       </span>
+                      <span className="text-[8px] text-blue-200">Sin foto</span>
                     </div>
                   )}
 
-                  <div className="min-w-0 flex-1">
-                    <h3 className="text-xs font-black text-slate-900 leading-snug line-clamp-2" title={libro.titulo}>
-                      {libro.titulo}
-                    </h3>
-                    <p className="text-[11px] font-semibold text-slate-600 mt-0.5 line-clamp-1" title={libro.autor}>
-                      {libro.autor}
-                    </p>
-                    <p className="text-[10px] text-slate-400 mt-0.5 line-clamp-1">
-                      {libro.editorial ? `${libro.editorial} ` : ''}
-                      {libro.edicion_anio ? `(${libro.edicion_anio})` : ''}
-                    </p>
+                  {/* Badges Flotantes sobre la Portada */}
+                  <div className="absolute top-1.5 left-1.5 right-1.5 flex items-center justify-between pointer-events-none">
+                    <span className="text-[8px] font-black uppercase tracking-wider bg-black/60 backdrop-blur-sm text-white px-1.5 py-0.5 rounded shadow">
+                      #{libro.numero_inventario}
+                    </span>
+
+                    {estaPrestado ? (
+                      <span className="bg-red-600/90 backdrop-blur-sm text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full shadow">
+                        Prestado
+                      </span>
+                    ) : (
+                      <span className="bg-emerald-600/90 backdrop-blur-sm text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full shadow">
+                        Disponible
+                      </span>
+                    )}
                   </div>
                 </div>
 
-                {/* Topografía / Ubicación en Estante */}
-                <div className="p-2 bg-roncedo-celesteSoft/70 rounded-xl border border-blue-100 text-[11px] mb-3">
-                  <div className="flex items-center gap-1 text-roncedo-navy font-bold">
-                    <MapPin className="w-3 h-3 text-roncedo-blue flex-shrink-0" />
-                    <span className="text-[10px] uppercase tracking-wider text-slate-500">Ubicación física:</span>
-                  </div>
-                  <p className="font-bold text-slate-800 line-clamp-1 pl-4 text-[10px]">
-                    {libro.topografia_ubicacion || 'Sala de Lectura General'}
+                {/* Pie con Título y Autor */}
+                <div className="space-y-0.5 text-left">
+                  <h3 className="text-xs font-black text-slate-900 leading-tight line-clamp-2 group-hover:text-roncedo-blue transition-colors" title={libro.titulo}>
+                    {libro.titulo}
+                  </h3>
+                  <p className="text-[10px] font-semibold text-slate-500 line-clamp-1">{libro.autor}</p>
+                  <p className="text-[9px] text-slate-400 line-clamp-1">
+                    {libro.topografia_ubicacion || 'Sala de Lectura'}
                   </p>
                 </div>
               </div>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {librosPaginados.map((libro) => {
+            const estaPrestado = libro.estado === 'prestado';
 
-              {/* Acciones */}
-              <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between gap-2">
-                <button
-                  onClick={() => setLibroSeleccionado(libro)}
-                  className="w-full bg-roncedo-navy hover:bg-blue-900 text-white font-bold text-xs py-2 px-3 rounded-xl transition-colors flex items-center justify-center gap-1.5 shadow-sm"
-                >
-                  <BookOpen className="w-3.5 h-3.5 text-roncedo-gold" />
-                  <span>{estaPrestado ? 'Ver Espera' : 'Ver Ficha / Pedir'}</span>
-                </button>
+            return (
+              <div
+                key={libro.id}
+                className="bg-white rounded-3xl p-4 shadow-card border border-blue-200/80 hover:shadow-lg transition-all duration-200 flex flex-col justify-between group"
+              >
+                <div>
+                  {/* Cabecera de la tarjeta: Nº Inventario y Estado */}
+                  <div className="flex items-center justify-between gap-2 mb-3">
+                    <span className="text-[10px] font-black uppercase tracking-wider bg-slate-100 text-roncedo-navy px-2 py-0.5 rounded-lg border border-slate-200">
+                      Inv. #{libro.numero_inventario}
+                    </span>
 
-                {isAdmin && (
+                    {estaPrestado ? (
+                      <span className="bg-red-50 text-red-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-red-200 flex items-center gap-1">
+                        <Clock className="w-2.5 h-2.5" />
+                        Prestado
+                      </span>
+                    ) : (
+                      <span className="bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1">
+                        <CheckCircle2 className="w-2.5 h-2.5" />
+                        Disponible
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Portada y Título con Proporción Original Preservada */}
+                  <div className="flex gap-3 items-start mb-3">
+                    {libro.portada_url ? (
+                      <div className="relative w-16 h-24 flex-shrink-0 rounded-xl overflow-hidden shadow-sm border border-slate-200 bg-white flex items-center justify-center p-0.5">
+                        <Image
+                          src={libro.portada_url}
+                          alt={libro.titulo}
+                          fill
+                          sizes="64px"
+                          className="object-contain group-hover:scale-105 transition-transform"
+                          unoptimized
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-16 h-24 flex-shrink-0 rounded-xl bg-gradient-to-br from-roncedo-navy to-[#2B6CB5] text-white flex flex-col items-center justify-center p-1 text-center shadow-sm">
+                        <BookOpen className="w-5 h-5 text-roncedo-gold mb-0.5" />
+                        <span className="text-[8px] font-black leading-tight line-clamp-1">
+                          #{libro.numero_inventario}
+                        </span>
+                        <span className="text-[8px] text-blue-200">Sin foto</span>
+                      </div>
+                    )}
+
+                    <div className="min-w-0 flex-1">
+                      <h3 className="text-xs font-black text-slate-900 leading-snug line-clamp-2" title={libro.titulo}>
+                        {libro.titulo}
+                      </h3>
+                      <p className="text-[11px] font-semibold text-slate-600 mt-0.5 line-clamp-1" title={libro.autor}>
+                        {libro.autor}
+                      </p>
+                      <p className="text-[10px] text-slate-400 mt-0.5 line-clamp-1">
+                        {libro.editorial ? `${libro.editorial} ` : ''}
+                        {libro.edicion_anio ? `(${libro.edicion_anio})` : ''}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Topografía / Ubicación en Estante */}
+                  <div className="p-2 bg-roncedo-celesteSoft/70 rounded-xl border border-blue-100 text-[11px] mb-3">
+                    <div className="flex items-center gap-1 text-roncedo-navy font-bold">
+                      <MapPin className="w-3 h-3 text-roncedo-blue flex-shrink-0" />
+                      <span className="text-[10px] uppercase tracking-wider text-slate-500">Ubicación física:</span>
+                    </div>
+                    <p className="font-bold text-slate-800 line-clamp-1 pl-4 text-[10px]">
+                      {libro.topografia_ubicacion || 'Sala de Lectura General'}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Acciones */}
+                <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between gap-2">
                   <button
-                    onClick={() => {
-                      setLibroAEditar(libro);
-                      setModalAbmAbierto(true);
-                    }}
-                    className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors"
-                    title="Editar ejemplar"
+                    onClick={() => setLibroSeleccionado(libro)}
+                    className="w-full bg-roncedo-navy hover:bg-blue-900 text-white font-bold text-xs py-2 px-3 rounded-xl transition-colors flex items-center justify-center gap-1.5 shadow-sm"
                   >
-                    <Edit className="w-3.5 h-3.5" />
+                    <BookOpen className="w-3.5 h-3.5 text-roncedo-gold" />
+                    <span>{estaPrestado ? 'Ver Espera' : 'Ver Ficha / Pedir'}</span>
                   </button>
-                )}
+
+                  {isAdmin && (
+                    <button
+                      onClick={() => {
+                        setLibroAEditar(libro);
+                        setModalAbmAbierto(true);
+                      }}
+                      className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors"
+                      title="Editar ejemplar"
+                    >
+                      <Edit className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* Paginación Inferior */}
       {totalPaginas > 1 && (
