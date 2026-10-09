@@ -68,20 +68,20 @@ export default function InstalarPage() {
       <div className="max-w-2xl mx-auto space-y-6">
         {/* Cabecera */}
         <div className="text-center">
-          <div className="relative w-24 h-24 mx-auto mb-4 rounded-2xl overflow-hidden shadow-2xl border-2 border-white/40 bg-white/10 p-1">
+          <div className="relative w-28 h-28 mx-auto mb-3 drop-shadow-xl">
             <Image
-              src="/images/emblema-biblioteca.jpg"
-              alt="Ícono PWA Biblioteca Roncedo"
+              src="/images/logo-biblioteca.png"
+              alt="Logo Biblioteca Roncedo"
               fill
-              className="object-cover"
+              className="object-contain"
               priority
             />
           </div>
           <span className="text-xs uppercase font-bold tracking-wider text-roncedo-blue bg-roncedo-sky px-3 py-1 rounded-full border border-blue-200 inline-block mb-2">
-            Aplicación Web Progresiva (PWA)
+            Aplicación Oficial
           </span>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 leading-tight">
-            Instalar Biblioteca Roncedo
+            Instalar App Biblioteca Roncedo
           </h1>
           <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto mt-1">
             Lleva la Biblioteca en tu celular como una aplicación nativa, rápida y sin descargar nada de Google Play o App Store.

@@ -61,12 +61,12 @@ export function CarnetDigital({ user, className = '' }: CarnetDigitalProps) {
         {/* Cabecera del Carnet */}
         <div className="px-5 pt-5 pb-3 border-b border-white/10 relative z-10 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-white/20 border border-white/40 shadow-sm flex-shrink-0">
+            <div className="relative w-12 h-12 flex-shrink-0 drop-shadow-md">
               <Image
-                src="/images/emblema-biblioteca.jpg"
+                src="/images/logo-biblioteca.png"
                 alt="Emblema Biblioteca Roncedo"
                 fill
-                className="object-cover"
+                className="object-contain"
               />
             </div>
             <div>
@@ -77,7 +77,7 @@ export function CarnetDigital({ user, className = '' }: CarnetDigitalProps) {
                 Biblioteca Roncedo
               </h2>
               <p className="text-[11px] text-blue-200">
-                Alcira Gigena • Córdoba
+                Club Sp. y B. Dr. Lautaro Roncedo
               </p>
             </div>
           </div>

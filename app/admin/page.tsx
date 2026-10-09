@@ -2,9 +2,11 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useAuth } from '@/lib/auth/AuthContext';
 import { CategoriaSocio, EstadoCuota, TipoSocioProtector, EstadoSocioProtector, UserProfile } from '@/types';
 import { formatFechaArgentina } from '@/lib/utils';
+import { obtenerMedallaProtector } from '@/lib/payments/plans';
 import * as XLSX from 'xlsx';
 import {
   ShieldCheck,
@@ -620,17 +622,32 @@ export default function AdminPage() {
 
                             {/* Tipo */}
                             <td className="p-3">
-                              <span
-                                className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
-                                  p.tipo_socio_protector === 'Oro'
-                                    ? 'bg-yellow-50 text-yellow-800 border-yellow-300'
-                                    : p.tipo_socio_protector === 'Plata'
-                                    ? 'bg-slate-100 text-slate-800 border-slate-300'
-                                    : 'bg-amber-50 text-amber-800 border-amber-300'
-                                }`}
-                              >
-                                {p.tipo_socio_protector || 'Bronce'}
-                              </span>
+                              {(() => {
+                                const medalla = obtenerMedallaProtector(p.tipo_socio_protector);
+                                return (
+                                  <span
+                                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
+                                      p.tipo_socio_protector === 'Oro'
+                                        ? 'bg-yellow-50 text-yellow-800 border-yellow-300'
+                                        : p.tipo_socio_protector === 'Plata'
+                                        ? 'bg-slate-100 text-slate-800 border-slate-300'
+                                        : 'bg-amber-50 text-amber-800 border-amber-300'
+                                    }`}
+                                  >
+                                    {medalla && (
+                                      <div className="relative w-4 h-4 flex-shrink-0 drop-shadow-sm">
+                                        <Image
+                                          src={medalla.insignia}
+                                          alt={medalla.label}
+                                          fill
+                                          className="object-contain"
+                                        />
+                                      </div>
+                                    )}
+                                    <span>{p.tipo_socio_protector || 'Bronce'}</span>
+                                  </span>
+                                );
+                              })()}
                             </td>
 
                             {/* Importe Mensual */}

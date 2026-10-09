@@ -122,12 +122,12 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-white bg-white/20 px-2 py-0.5 rounded-full border border-white/30 backdrop-blur-sm">
-                  Alcira Gigena • Córdoba
+              <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-white bg-white/20 px-2.5 py-0.5 rounded-full border border-white/30 backdrop-blur-sm">
+                  Club Sp. y B. Dr. Lautaro Roncedo
                 </span>
-                <span className="text-xs text-blue-100">
-                  Fundado el 1 de Mayo de 1926
+                <span className="text-xs text-blue-100 font-medium">
+                  Fundado el 13 de marzo de 1926
                 </span>
               </div>
               <h1 className="text-2xl sm:text-3xl font-black text-white">
@@ -138,22 +138,23 @@ export default function HomePage() {
               </p>
             </div>
 
-            {/* Tarjeta Rápida de Socio con el celeste de la imagen para que el escudo quede como un PNG */}
-            <div className="bg-[#B2D5FD] border border-white/60 rounded-2xl p-4 flex items-center gap-4 flex-shrink-0 shadow-md">
-              <div className="relative w-14 h-14 flex-shrink-0">
+            {/* Tarjeta de Condición Institucional con Escudo Protagonista */}
+            <div className="bg-[#B2D5FD] border-2 border-white/80 rounded-2xl p-4 sm:p-5 flex items-center gap-4 sm:gap-5 flex-shrink-0 shadow-lg">
+              <div className="relative w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0 drop-shadow-md">
                 <Image
                   src="/images/escudo-roncedo.png"
-                  alt="Escudo Roncedo"
+                  alt="Escudo Oficial Biblioteca Roncedo"
                   fill
-                  className="object-contain drop-shadow-sm"
+                  className="object-contain"
+                  priority
                 />
               </div>
               <div>
-                <p className="text-[10px] uppercase font-bold text-[#102A4E]/80 tracking-wider">
+                <p className="text-[11px] uppercase font-black text-[#102A4E]/80 tracking-wider">
                   Condición Institucional
                 </p>
                 <div className="flex items-center gap-2">
-                  <span className="text-base font-extrabold text-[#0F284B]">
+                  <span className="text-lg sm:text-xl font-black text-[#0F284B]">
                     {user.role === 'admin'
                       ? 'Administrador General'
                       : isSocio
@@ -164,18 +165,18 @@ export default function HomePage() {
                 {isSocio ? (
                   <Link
                     href="/carnet"
-                    className="inline-flex items-center gap-1 text-xs text-emerald-800 font-extrabold hover:text-emerald-900 hover:underline mt-0.5"
+                    className="inline-flex items-center gap-1 text-xs sm:text-sm text-emerald-800 font-black hover:text-emerald-950 hover:underline mt-1"
                   >
                     <span>Ver mi Carnet Digital con QR</span>
-                    <ChevronRight className="w-3 h-3" />
+                    <ChevronRight className="w-3.5 h-3.5" />
                   </Link>
                 ) : (
                   <Link
                     href="/perfil"
-                    className="inline-flex items-center gap-1 text-xs text-[#92400E] font-extrabold hover:text-[#78350F] hover:underline mt-0.5"
+                    className="inline-flex items-center gap-1 text-xs sm:text-sm text-[#92400E] font-black hover:text-[#78350F] hover:underline mt-1"
                   >
                     <span>Solicitar ser Socio Oficial</span>
-                    <ChevronRight className="w-3 h-3" />
+                    <ChevronRight className="w-3.5 h-3.5" />
                   </Link>
                 )}
               </div>
@@ -186,36 +187,36 @@ export default function HomePage() {
 
       {/* Accesos Principales (Los 8 Módulos de la Biblioteca con Íconos Celestes Uniformes) */}
       <main className="max-w-6xl mx-auto px-4 -mt-6 space-y-6">
-        {/* Banner Destacado: Socio Protector */}
-        <div className="bg-gradient-to-r from-[#8B1E3F] via-[#A82A4C] to-[#BA3D60] text-white rounded-3xl p-5 shadow-lg border border-white/20 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3.5">
-            <div className="w-12 h-12 rounded-2xl bg-white/20 border border-white/30 flex items-center justify-center text-white flex-shrink-0 shadow-sm">
-              <Heart className="w-6 h-6 fill-white" />
+        {/* Banner Destacado: Socio Protector (Armonía Azul Marino y Celeste Institucional) */}
+        <div className="bg-gradient-to-r from-[#0F284B] via-[#1A457D] to-[#1E6091] text-white rounded-3xl p-5 sm:p-6 shadow-xl border border-white/20 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-white/15 border border-white/25 flex items-center justify-center text-amber-300 flex-shrink-0 shadow-sm">
+              <Heart className="w-7 h-7 fill-amber-300" />
             </div>
             <div>
               <div className="flex flex-wrap items-center gap-2">
-                <span className="text-[10px] font-black uppercase tracking-wider bg-white/20 px-2.5 py-0.5 rounded-full border border-white/20 backdrop-blur-sm">
+                <span className="text-[10px] font-black uppercase tracking-wider bg-white/20 text-blue-100 px-2.5 py-0.5 rounded-full border border-white/20 backdrop-blur-sm">
                   Campaña Permanente
                 </span>
                 {user.es_socio_protector && (
-                  <span className="text-[10px] font-extrabold bg-white text-rose-800 px-2.5 py-0.5 rounded-full shadow-sm">
-                    ¡Sos Socio Protector {user.tipo_socio_protector}! ❤️
+                  <span className="text-[10px] font-extrabold bg-amber-400 text-slate-900 px-2.5 py-0.5 rounded-full shadow-sm">
+                    ¡Sos Socio Protector {user.tipo_socio_protector}! 🤝
                   </span>
                 )}
               </div>
-              <h3 className="text-base sm:text-lg font-black mt-1">
+              <h3 className="text-base sm:text-lg font-black mt-1 text-white">
                 Socio Protector: Tu aporte mensual transforma la biblioteca
               </h3>
-              <p className="text-xs text-rose-100 max-w-xl">
-                Sumate con un aporte recurrente desde $2.000/mes por Mercado Pago para sostener nuevos libros, talleres y actividades sociales de Alcira Gigena.
+              <p className="text-xs sm:text-sm text-blue-100 max-w-xl">
+                Sumate con un aporte solidario recurrente desde $2.000/mes por Mercado Pago para sostener nuevos libros, talleres y actividades comunitarias.
               </p>
             </div>
           </div>
           <Link
             href="/socio-protector"
-            className="px-5 py-2.5 rounded-xl bg-white text-rose-900 hover:bg-rose-50 text-xs font-black shadow-md transition-all flex items-center gap-1.5 flex-shrink-0 active:scale-95"
+            className="px-5 py-3 rounded-xl bg-white text-[#0F284B] hover:bg-[#E5F2FE] text-xs sm:text-sm font-black shadow-md transition-all flex items-center gap-2 flex-shrink-0 active:scale-95"
           >
-            <Heart className="w-3.5 h-3.5 fill-current text-rose-600" />
+            <Heart className="w-4 h-4 fill-[#0F284B] text-[#0F284B]" />
             <span>{user.es_socio_protector ? 'Ver mi Aporte' : 'Quiero Colaborar'}</span>
             <ArrowRight className="w-4 h-4" />
           </Link>

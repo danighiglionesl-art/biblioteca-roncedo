@@ -17,7 +17,7 @@ import { ConfirmarEliminarModal } from '@/components/actas/ConfirmarEliminarModa
 import { Loader2 } from 'lucide-react';
 
 export default function ActasPage() {
-  const { user, switchUserRoleDemo } = useAuth();
+  const { user } = useAuth();
 
   // Permisos según el rol y condición del usuario
   const isAdmin = user?.role === 'admin';
@@ -195,11 +195,6 @@ export default function ActasPage() {
     }
   };
 
-  // Conmutador de rol para pruebas demo
-  const handleSwitchRole = (role: UserRole) => {
-    switchUserRoleDemo(role);
-  };
-
   return (
     <div className="min-h-screen bg-[#EDF5FD] pb-24 pt-4 sm:pt-6 px-3 sm:px-6">
       <div className="max-w-6xl mx-auto space-y-6">
@@ -214,7 +209,6 @@ export default function ActasPage() {
           isAdmin={isAdmin}
           isSocioProtector={isSocioProtector}
           currentUserRole={user?.role}
-          onSwitchRole={handleSwitchRole}
           onNuevaActa={handleAbrirNuevaActa}
           totalFolios={folios.length}
           totalActas={actas.length}

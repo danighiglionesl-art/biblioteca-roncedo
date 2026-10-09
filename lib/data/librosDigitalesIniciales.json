@@ -1,585 +1,4 @@
-import { LibroDigital } from '@/types';
-
-export const LIBROS_DIGITALES_CURADOS: LibroDigital[] = [
-  {
-    "id": "dig-martin-fierro",
-    "titulo": "El Gaucho Martín Fierro",
-    "autor": "José Hernández",
-    "editorial": "Imprenta de La Pampa (Edición Histórica)",
-    "anio": 1872,
-    "idioma": "es",
-    "descripcion": "Obra cumbre de la literatura gauchesca argentina. Narra las desventuras, el canto y la filosofía de vida de Martín Fierro frente a las injusticias de la época.",
-    "portada_url": "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=400&q=80",
-    "fuente": "wikisource",
-    "fuentes_adicionales": [
-      "gutenberg",
-      "cervantes"
-    ],
-    "enlace_oficial": "https://es.wikisource.org/wiki/El_Gaucho_Mart%C3%ADn_Fierro",
-    "disponibilidad": "descarga_libre",
-    "es_argentino_o_latino": true,
-    "genero_o_materia": "Poesía Gauchesca / Literatura Argentina",
-    "wikisource_page": "El Gaucho Martín Fierro",
-    "gutenberg_id": 14765,
-    "formatos": [
-      {
-        "tipo": "html",
-        "label": "Lectura Directa en PWA",
-        "url": "https://es.wikisource.org/wiki/El_Gaucho_Mart%C3%ADn_Fierro"
-      },
-      {
-        "tipo": "epub",
-        "label": "Descargar EPUB (Gutenberg)",
-        "url": "https://www.gutenberg.org/ebooks/14765.epub3.images"
-      },
-      {
-        "tipo": "html",
-        "label": "Leer en Gutenberg",
-        "url": "https://www.gutenberg.org/ebooks/14765.html.images"
-      },
-      {
-        "tipo": "externo",
-        "label": "Ficha en Cervantes Virtual",
-        "url": "https://www.cervantesvirtual.com/obra/el-gaucho-martin-fierro--0/"
-      }
-    ]
-  },
-  {
-    "id": "dig-la-vuelta-martin-fierro",
-    "titulo": "La Vuelta de Martín Fierro",
-    "autor": "José Hernández",
-    "editorial": "Librería del Plata",
-    "anio": 1879,
-    "idioma": "es",
-    "descripcion": "Segunda parte del poema épico nacional donde Martín Fierro se reúne con sus hijos y Picardía, legando los inmortales consejos morales y criollos.",
-    "portada_url": "https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=400&q=80",
-    "fuente": "gutenberg",
-    "fuentes_adicionales": [
-      "wikisource",
-      "cervantes"
-    ],
-    "enlace_oficial": "https://www.gutenberg.org/ebooks/15014",
-    "disponibilidad": "descarga_libre",
-    "es_argentino_o_latino": true,
-    "genero_o_materia": "Poesía Gauchesca / Tradición Nacional",
-    "wikisource_page": "La vuelta de Martín Fierro",
-    "gutenberg_id": 15014,
-    "formatos": [
-      {
-        "tipo": "epub",
-        "label": "Descargar EPUB",
-        "url": "https://www.gutenberg.org/ebooks/15014.epub3.images"
-      },
-      {
-        "tipo": "html",
-        "label": "Lectura Directa en PWA",
-        "url": "https://es.wikisource.org/wiki/La_vuelta_de_Mart%C3%ADn_Fierro"
-      },
-      {
-        "tipo": "externo",
-        "label": "Ver en Cervantes Virtual",
-        "url": "https://www.cervantesvirtual.com/obra/la-vuelta-de-martin-fierro--0/"
-      }
-    ]
-  },
-  {
-    "id": "dig-facundo",
-    "titulo": "Facundo: Civilización y Barbarie",
-    "autor": "Domingo Faustino Sarmiento",
-    "editorial": "Imprenta del Progreso",
-    "anio": 1845,
-    "idioma": "es",
-    "descripcion": "Ensayo fundamental de la historia política, social y geográfica argentina a través de la figura del caudillo riojano Facundo Quiroga.",
-    "portada_url": "https://images.unsplash.com/photo-1457369804613-52c61a468e7d?auto=format&fit=crop&w=400&q=80",
-    "fuente": "gutenberg",
-    "fuentes_adicionales": [
-      "wikisource",
-      "cervantes"
-    ],
-    "enlace_oficial": "https://www.gutenberg.org/ebooks/40224",
-    "disponibilidad": "descarga_libre",
-    "es_argentino_o_latino": true,
-    "genero_o_materia": "Ensayo Histórico / Política Argentina",
-    "wikisource_page": "Facundo",
-    "gutenberg_id": 40224,
-    "formatos": [
-      {
-        "tipo": "epub",
-        "label": "Descargar EPUB",
-        "url": "https://www.gutenberg.org/ebooks/40224.epub3.images"
-      },
-      {
-        "tipo": "html",
-        "label": "Lectura en PWA",
-        "url": "https://www.gutenberg.org/ebooks/40224.html.images"
-      },
-      {
-        "tipo": "externo",
-        "label": "Obra en Cervantes Virtual",
-        "url": "https://www.cervantesvirtual.com/obra/facundo-o-civilizacion-y-barbarie-en-las-pampas-argentinas--0/"
-      }
-    ]
-  },
-  {
-    "id": "dig-cuentos-amor-locura",
-    "titulo": "Cuentos de Amor de Locura y de Muerte",
-    "autor": "Horacio Quiroga",
-    "editorial": "Sociedad Cooperativa Editorial",
-    "anio": 1917,
-    "idioma": "es",
-    "descripcion": "Colección de relatos intensos de la selva misionera y el dramatismo humano: La gallina degollada, El almohadón de plumas, A la deriva y más.",
-    "portada_url": "https://images.unsplash.com/photo-1516979187457-637abb4f9353?auto=format&fit=crop&w=400&q=80",
-    "fuente": "gutenberg",
-    "fuentes_adicionales": [
-      "wikisource"
-    ],
-    "enlace_oficial": "https://www.gutenberg.org/ebooks/15353",
-    "disponibilidad": "descarga_libre",
-    "es_argentino_o_latino": true,
-    "genero_o_materia": "Cuentos / Narrativa Latinoamericana",
-    "wikisource_page": "Cuentos de amor de locura y de muerte",
-    "gutenberg_id": 15353,
-    "formatos": [
-      {
-        "tipo": "epub",
-        "label": "Descargar EPUB",
-        "url": "https://www.gutenberg.org/ebooks/15353.epub3.images"
-      },
-      {
-        "tipo": "html",
-        "label": "Lectura en PWA",
-        "url": "https://www.gutenberg.org/ebooks/15353.html.images"
-      },
-      {
-        "tipo": "txt",
-        "label": "Texto Plano UTF-8",
-        "url": "https://www.gutenberg.org/files/15353/15353-0.txt"
-      }
-    ]
-  },
-  {
-    "id": "dig-cuentos-de-la-selva",
-    "titulo": "Cuentos de la Selva para los Niños",
-    "autor": "Horacio Quiroga",
-    "editorial": "Editorial Losada",
-    "anio": 1918,
-    "idioma": "es",
-    "descripcion": "Clásico infanto-juvenil rioplatense protagonizado por animales de la selva del Alto Paraná: La guerra de los yacarés, Las medias de los flamencos, La tortuga gigante.",
-    "portada_url": "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=400&q=80",
-    "fuente": "wikisource",
-    "fuentes_adicionales": [
-      "cervantes"
-    ],
-    "enlace_oficial": "https://es.wikisource.org/wiki/Cuentos_de_la_selva",
-    "disponibilidad": "lectura_directa",
-    "es_argentino_o_latino": true,
-    "genero_o_materia": "Literatura Infantil / Naturaleza y Selva",
-    "wikisource_page": "Cuentos de la selva",
-    "formatos": [
-      {
-        "tipo": "html",
-        "label": "Lectura Directa en PWA",
-        "url": "https://es.wikisource.org/wiki/Cuentos_de_la_selva"
-      },
-      {
-        "tipo": "externo",
-        "label": "Portal Cervantes Virtual",
-        "url": "https://www.cervantesvirtual.com/obra/cuentos-de-la-selva--0/"
-      }
-    ]
-  },
-  {
-    "id": "dig-el-matadero",
-    "titulo": "El Matadero",
-    "autor": "Esteban Echeverría",
-    "editorial": "Revista del Río de la Plata",
-    "anio": 1871,
-    "idioma": "es",
-    "descripcion": "Considerado el primer cuento de la literatura argentina. Retrata con agudeza y alegoría política la atmósfera del Buenos Aires de la época rosista.",
-    "portada_url": "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?auto=format&fit=crop&w=400&q=80",
-    "fuente": "wikisource",
-    "fuentes_adicionales": [
-      "cervantes"
-    ],
-    "enlace_oficial": "https://es.wikisource.org/wiki/El_matadero",
-    "disponibilidad": "lectura_directa",
-    "es_argentino_o_latino": true,
-    "genero_o_materia": "Narrativa Histórica / Romanticismo Argentino",
-    "wikisource_page": "El matadero",
-    "formatos": [
-      {
-        "tipo": "html",
-        "label": "Lectura Directa en PWA",
-        "url": "https://es.wikisource.org/wiki/El_matadero"
-      },
-      {
-        "tipo": "externo",
-        "label": "Ficha en Cervantes Virtual",
-        "url": "https://www.cervantesvirtual.com/obra/el-matadero--0/"
-      }
-    ]
-  },
-  {
-    "id": "dig-santos-vega",
-    "titulo": "Santos Vega o los Mellizos de la Flor",
-    "autor": "Hilario Ascasubi",
-    "editorial": "Imprenta Paul Dupont",
-    "anio": 1872,
-    "idioma": "es",
-    "descripcion": "Extenso poema criollo que plasma las costumbres campesinas y el mito del payador invencible Santos Vega en las pampas bonaerenses.",
-    "portada_url": "https://images.unsplash.com/photo-1506880018603-83d5b814b5a6?auto=format&fit=crop&w=400&q=80",
-    "fuente": "cervantes",
-    "fuentes_adicionales": [
-      "wikisource"
-    ],
-    "enlace_oficial": "https://www.cervantesvirtual.com/obra/santos-vega-o-los-mellizos-de-la-flor--0/",
-    "disponibilidad": "lectura_directa",
-    "es_argentino_o_latino": true,
-    "genero_o_materia": "Poesía Criolla / Tradición Argentina",
-    "wikisource_page": "Santos Vega",
-    "formatos": [
-      {
-        "tipo": "externo",
-        "label": "Visor de Obra en Cervantes Virtual",
-        "url": "https://www.cervantesvirtual.com/obra-visor/santos-vega-o-los-mellizos-de-la-flor--0/html/"
-      },
-      {
-        "tipo": "html",
-        "label": "Lectura en Wikisource",
-        "url": "https://es.wikisource.org/wiki/Santos_Vega"
-      }
-    ]
-  },
-  {
-    "id": "dig-juvenilia",
-    "titulo": "Juvenilia",
-    "autor": "Miguel Cané",
-    "editorial": "Imprenta de Pablo E. Coni",
-    "anio": 1884,
-    "idioma": "es",
-    "descripcion": "Memorias entrañables de la adolescencia y los días de internado en el histórico Colegio Nacional de Buenos Aires.",
-    "portada_url": "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=400&q=80",
-    "fuente": "wikisource",
-    "fuentes_adicionales": [
-      "cervantes",
-      "gutenberg"
-    ],
-    "enlace_oficial": "https://es.wikisource.org/wiki/Juvenilia",
-    "disponibilidad": "descarga_libre",
-    "es_argentino_o_latino": true,
-    "genero_o_materia": "Memorias / Generación del 80 Argentina",
-    "wikisource_page": "Juvenilia",
-    "gutenberg_id": 15462,
-    "formatos": [
-      {
-        "tipo": "html",
-        "label": "Lectura Directa en PWA",
-        "url": "https://es.wikisource.org/wiki/Juvenilia"
-      },
-      {
-        "tipo": "epub",
-        "label": "Descargar EPUB",
-        "url": "https://www.gutenberg.org/ebooks/15462.epub3.images"
-      },
-      {
-        "tipo": "externo",
-        "label": "Ficha en Cervantes Virtual",
-        "url": "https://www.cervantesvirtual.com/obra/juvenilia--0/"
-      }
-    ]
-  },
-  {
-    "id": "dig-storni-antologia",
-    "titulo": "Antología Poética: La Inquietud del Rosal y El Dulce Daño",
-    "autor": "Alfonsina Storni",
-    "editorial": "Ediciones Biblioteca Nacional",
-    "anio": 1918,
-    "idioma": "es",
-    "descripcion": "Voz poética trascendental de la literatura argentina y vanguardista. Expresa el sentimiento femenino, el amor, la libertad y la vida urbana.",
-    "portada_url": "https://images.unsplash.com/photo-1476275466078-4007374efbbe?auto=format&fit=crop&w=400&q=80",
-    "fuente": "wikisource",
-    "fuentes_adicionales": [
-      "cervantes"
-    ],
-    "enlace_oficial": "https://es.wikisource.org/wiki/Autor:Alfonsina_Storni",
-    "disponibilidad": "lectura_directa",
-    "es_argentino_o_latino": true,
-    "genero_o_materia": "Poesía / Vanguardia Argentina",
-    "wikisource_page": "Autor:Alfonsina Storni",
-    "formatos": [
-      {
-        "tipo": "html",
-        "label": "Lectura Directa en PWA",
-        "url": "https://es.wikisource.org/wiki/Autor:Alfonsina_Storni"
-      },
-      {
-        "tipo": "externo",
-        "label": "Portal Alfonsina Storni (Cervantes)",
-        "url": "https://www.cervantesvirtual.com/portales/alfonsina_storni/"
-      }
-    ]
-  },
-  {
-    "id": "dig-fuerzas-extranas",
-    "titulo": "Las Fuerzas Extrañas",
-    "autor": "Leopoldo Lugones",
-    "editorial": "Arnoldo Moen & Hno.",
-    "anio": 1906,
-    "idioma": "es",
-    "descripcion": "Piedra basal del cuento fantástico y de ciencia ficción en la Argentina. Relatos de cosmogonía, alquimia y misterio.",
-    "portada_url": "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=400&q=80",
-    "fuente": "wikisource",
-    "fuentes_adicionales": [
-      "cervantes"
-    ],
-    "enlace_oficial": "https://es.wikisource.org/wiki/Las_fuerzas_extra%C3%B1as",
-    "disponibilidad": "lectura_directa",
-    "es_argentino_o_latino": true,
-    "genero_o_materia": "Cuento Fantástico / Ciencia Ficción Argentina",
-    "wikisource_page": "Las fuerzas extrañas",
-    "formatos": [
-      {
-        "tipo": "html",
-        "label": "Lectura Directa en PWA",
-        "url": "https://es.wikisource.org/wiki/Las_fuerzas_extra%C3%B1as"
-      },
-      {
-        "tipo": "externo",
-        "label": "Portal Leopoldo Lugones en Cervantes Virtual",
-        "url": "https://www.cervantesvirtual.com/portales/leopoldo_lugones/"
-      }
-    ]
-  },
-  {
-    "id": "dig-azul-dario",
-    "titulo": "Azul...",
-    "autor": "Rubén Darío",
-    "editorial": "Imprenta y Litografía Excelsior (Valparaíso)",
-    "anio": 1888,
-    "idioma": "es",
-    "descripcion": "Libro fundacional del Modernismo literario hispanoamericano. Cuentos en prosa poética y poemas de deslumbrante belleza rítmica.",
-    "portada_url": "https://images.unsplash.com/photo-1499209974431-9dddcece7f88?auto=format&fit=crop&w=400&q=80",
-    "fuente": "gutenberg",
-    "fuentes_adicionales": [
-      "wikisource",
-      "cervantes"
-    ],
-    "enlace_oficial": "https://www.gutenberg.org/ebooks/34914",
-    "disponibilidad": "descarga_libre",
-    "es_argentino_o_latino": true,
-    "genero_o_materia": "Modernismo / Prosa y Poesía Hispanoamericana",
-    "wikisource_page": "Azul...",
-    "gutenberg_id": 34914,
-    "formatos": [
-      {
-        "tipo": "epub",
-        "label": "Descargar EPUB",
-        "url": "https://www.gutenberg.org/ebooks/34914.epub3.images"
-      },
-      {
-        "tipo": "html",
-        "label": "Lectura Directa en PWA",
-        "url": "https://es.wikisource.org/wiki/Azul..."
-      },
-      {
-        "tipo": "externo",
-        "label": "Obra en Cervantes Virtual",
-        "url": "https://www.cervantesvirtual.com/obra/azul--0/"
-      }
-    ]
-  },
-  {
-    "id": "dig-desolacion-mistral",
-    "titulo": "Desolación",
-    "autor": "Gabriela Mistral",
-    "editorial": "Instituto de las Españas (Nueva York)",
-    "anio": 1922,
-    "idioma": "es",
-    "descripcion": "Primer libro de la gran poetisa chilena, primera escritora latinoamericana galardonada con el Premio Nobel de Literatura.",
-    "portada_url": "https://images.unsplash.com/photo-1491841573634-28140fc7ced7?auto=format&fit=crop&w=400&q=80",
-    "fuente": "wikisource",
-    "fuentes_adicionales": [
-      "cervantes"
-    ],
-    "enlace_oficial": "https://es.wikisource.org/wiki/Autor:Gabriela_Mistral",
-    "disponibilidad": "lectura_directa",
-    "es_argentino_o_latino": true,
-    "genero_o_materia": "Poesía Latinoamericana / Premio Nobel",
-    "wikisource_page": "Autor:Gabriela Mistral",
-    "formatos": [
-      {
-        "tipo": "html",
-        "label": "Lectura Directa en PWA",
-        "url": "https://es.wikisource.org/wiki/Autor:Gabriela_Mistral"
-      },
-      {
-        "tipo": "externo",
-        "label": "Portal Gabriela Mistral en Cervantes Virtual",
-        "url": "https://www.cervantesvirtual.com/portales/gabriela_mistral/"
-      }
-    ]
-  },
-  {
-    "id": "dig-versos-sencillos-marti",
-    "titulo": "Versos Sencillos",
-    "autor": "José Martí",
-    "editorial": "Louis Weiss & Co.",
-    "anio": 1891,
-    "idioma": "es",
-    "descripcion": "Colección de poemas de hondo lirismo y pureza estilística (\"Yo soy un hombre sincero / de donde crece la palma...\").",
-    "portada_url": "https://images.unsplash.com/photo-1463320726281-696a485928c7?auto=format&fit=crop&w=400&q=80",
-    "fuente": "wikisource",
-    "fuentes_adicionales": [
-      "cervantes"
-    ],
-    "enlace_oficial": "https://es.wikisource.org/wiki/Versos_sencillos",
-    "disponibilidad": "lectura_directa",
-    "es_argentino_o_latino": true,
-    "genero_o_materia": "Poesía / Humanismo Latinoamericano",
-    "wikisource_page": "Versos sencillos",
-    "formatos": [
-      {
-        "tipo": "html",
-        "label": "Lectura Directa en PWA",
-        "url": "https://es.wikisource.org/wiki/Versos_sencillos"
-      },
-      {
-        "tipo": "externo",
-        "label": "Obra en Cervantes Virtual",
-        "url": "https://www.cervantesvirtual.com/obra/versos-sencillos--0/"
-      }
-    ]
-  },
-  {
-    "id": "dig-don-quijote",
-    "titulo": "Don Quijote de la Mancha",
-    "autor": "Miguel de Cervantes Saavedra",
-    "editorial": "Juan de la Cuesta (Edición Príncipe)",
-    "anio": 1605,
-    "idioma": "es",
-    "descripcion": "La obra más universal de la lengua española. Las andanzas del ingenioso hidalgo y su fiel escudero Sancho Panza en pos de ideales eternos.",
-    "portada_url": "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&w=400&q=80",
-    "fuente": "cervantes",
-    "fuentes_adicionales": [
-      "gutenberg",
-      "wikisource"
-    ],
-    "enlace_oficial": "https://www.cervantesvirtual.com/obra/el-ingenioso-hidalgo-don-quijote-de-la-mancha--0/",
-    "disponibilidad": "descarga_libre",
-    "es_argentino_o_latino": false,
-    "genero_o_materia": "Novela Clásica / Patrimonio de la Humanidad",
-    "wikisource_page": "Don Quijote de la Mancha",
-    "gutenberg_id": 2000,
-    "formatos": [
-      {
-        "tipo": "epub",
-        "label": "Descargar EPUB (Gutenberg)",
-        "url": "https://www.gutenberg.org/ebooks/2000.epub3.images"
-      },
-      {
-        "tipo": "html",
-        "label": "Lectura Directa en PWA",
-        "url": "https://es.wikisource.org/wiki/Don_Quijote_de_la_Mancha"
-      },
-      {
-        "tipo": "externo",
-        "label": "Visor Interactivo Cervantes Virtual",
-        "url": "https://www.cervantesvirtual.com/obra-visor/el-ingenioso-hidalgo-don-quijote-de-la-mancha--0/html/"
-      }
-    ]
-  },
-  {
-    "id": "dig-rimas-leyendas-becquer",
-    "titulo": "Rimas y Leyendas",
-    "autor": "Gustavo Adolfo Bécquer",
-    "editorial": "Imprenta de T. Fortanet",
-    "anio": 1871,
-    "idioma": "es",
-    "descripcion": "Cumbres del romanticismo intimista en español: rimas sobre el amor y el misterio, y leyendas góticas y fantásticas tradicionales.",
-    "portada_url": "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=400&q=80",
-    "fuente": "gutenberg",
-    "fuentes_adicionales": [
-      "wikisource",
-      "cervantes"
-    ],
-    "enlace_oficial": "https://www.gutenberg.org/ebooks/10702",
-    "disponibilidad": "descarga_libre",
-    "es_argentino_o_latino": false,
-    "genero_o_materia": "Poesía Romántica y Leyendas",
-    "wikisource_page": "Rimas (Bécquer)",
-    "gutenberg_id": 10702,
-    "formatos": [
-      {
-        "tipo": "epub",
-        "label": "Descargar EPUB",
-        "url": "https://www.gutenberg.org/ebooks/10702.epub3.images"
-      },
-      {
-        "tipo": "html",
-        "label": "Lectura Directa en PWA",
-        "url": "https://es.wikisource.org/wiki/Rimas_(B%C3%A9cquer)"
-      },
-      {
-        "tipo": "externo",
-        "label": "Ficha en Cervantes Virtual",
-        "url": "https://www.cervantesvirtual.com/obra/rimas--24/"
-      }
-    ]
-  },
-  {
-    "id": "dig-acta-independencia-1816",
-    "titulo": "Acta de la Independencia de las Provincias Unidas en Sud América (9 de Julio de 1816)",
-    "autor": "Congreso General Constituyente en San Miguel de Tucumán",
-    "editorial": "Archivo Histórico Nacional",
-    "anio": 1816,
-    "idioma": "es",
-    "descripcion": "Documento histórico fundacional por el cual las Provincias Unidas declararon solemnemente su emancipación de la monarquía española y de toda otra dominación extranjera.",
-    "portada_url": "https://images.unsplash.com/photo-1461360370896-922624d12aa1?auto=format&fit=crop&w=400&q=80",
-    "fuente": "wikisource",
-    "fuentes_adicionales": [
-      "cervantes"
-    ],
-    "enlace_oficial": "https://es.wikisource.org/wiki/Declaraci%C3%B3n_de_la_independencia_de_las_Provincias_Unidas_en_Sud_Am%C3%A9rica",
-    "disponibilidad": "lectura_directa",
-    "es_argentino_o_latino": true,
-    "genero_o_materia": "Documento Histórico / Memoria Nacional",
-    "wikisource_page": "Declaración de la independencia de las Provincias Unidas en Sud América",
-    "formatos": [
-      {
-        "tipo": "html",
-        "label": "Lectura Directa del Acta en PWA",
-        "url": "https://es.wikisource.org/wiki/Declaraci%C3%B3n_de_la_independencia_de_las_Provincias_Unidas_en_Sud_Am%C3%A9rica"
-      },
-      {
-        "tipo": "externo",
-        "label": "Consultar en Archivo Histórico",
-        "url": "https://es.wikisource.org/wiki/Portal:Argentina"
-      }
-    ]
-  },
-  {
-    "id": "dig-borges-ficciones-ol",
-    "titulo": "Ficciones",
-    "autor": "Jorge Luis Borges",
-    "editorial": "Editorial Sur",
-    "anio": 1944,
-    "idioma": "es",
-    "descripcion": "Obra maestra de la literatura universal que incluye \"El jardín de senderos que se bifurcan\" y \"Artificios\". Laberintos, infinitos, espejos y bibliotecas eternas.",
-    "portada_url": "https://covers.openlibrary.org/b/id/10832290-M.jpg",
-    "fuente": "openlibrary",
-    "enlace_oficial": "https://openlibrary.org/works/OL1843468W/Ficciones",
-    "disponibilidad": "prestamo_externo",
-    "es_argentino_o_latino": true,
-    "genero_o_materia": "Narrativa Filosófica / Literatura Argentina",
-    "ia_id": "ficciones0000borg",
-    "formatos": [
-      {
-        "tipo": "externo",
-        "label": "Préstamo Controlado en Open Library",
-        "url": "https://openlibrary.org/works/OL1843468W/Ficciones"
-      }
-    ]
-  },
+[
   {
     "id": "guten-61851",
     "titulo": "El crimen y el castigo",
@@ -1482,6 +901,34 @@ export const LIBROS_DIGITALES_CURADOS: LibroDigital[] = [
     "gutenberg_id": 15725
   },
   {
+    "id": "guten-13507",
+    "titulo": "Cuentos de Amor de Locura y de Muerte",
+    "autor": " ",
+    "editorial": "Project Gutenberg",
+    "anio": "s. XIX/XX",
+    "idioma": "es",
+    "descripcion": "Short stories, Uruguayan • Uruguayan fiction",
+    "portada_url": "https://www.gutenberg.org/cache/epub/13507/pg13507.cover.medium.jpg",
+    "fuente": "gutenberg",
+    "enlace_oficial": "https://www.gutenberg.org/ebooks/13507",
+    "disponibilidad": "descarga_libre",
+    "formatos": [
+      {
+        "tipo": "epub",
+        "label": "Descargar EPUB",
+        "url": "https://www.gutenberg.org/ebooks/13507.epub3.images"
+      },
+      {
+        "tipo": "html",
+        "label": "Lectura Directa en PWA",
+        "url": "https://www.gutenberg.org/ebooks/13507.html.images"
+      }
+    ],
+    "es_argentino_o_latino": false,
+    "genero_o_materia": "Short stories, Uruguayan",
+    "gutenberg_id": 13507
+  },
+  {
     "id": "guten-25640",
     "titulo": "Los argonautas",
     "autor": " ",
@@ -2042,6 +1489,34 @@ export const LIBROS_DIGITALES_CURADOS: LibroDigital[] = [
     "es_argentino_o_latino": false,
     "genero_o_materia": "Cuba -- Fiction",
     "gutenberg_id": 28281
+  },
+  {
+    "id": "guten-14765",
+    "titulo": "El Gaucho Martín Fierro",
+    "autor": " ",
+    "editorial": "Project Gutenberg",
+    "anio": "s. XIX/XX",
+    "idioma": "es",
+    "descripcion": "Gauchos -- Poetry",
+    "portada_url": "https://www.gutenberg.org/cache/epub/14765/pg14765.cover.medium.jpg",
+    "fuente": "gutenberg",
+    "enlace_oficial": "https://www.gutenberg.org/ebooks/14765",
+    "disponibilidad": "descarga_libre",
+    "formatos": [
+      {
+        "tipo": "epub",
+        "label": "Descargar EPUB",
+        "url": "https://www.gutenberg.org/ebooks/14765.epub3.images"
+      },
+      {
+        "tipo": "html",
+        "label": "Lectura Directa en PWA",
+        "url": "https://www.gutenberg.org/ebooks/14765.html.images"
+      }
+    ],
+    "es_argentino_o_latino": true,
+    "genero_o_materia": "Gauchos -- Poetry",
+    "gutenberg_id": 14765
   },
   {
     "id": "guten-24536",
@@ -3192,4 +2667,4 @@ export const LIBROS_DIGITALES_CURADOS: LibroDigital[] = [
     "genero_o_materia": "Philippine poetry (Spanish)",
     "gutenberg_id": 16201
   }
-];
+]

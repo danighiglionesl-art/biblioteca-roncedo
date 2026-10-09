@@ -148,7 +148,7 @@ export default function CarnetPage() {
                 <li className="flex items-start gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" />
                   <span>
-                    <strong>Sin necesidad de carnet plástico:</strong> Funciona siempre en tu celular, incluso cuando no tengas conexión a internet si instalaste la PWA.
+                    <strong>Sin necesidad de carnet plástico:</strong> Funciona siempre en tu celular, incluso cuando no tengas conexión a internet si instalaste la App.
                   </span>
                 </li>
               </ul>

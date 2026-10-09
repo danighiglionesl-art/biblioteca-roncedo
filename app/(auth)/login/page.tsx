@@ -10,16 +10,12 @@ import {
   Mail,
   User,
   ArrowRight,
-  ShieldCheck,
   AlertCircle,
-  CheckCircle,
-  Sparkles,
-  BookOpen,
 } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { loginWithEmail, loginWithGoogle, registerWithEmail, switchUserRoleDemo } = useAuth();
+  const { loginWithEmail, loginWithGoogle, registerWithEmail } = useAuth();
 
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [email, setEmail] = useState('');
@@ -88,33 +84,28 @@ export default function LoginPage() {
     }
   };
 
-  const quickDemoLogin = (role: 'socio' | 'usuario') => {
-    switchUserRoleDemo(role);
-    router.push('/home');
-  };
-
   return (
     <div className="min-h-screen flex flex-col justify-between bg-gradient-to-b from-[#0F2D54] via-[#1B5296] to-[#5B9BE5] text-slate-100 p-4 sm:p-6">
       <div className="max-w-md w-full mx-auto my-auto py-6">
         {/* Cabecera con Emblema Oficial */}
         <div className="text-center mb-6">
-          <div className="relative w-28 h-28 mx-auto mb-4 rounded-2xl overflow-hidden shadow-2xl border-2 border-white/30 bg-white/20 p-1">
+          <div className="relative w-32 h-32 sm:w-36 sm:h-36 mx-auto mb-3 drop-shadow-2xl">
             <Image
-              src="/images/emblema-biblioteca.jpg"
+              src="/images/logo-biblioteca.png"
               alt="Logo Oficial Biblioteca Roncedo"
               fill
-              className="object-cover"
+              className="object-contain"
               priority
             />
           </div>
-          <span className="text-xs uppercase tracking-widest font-bold text-white inline-block bg-white/20 px-3 py-1 rounded-full border border-white/30 mb-2 backdrop-blur-sm">
+          <span className="text-xs uppercase tracking-widest font-bold text-white inline-block bg-white/20 px-3.5 py-1 rounded-full border border-white/30 mb-2 backdrop-blur-sm">
             Plataforma Institucional Digital
           </span>
           <h1 className="text-xl sm:text-2xl font-black text-white leading-tight">
             Biblioteca Roncedo
           </h1>
-          <p className="text-sm text-blue-100 mt-1">
-            Club Sportivo y Biblioteca • Alcira Gigena
+          <p className="text-xs sm:text-sm text-blue-100 mt-1">
+            Club Sportivo y Biblioteca Dr. Lautaro Roncedo
           </p>
         </div>
 
@@ -311,44 +302,19 @@ export default function LoginPage() {
           </form>
         </div>
 
-        {/* Acceso Rápido de Prueba (Demo Cuentas) */}
-        <div className="mt-6 bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/10 text-center">
-          <div className="flex items-center justify-center gap-1.5 text-xs font-bold text-amber-300 mb-2">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Accesos Rápidos de Prueba (1 Clic)</span>
-          </div>
-          <p className="text-[11px] text-slate-300 mb-3">
-            Para evaluar de inmediato los perfiles de prueba:
-          </p>
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              onClick={() => quickDemoLogin('socio')}
-              className="py-2.5 px-3 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-200 rounded-xl text-xs font-semibold border border-emerald-400/30 transition-colors"
-            >
-              Socio Activo
-            </button>
-            <button
-              onClick={() => quickDemoLogin('usuario')}
-              className="py-2.5 px-3 bg-blue-500/20 hover:bg-blue-500/30 text-blue-200 rounded-xl text-xs font-semibold border border-blue-400/30 transition-colors"
-            >
-              Nuevo Usuario
-            </button>
-          </div>
-        </div>
-
-        {/* Enlace PWA */}
+        {/* Enlace para Instalar App */}
         <div className="text-center mt-6">
           <Link
             href="/instalar"
-            className="text-xs text-blue-300 hover:text-white underline inline-flex items-center gap-1"
+            className="text-xs text-blue-200 hover:text-white underline inline-flex items-center gap-1 font-medium transition-colors"
           >
-            ¿Cómo instalar esta aplicación en tu celular?
+            ¿Cómo instalar la App en tu celular?
           </Link>
         </div>
       </div>
 
-      <footer className="text-center text-xs text-slate-400 py-3 border-t border-white/5">
-        Club Sportivo y Biblioteca Dr. Lautaro Roncedo • Alcira Gigena, Córdoba • www.bibliotecaroncedo.ar
+      <footer className="text-center text-xs text-slate-300/80 py-3 border-t border-white/10 font-medium">
+        Club Sportivo y Biblioteca Dr. Lautaro Roncedo • www.bibliotecaroncedo.ar
       </footer>
     </div>
   );

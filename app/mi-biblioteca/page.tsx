@@ -308,7 +308,7 @@ export default function MiBibliotecaPage() {
                 </p>
                 <p className="flex items-center gap-1.5">
                   <CheckCircle2 className="w-3.5 h-3.5 text-roncedo-gold flex-shrink-0" />
-                  <span>Lectura directa en PWA y descargas en EPUB / PDF libres.</span>
+                  <span>Lectura directa en la App y descargas en EPUB / PDF libres.</span>
                 </p>
               </div>
             </div>

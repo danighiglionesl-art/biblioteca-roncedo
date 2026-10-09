@@ -78,7 +78,7 @@ export default function SocioProtectorPage() {
         {/* Cabecera Principal Institucional */}
         <div className="text-center max-w-2xl mx-auto">
           <div className="inline-flex items-center gap-2 bg-gradient-to-r from-[#0F2D54] to-[#1B5699] text-white px-3.5 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-wider mb-3 shadow-sm">
-            <Heart className="w-3.5 h-3.5 text-rose-400 fill-rose-400" />
+            <Heart className="w-3.5 h-3.5 text-amber-300 fill-amber-300" />
             <span>Módulo Institucional</span>
           </div>
 
@@ -93,7 +93,7 @@ export default function SocioProtectorPage() {
 
         {/* Estado actual del usuario si ya es Socio Protector */}
         {isProtectorActivo && (
-          <div className="bg-gradient-to-br from-rose-500 via-rose-600 to-pink-700 text-white rounded-3xl p-6 shadow-xl relative overflow-hidden">
+          <div className="bg-gradient-to-br from-[#0F284B] via-[#1A457D] to-[#2563EB] text-white rounded-3xl p-6 shadow-xl relative overflow-hidden border border-white/20">
             <div className="absolute right-4 top-4 opacity-15 pointer-events-none">
               <Heart className="w-36 h-36 fill-white" />
             </div>
@@ -101,19 +101,19 @@ export default function SocioProtectorPage() {
             <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div className="space-y-1">
                 <span className="bg-white/20 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full backdrop-blur-sm border border-white/20">
-                  ¡Aporte Activo! ❤️
+                  ¡Aporte Activo! 🤝
                 </span>
                 <h2 className="text-xl font-black">
                   ¡Gracias, {user.nombre}! Eres Socio Protector {user.tipo_socio_protector || ''}
                 </h2>
-                <p className="text-xs text-rose-100 max-w-lg leading-relaxed">
-                  Tu colaboración mensual de ${user.importe_mensual?.toLocaleString('es-AR') || '2.000'} ayuda directamente al funcionamiento de la biblioteca y a los proyectos comunitarios de Alcira Gigena.
+                <p className="text-xs text-blue-100 max-w-lg leading-relaxed">
+                  Tu colaboración mensual de ${user.importe_mensual?.toLocaleString('es-AR') || '2.000'} ayuda directamente al funcionamiento de la biblioteca y a los proyectos comunitarios.
                 </p>
               </div>
 
               <Link
                 href="/carnet"
-                className="inline-flex items-center gap-2 bg-white text-rose-700 hover:bg-rose-50 px-4 py-2.5 rounded-2xl text-xs font-black shadow-md transition-all flex-shrink-0"
+                className="inline-flex items-center gap-2 bg-white text-[#0F284B] hover:bg-blue-50 px-4 py-2.5 rounded-2xl text-xs font-black shadow-md transition-all flex-shrink-0"
               >
                 <CreditCard className="w-4 h-4" />
                 <span>Ver Insignia en mi Carnet</span>

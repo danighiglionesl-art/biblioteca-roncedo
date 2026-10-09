@@ -4,11 +4,11 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '@/lib/auth/AuthContext';
-import { ShieldCheck, User as UserIcon, LogOut, Download, Sparkles, BookOpen, Heart } from 'lucide-react';
+import { User as UserIcon, LogOut, Download, Heart } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export function Header() {
-  const { user, logout, switchUserRoleDemo } = useAuth();
+  const { user, logout } = useAuth();
   const router = useRouter();
 
   const handleLogout = async () => {
@@ -18,25 +18,22 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-40 bg-gradient-to-r from-[#0F284B] via-[#1A457D] to-[#2B6CB5] text-white shadow-md border-b border-roncedo-celeste/40">
-      <div className="max-w-6xl mx-auto px-4 py-2.5 flex items-center justify-between">
+      <div className="max-w-6xl mx-auto px-4 py-2 flex items-center justify-between">
         {/* Logo e Identidad Institucional */}
         <Link href="/home" className="flex items-center gap-3 group">
-          <div className="relative w-11 h-11 rounded-lg overflow-hidden border border-white/30 bg-white/20 flex-shrink-0 group-hover:scale-105 transition-transform shadow-sm">
+          <div className="relative w-12 h-12 sm:w-14 sm:h-14 flex-shrink-0 group-hover:scale-105 transition-transform drop-shadow-md">
             <Image
-              src="/images/emblema-biblioteca.jpg"
+              src="/images/logo-biblioteca.png"
               alt="Logo Biblioteca Roncedo"
               fill
-              className="object-cover"
+              className="object-contain"
               priority
             />
           </div>
           <div>
             <div className="flex items-center gap-1.5">
-              <span className="text-xs uppercase tracking-wider font-semibold text-roncedo-celesteLight">
+              <span className="text-[11px] sm:text-xs uppercase tracking-wider font-bold text-roncedo-celesteLight">
                 Cultura y Deporte
-              </span>
-              <span className="text-[10px] bg-roncedo-gold/20 text-roncedo-goldLight px-1.5 py-0.2 rounded font-medium border border-roncedo-gold/30">
-                Alcira Gigena
               </span>
             </div>
             <h1 className="text-base sm:text-lg font-bold tracking-tight text-white leading-tight">
@@ -72,24 +69,24 @@ export function Header() {
               </span>
             </div>
 
-            {/* Acceso a Socio Protector */}
+            {/* Acceso a Socio Protector (Estilo Institucional Dorado/Celeste Armónico) */}
             <Link
               href="/socio-protector"
-              className="flex items-center gap-1.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 hover:text-white text-xs px-2.5 py-1.5 rounded-lg border border-rose-400/30 transition-colors shadow-sm"
+              className="flex items-center gap-1.5 bg-amber-400/15 hover:bg-amber-400/25 text-amber-200 hover:text-white text-xs px-2.5 py-1.5 rounded-lg border border-amber-300/30 transition-colors shadow-sm"
               title="Socio Protector"
             >
-              <Heart className="w-3.5 h-3.5 text-rose-400 fill-rose-400" />
+              <Heart className="w-3.5 h-3.5 text-amber-300 fill-amber-300" />
               <span className="hidden sm:inline font-bold">Socio Protector</span>
             </Link>
 
-            {/* Acceso a Instalar PWA */}
+            {/* Acceso a Instalar App */}
             <Link
               href="/instalar"
               className="hidden sm:flex items-center gap-1 bg-white/10 hover:bg-white/20 text-xs px-2.5 py-1.5 rounded-lg border border-white/20 transition-colors"
               title="Instalar App en el teléfono"
             >
               <Download className="w-3.5 h-3.5 text-roncedo-celesteLight" />
-              <span className="hidden lg:inline">Instalar PWA</span>
+              <span className="hidden lg:inline">Instalar App</span>
             </Link>
 
             {/* Perfil con foto si existe */}
@@ -128,43 +125,6 @@ export function Header() {
           </Link>
         )}
       </div>
-
-      {/* Switcher Demo para pruebas rápidas de roles (solo informativo/demo) */}
-      {user && (
-        <div className="bg-roncedo-navyDark/90 border-t border-blue-900/50 px-4 py-1 text-[11px] text-blue-300 flex items-center justify-between overflow-x-auto no-scrollbar">
-          <div className="flex items-center gap-1 text-slate-300 font-medium">
-            <Sparkles className="w-3 h-3 text-roncedo-gold" />
-            <span>Modo Demo Activo:</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="text-[10px] text-slate-400">Probar como:</span>
-            <button
-              onClick={() => switchUserRoleDemo('usuario')}
-              className={`px-2 py-0.5 rounded text-[10px] font-medium transition-colors ${
-                user.role === 'usuario' ? 'bg-blue-500 text-white' : 'bg-white/10 hover:bg-white/20 text-slate-200'
-              }`}
-            >
-              Usuario
-            </button>
-            <button
-              onClick={() => switchUserRoleDemo('socio')}
-              className={`px-2 py-0.5 rounded text-[10px] font-medium transition-colors ${
-                user.role === 'socio' ? 'bg-emerald-500 text-white' : 'bg-white/10 hover:bg-white/20 text-slate-200'
-              }`}
-            >
-              Socio Activo
-            </button>
-            <button
-              onClick={() => switchUserRoleDemo('admin')}
-              className={`px-2 py-0.5 rounded text-[10px] font-medium transition-colors ${
-                user.role === 'admin' ? 'bg-amber-500 text-white' : 'bg-white/10 hover:bg-white/20 text-slate-200'
-              }`}
-            >
-              Administrador
-            </button>
-          </div>
-        </div>
-      )}
     </header>
   );
 }

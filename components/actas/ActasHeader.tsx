@@ -29,7 +29,6 @@ interface ActasHeaderProps {
   isAdmin: boolean;
   isSocioProtector: boolean;
   currentUserRole?: UserRole;
-  onSwitchRole: (role: UserRole) => void;
   onNuevaActa: () => void;
   totalFolios: number;
   totalActas: number;
@@ -55,7 +54,6 @@ export function ActasHeader({
   isAdmin,
   isSocioProtector,
   currentUserRole,
-  onSwitchRole,
   onNuevaActa,
   totalFolios,
   totalActas,
@@ -72,47 +70,13 @@ export function ActasHeader({
           <span>Volver al Inicio</span>
         </Link>
 
-        {/* Selector interactivo de rol para probar permisos fácilmente */}
-        <div className="flex items-center gap-2 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-xl border border-blue-200/80 shadow-sm">
-          <span className="text-[11px] font-bold text-slate-500 hidden sm:inline">
-            Rol actual para prueba:
-          </span>
-          <div className="flex items-center gap-1">
-            <button
-              onClick={() => onSwitchRole('admin')}
-              className={`text-[11px] font-bold px-2 py-1 rounded-lg transition-colors flex items-center gap-1 ${
-                isAdmin
-                  ? 'bg-amber-500 text-white shadow-sm'
-                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-              }`}
-              title="Activar permisos de Administrador (Gestión total)"
-            >
-              <span>🛠️ Admin</span>
-            </button>
-            <button
-              onClick={() => onSwitchRole('socio')}
-              className={`text-[11px] font-bold px-2 py-1 rounded-lg transition-colors flex items-center gap-1 ${
-                isSocioProtector
-                  ? 'bg-rose-500 text-white shadow-sm'
-                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-              }`}
-              title="Activar permisos de Socio Protector (Solo lectura)"
-            >
-              <span>⭐ Socio Protector</span>
-            </button>
-            <button
-              onClick={() => onSwitchRole('usuario')}
-              className={`text-[11px] font-bold px-2 py-1 rounded-lg transition-colors flex items-center gap-1 ${
-                currentUserRole === 'usuario' && !isSocioProtector
-                  ? 'bg-blue-600 text-white shadow-sm'
-                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-              }`}
-              title="Activar permisos de Usuario (Solo lectura)"
-            >
-              <span>👤 Usuario</span>
-            </button>
+        {isAdmin && (
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] font-extrabold bg-amber-500/20 text-amber-900 border border-amber-300 px-3 py-1 rounded-xl">
+              Modo Administrador Activo
+            </span>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Banner de Presentación y Estadísticas */}

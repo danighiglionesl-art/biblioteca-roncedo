@@ -257,7 +257,7 @@ export function BibliotecaDigitalView() {
             >
               <option value="todas">Cualquier formato</option>
               <option value="descarga_libre">Descarga Libre (EPUB / PDF)</option>
-              <option value="lectura_directa">Lectura Directa en PWA</option>
+              <option value="lectura_directa">Lectura Directa en la App</option>
               <option value="prestamo_externo">Préstamo Digital</option>
             </select>
           </div>
@@ -491,7 +491,7 @@ export function BibliotecaDigitalView() {
                     className="w-full bg-roncedo-navy hover:bg-blue-900 text-white font-bold text-xs py-2 px-3 rounded-xl transition-colors flex items-center justify-center gap-1.5 shadow-sm"
                   >
                     <BookOpen className="w-3.5 h-3.5 text-roncedo-gold" />
-                    <span>Leer en PWA</span>
+                    <span>Leer en la App</span>
                   </button>
 
                   {/* Botón Descarga si está autorizada */}

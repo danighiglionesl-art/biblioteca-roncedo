@@ -130,7 +130,7 @@ export function LectorDigitalModal({ libro, onClose }: LectorDigitalModalProps) 
             </div>
             <div className="min-w-0">
               <span className="text-[10px] font-bold uppercase tracking-wider text-roncedo-celesteDark truncate block">
-                Lector Digital PWA • {libro.fuente.toUpperCase()}
+                Lector Digital Oficial • {libro.fuente.toUpperCase()}
               </span>
               <h2 className="text-sm sm:text-base font-black truncate max-w-md" title={libro.titulo}>
                 {libro.titulo}

@@ -226,7 +226,7 @@ export function SubirFotoModal({ isOpen, onClose, onFotoSubida }: SubirFotoModal
                       Tocá acá para seleccionar la foto desde tu celular o computadora
                     </span>
                     <span className="text-[11px] text-slate-500 mt-1">
-                      Formatos JPG, PNG, WEBP. La PWA la optimiza automáticamente para máxima nitidez.
+                      Formatos JPG, PNG, WEBP. La aplicación la optimiza automáticamente para máxima nitidez.
                     </span>
                   </div>
                 )}
