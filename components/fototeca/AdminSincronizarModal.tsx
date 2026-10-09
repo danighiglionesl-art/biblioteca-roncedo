@@ -21,6 +21,8 @@ interface AdminSincronizarModalProps {
 
 interface ScanResult {
   success: boolean;
+  isCloud?: boolean;
+  fotosEnSupabase?: number;
   carpetaBase?: string;
   totalCarpetas?: number;
   totalFotos?: number;
@@ -122,6 +124,22 @@ export function AdminSincronizarModal({
               <p className="text-xs font-semibold text-slate-600">
                 Escaneando la carpeta material/Fotografías...
               </p>
+            </div>
+          ) : scanData && scanData.isCloud ? (
+            <div className="space-y-4">
+              <div className="p-4 bg-emerald-50 rounded-2xl border border-emerald-200 text-xs text-emerald-900 space-y-2.5">
+                <div className="flex items-center gap-2 font-bold text-emerald-800 text-sm">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+                  <span>Archivo Histórico Activo y Sincronizado</span>
+                </div>
+                <p className="text-xs text-emerald-800 leading-relaxed">
+                  Actualmente hay <strong>{scanData.fotosEnSupabase || 50} fotografías históricas</strong> publicadas en alta definición en Supabase, distribuidas en las 16 colecciones temáticas (Fiesta del Maíz, Clásicos, Peñas de Mujeres, Búsqueda, etc.).
+                </p>
+                <div className="pt-2 border-t border-emerald-200 text-[11px] text-slate-600 space-y-1">
+                  <p>• Todas las imágenes están comprimidas en WebP de alta fidelidad para optimizar el espacio gratuito.</p>
+                  <p>• Los socios y vecinos pueden sumar fotos individuales en cualquier momento desde el botón <strong>«Aportar una Fotografía»</strong>.</p>
+                </div>
+              </div>
             </div>
           ) : scanData && scanData.success ? (
             <div className="space-y-4">
@@ -235,23 +253,35 @@ export function AdminSincronizarModal({
             Cerrar
           </button>
 
-          <button
-            onClick={handleStartImport}
-            disabled={isImporting || isScanning || !scanData?.success}
-            className="flex items-center gap-2 bg-gradient-to-r from-roncedo-celeste to-roncedo-celesteDark hover:from-roncedo-celesteDark hover:to-blue-700 text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isImporting ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Importando a Supabase...</span>
-              </>
-            ) : (
-              <>
-                <Sparkles className="w-4 h-4" />
-                <span>Iniciar Carga Automática</span>
-              </>
-            )}
-          </button>
+          {scanData?.isCloud ? (
+            <button
+              onClick={() => {
+                onImportComplete();
+                onClose();
+              }}
+              className="flex items-center gap-2 bg-roncedo-celeste hover:bg-roncedo-celesteDark text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow-md transition-all"
+            >
+              <span>Ver Fotos en Galería</span>
+            </button>
+          ) : (
+            <button
+              onClick={handleStartImport}
+              disabled={isImporting || isScanning || !scanData?.success}
+              className="flex items-center gap-2 bg-gradient-to-r from-roncedo-celeste to-roncedo-celesteDark hover:from-roncedo-celesteDark hover:to-blue-700 text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isImporting ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Importando a Supabase...</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4" />
+                  <span>Iniciar Carga Automática</span>
+                </>
+              )}
+            </button>
+          )}
         </div>
       </div>
     </div>

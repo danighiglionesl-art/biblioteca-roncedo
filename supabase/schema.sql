@@ -417,3 +417,66 @@ CREATE POLICY "Solo Administrador puede eliminar actas"
     )
   );
 
+-- =====================================================================
+-- TABLA DE NOVEDADES INSTITUCIONALES (COMUNICADOS, ACTIVIDADES Y NOTICIAS)
+-- Soporta hasta 5 fotografías en array de URLs o Storage paths
+-- =====================================================================
+CREATE TABLE IF NOT EXISTS public.novedades (
+  id TEXT PRIMARY KEY DEFAULT ('nov-' || floor(extract(epoch from now()) * 1000)::text),
+  titulo TEXT NOT NULL,
+  bajada TEXT NOT NULL,
+  contenido TEXT NOT NULL,
+  categoria TEXT DEFAULT 'Institucional' NOT NULL, -- 'Institucional', 'Cultura', 'Libros', 'Archivo'
+  fecha DATE DEFAULT CURRENT_DATE NOT NULL,
+  destacado BOOLEAN DEFAULT FALSE NOT NULL,
+  imagen_url TEXT, -- Portada principal
+  imagenes TEXT[] DEFAULT '{}', -- Hasta 5 fotografías asociadas
+  autor TEXT DEFAULT 'Biblioteca Roncedo',
+  created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
+);
+
+-- Índices de aceleración para Novedades
+CREATE INDEX IF NOT EXISTS idx_novedades_fecha ON public.novedades(fecha DESC);
+CREATE INDEX IF NOT EXISTS idx_novedades_destacado ON public.novedades(destacado);
+CREATE INDEX IF NOT EXISTS idx_novedades_categoria ON public.novedades(categoria);
+
+-- Políticas RLS para Novedades:
+ALTER TABLE public.novedades ENABLE ROW LEVEL SECURITY;
+
+-- Lectura: Pública para toda la comunidad
+CREATE POLICY "Lectura pública de novedades"
+  ON public.novedades FOR SELECT
+  USING (true);
+
+-- Creación / Inserción: Solo administradores
+CREATE POLICY "Solo Administrador puede registrar novedades"
+  ON public.novedades FOR INSERT
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE profiles.id = auth.uid() AND profiles.role = 'admin'
+    )
+  );
+
+-- Actualización: Solo administradores
+CREATE POLICY "Solo Administrador puede modificar novedades"
+  ON public.novedades FOR UPDATE
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE profiles.id = auth.uid() AND profiles.role = 'admin'
+    )
+  );
+
+-- Eliminación: Solo administradores
+CREATE POLICY "Solo Administrador puede eliminar novedades"
+  ON public.novedades FOR DELETE
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE profiles.id = auth.uid() AND profiles.role = 'admin'
+    )
+  );
+
+

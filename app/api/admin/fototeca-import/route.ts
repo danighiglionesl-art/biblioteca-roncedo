@@ -13,9 +13,25 @@ export async function GET() {
   try {
     const materialPath = findFotografiasDir();
     if (!materialPath) {
+      let fotosEnSupabase = 0;
+      if (supabaseUrl && supabaseKey) {
+        class SSRWebSocketDummy {}
+        const client = createClient(supabaseUrl, supabaseKey, {
+          auth: { persistSession: false },
+          realtime: {
+            transport: typeof WebSocket !== 'undefined' ? WebSocket : (SSRWebSocketDummy as any),
+          },
+        });
+        const { count } = await client
+          .from('fototeca_fotos')
+          .select('*', { count: 'exact', head: true });
+        fotosEnSupabase = count || 0;
+      }
       return NextResponse.json({
-        success: false,
-        message: 'No se encontró la carpeta material/Fotografías en el proyecto.',
+        success: true,
+        isCloud: true,
+        fotosEnSupabase,
+        message: `El archivo fotográfico está sincronizado con Supabase (${fotosEnSupabase} fotos activas).`,
       });
     }
 

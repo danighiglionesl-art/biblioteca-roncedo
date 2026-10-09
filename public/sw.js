@@ -1,4 +1,4 @@
-const CACHE_NAME = 'roncedo-pwa-v5';
+const CACHE_NAME = 'roncedo-pwa-v7';
 
 const STATIC_ASSETS = [
   '/',
@@ -7,10 +7,11 @@ const STATIC_ASSETS = [
   '/mi-biblioteca',
   '/libros',
   '/biblioteca-digital',
+  '/socio-protector',
   '/instalar',
   '/manifest.json',
-  '/images/escudo-roncedo.jpg',
-  '/images/emblema-biblioteca.jpg',
+  '/images/escudo-roncedo.png',
+  '/images/logo-biblioteca.png',
 ];
 
 self.addEventListener('install', (event) => {
@@ -19,6 +20,7 @@ self.addEventListener('install', (event) => {
       return cache.addAll(STATIC_ASSETS).catch(() => {});
     })
   );
+  // Forzar activación inmediata del nuevo Service Worker sin esperar a que cierren la app
   self.skipWaiting();
 });
 
@@ -33,14 +35,18 @@ self.addEventListener('activate', (event) => {
           }
         })
       );
-    })
+    }).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
 self.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'SKIP_WAITING') {
-    self.skipWaiting();
+  if (event.data) {
+    if (event.data.type === 'SKIP_WAITING') {
+      self.skipWaiting();
+    }
+    if (event.data.type === 'CLEAR_ALL_CACHES') {
+      caches.keys().then((keys) => Promise.all(keys.map((k) => caches.delete(k))));
+    }
   }
 });
 
@@ -52,9 +58,24 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 2. Estrategia NETWORK-FIRST para navegaciones y páginas HTML
-  // Garantiza que en Android siempre se vea la versión más reciente publicada
-  if (event.request.mode === 'navigate' || event.request.headers.get('accept')?.includes('text/html')) {
+  // 2. Estrategia NETWORK-FIRST ESTRICTA para:
+  // - Navegaciones completas (modo 'navigate')
+  // - Páginas HTML (Accept: text/html)
+  // - Transiciones RSC de Next.js (headers 'rsc', accept 'text/x-component', query '?_rsc=')
+  // - Peticiones de datos Next.js (/_next/data/)
+  // Esto garantiza que en Android cualquier cambio publicado en Vercel se refleje AL INSTANTE.
+  const acceptHeader = event.request.headers.get('accept') || '';
+  const isRSCRequest =
+    event.request.headers.get('rsc') === '1' ||
+    url.searchParams.has('_rsc') ||
+    acceptHeader.includes('text/x-component') ||
+    url.pathname.startsWith('/_next/data/');
+
+  const isHtmlPage =
+    event.request.mode === 'navigate' ||
+    acceptHeader.includes('text/html');
+
+  if (isHtmlPage || isRSCRequest) {
     event.respondWith(
       fetch(event.request)
         .then((response) => {
@@ -67,7 +88,7 @@ self.addEventListener('fetch', (event) => {
           return response;
         })
         .catch(() => {
-          // Si no hay red, servir desde cache
+          // Si no hay red, servir desde cache offline
           return caches.match(event.request).then((cached) => {
             if (cached) return cached;
             return caches.match('/mi-biblioteca') || caches.match('/home');
@@ -77,12 +98,12 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 3. Estrategia STALE-WHILE-REVALIDATE para recursos estáticos (CSS, JS, imágenes, fuentes)
+  // 3. Estrategia STALE-WHILE-REVALIDATE para chunks estáticos (JS con hash inmutable, CSS, fuentes)
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       const fetchPromise = fetch(event.request)
         .then((networkResponse) => {
-          if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+          if (networkResponse && networkResponse.status === 200) {
             const responseToCache = networkResponse.clone();
             caches.open(CACHE_NAME).then((cache) => {
               cache.put(event.request, responseToCache);

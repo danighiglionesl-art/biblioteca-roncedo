@@ -2034,7 +2034,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-102",
@@ -2050,7 +2054,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-103",
@@ -2066,7 +2074,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-104",
@@ -2082,7 +2094,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-105",
@@ -2098,7 +2114,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-106",
@@ -2114,7 +2134,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-107",
@@ -2130,7 +2154,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-108",
@@ -2146,7 +2174,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-109",
@@ -2162,7 +2194,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-110",
@@ -2178,7 +2214,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-111",
@@ -2194,7 +2234,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-112",
@@ -2210,7 +2254,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-113",
@@ -2226,7 +2274,11 @@
     "topografia_ubicacion": "con Fichas Informativas",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-114",
@@ -2242,7 +2294,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-115",
@@ -2258,7 +2314,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-116",
@@ -2274,7 +2334,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-117",
@@ -2290,7 +2354,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-118",
@@ -2306,7 +2374,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-119",
@@ -2322,7 +2394,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-120",
@@ -2338,7 +2414,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-121",
@@ -2354,7 +2434,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-122",
@@ -2370,7 +2454,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-123",
@@ -2386,7 +2474,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-124",
@@ -2402,7 +2494,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-125",
@@ -2418,7 +2514,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-126",
@@ -2434,7 +2534,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-127",
@@ -2450,7 +2554,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-128",
@@ -2466,7 +2574,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-129",
@@ -2482,7 +2594,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-130",
@@ -2498,7 +2614,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-131",
@@ -2514,7 +2634,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-132",
@@ -2530,7 +2654,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-133",
@@ -2546,7 +2674,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-134",
@@ -2562,7 +2694,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-135",
@@ -2578,7 +2714,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-136",
@@ -2594,7 +2734,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-137",
@@ -2610,7 +2754,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-138",
@@ -2626,7 +2774,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-139",
@@ -2642,7 +2794,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-140",
@@ -2658,7 +2814,11 @@
     "topografia_ubicacion": "",
     "portada_url": "",
     "estado": "disponible",
-    "lista_espera": []
+    "lista_espera": [],
+    "estado_portada": "sin_portada",
+    "portada_fuente": "ninguna",
+    "portada_confianza": "ninguna",
+    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
   },
   {
     "id": "libro-141",

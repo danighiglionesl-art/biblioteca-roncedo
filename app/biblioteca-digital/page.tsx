@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Library, Globe2 } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { BibliotecaDigitalView } from '@/components/digital/BibliotecaDigitalView';
 
 export default function BibliotecaDigitalPage() {
@@ -13,19 +13,15 @@ export default function BibliotecaDigitalPage() {
         <div className="flex items-center justify-between">
           <Link
             href="/mi-biblioteca"
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-roncedo-navy hover:underline"
+            className="inline-flex items-center gap-2 text-xs font-bold text-roncedo-navy hover:text-roncedo-celesteDark transition-colors bg-white/90 backdrop-blur-sm px-3.5 py-2 rounded-xl border border-blue-200/80 shadow-sm"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="w-4 h-4 text-roncedo-celeste" />
             <span>Volver a Mi Biblioteca</span>
           </Link>
 
-          <Link
-            href="/libros"
-            className="inline-flex items-center gap-2 text-xs font-bold bg-white hover:bg-slate-50 text-roncedo-navy px-3.5 py-2 rounded-xl shadow-sm border border-blue-200 transition-colors"
-          >
-            <Library className="w-4 h-4 text-roncedo-gold" />
-            <span>Ver Catálogo Físico (1.283 libros) →</span>
-          </Link>
+          <span className="text-[11px] font-semibold text-slate-500">
+            Biblioteca Roncedo • Biblioteca Digital
+          </span>
         </div>
 
         {/* Vista Principal de la Biblioteca Digital */}

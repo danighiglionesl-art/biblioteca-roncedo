@@ -1,31 +1,67 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { RefreshCw, Sparkles } from 'lucide-react';
+import { RefreshCw, Sparkles, CheckCircle2 } from 'lucide-react';
+
+export async function forzarActualizacionCompleta() {
+  try {
+    if (typeof window !== 'undefined') {
+      if ('caches' in window) {
+        const keys = await caches.keys();
+        await Promise.all(keys.map((k) => caches.delete(k)));
+      }
+      if ('serviceWorker' in navigator) {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        for (const reg of regs) {
+          await reg.unregister();
+        }
+      }
+      window.location.href = window.location.pathname + '?ts=' + Date.now();
+    }
+  } catch (e) {
+    console.error('Error forzando actualización:', e);
+    window.location.reload();
+  }
+}
 
 export function ServiceWorkerRegister() {
   const [hayActualizacion, setHayActualizacion] = useState(false);
   const [workerEnEspera, setWorkerEnEspera] = useState<ServiceWorker | null>(null);
+  const [actualizando, setActualizando] = useState(false);
 
   useEffect(() => {
-    if (typeof window === 'undefined' || !('serviceWorker' in navigator)) {
-      return;
-    }
+    if (typeof window === 'undefined') return;
+
+    // Exponer la función global para uso desde cualquier vista o soporte
+    (window as any).__limpiarCacheRoncedo = forzarActualizacionCompleta;
+
+    if (!('serviceWorker' in navigator)) return;
 
     let registrationRef: ServiceWorkerRegistration | null = null;
+    let recargando = false;
+
+    // Detectar cuando el nuevo worker toma el control y recargar automáticamente
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (!recargando) {
+        recargando = true;
+        window.location.reload();
+      }
+    });
 
     navigator.serviceWorker
       .register('/sw.js')
       .then((reg) => {
         registrationRef = reg;
 
-        // Forzar chequeo de nueva versión en cada inicio
+        // Forzar chequeo de nueva versión en cada arranque
         reg.update().catch(() => {});
 
-        // Detectar si hay un worker nuevo esperando para activarse
+        // Si ya hay un worker nuevo esperando, activarlo
         if (reg.waiting) {
           setWorkerEnEspera(reg.waiting);
           setHayActualizacion(true);
+          // Intentar activación inmediata
+          reg.waiting.postMessage({ type: 'SKIP_WAITING' });
         }
 
         reg.addEventListener('updatefound', () => {
@@ -35,25 +71,18 @@ export function ServiceWorkerRegister() {
               if (nuevoWorker.state === 'installed' && navigator.serviceWorker.controller) {
                 setWorkerEnEspera(nuevoWorker);
                 setHayActualizacion(true);
+                // Forzar activación inmediata
+                nuevoWorker.postMessage({ type: 'SKIP_WAITING' });
               }
             });
           }
         });
       })
       .catch((err) => {
-        console.log('[SW] Error registrando worker:', err);
+        console.log('[SW] Registro:', err);
       });
 
-    // Detectar cuando el nuevo worker toma el control y recargar automáticamente para aplicar cambios
-    let recargando = false;
-    navigator.serviceWorker.addEventListener('controllerchange', () => {
-      if (!recargando) {
-        recargando = true;
-        window.location.reload();
-      }
-    });
-
-    // Chequear actualizaciones cada vez que el usuario vuelve a la app en Android
+    // Rechequear cada vez que el usuario vuelve a la app en Android
     const handleVisibilidad = () => {
       if (document.visibilityState === 'visible' && registrationRef) {
         registrationRef.update().catch(() => {});
@@ -67,10 +96,14 @@ export function ServiceWorkerRegister() {
   }, []);
 
   const aplicarActualizacion = () => {
+    setActualizando(true);
     if (workerEnEspera) {
       workerEnEspera.postMessage({ type: 'SKIP_WAITING' });
+      setTimeout(() => {
+        forzarActualizacionCompleta();
+      }, 500);
     } else {
-      window.location.reload();
+      forzarActualizacionCompleta();
     }
   };
 
@@ -90,10 +123,11 @@ export function ServiceWorkerRegister() {
         </div>
         <button
           onClick={aplicarActualizacion}
-          className="bg-roncedo-gold hover:bg-yellow-500 text-roncedo-navyDark font-black text-xs px-3 py-1.5 rounded-xl transition-colors flex items-center gap-1 shadow-sm flex-shrink-0"
+          disabled={actualizando}
+          className="bg-roncedo-gold hover:bg-yellow-500 text-roncedo-navyDark font-black text-xs px-3 py-1.5 rounded-xl transition-colors flex items-center gap-1 shadow-sm flex-shrink-0 disabled:opacity-70"
         >
-          <RefreshCw className="w-3.5 h-3.5" />
-          <span>Actualizar</span>
+          <RefreshCw className={`w-3.5 h-3.5 ${actualizando ? 'animate-spin' : ''}`} />
+          <span>{actualizando ? 'Actualizando...' : 'Actualizar'}</span>
         </button>
       </div>
     </div>

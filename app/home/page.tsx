@@ -4,7 +4,6 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '@/lib/auth/AuthContext';
-import { NOVEDADES_INICIALES } from '@/lib/auth/mockData';
 import {
   CreditCard,
   Library,
@@ -483,6 +482,14 @@ export default function HomePage() {
           </div>
         </section>
       </main>
+
+      {/* Modal de Lectura y Galería de Fotografías de la Novedad */}
+      {novedadSeleccionada && (
+        <ModalDetalleNovedad
+          novedad={novedadSeleccionada}
+          onClose={() => setNovedadSeleccionada(null)}
+        />
+      )}
     </div>
   );
 }

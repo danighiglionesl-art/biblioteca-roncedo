@@ -20,6 +20,7 @@ import {
   Send,
   AlertCircle,
   Camera,
+  ArrowLeft,
   Trash2,
   Upload,
   Globe,
@@ -294,6 +295,21 @@ export default function PerfilPage() {
   return (
     <div className="min-h-screen bg-[#E5F2FE] pb-28 pt-6 px-4">
       <div className="max-w-3xl mx-auto space-y-6">
+        {/* Navegación Superior: Volver al Inicio */}
+        <div className="flex items-center justify-between">
+          <Link
+            href="/home"
+            className="inline-flex items-center gap-2 text-xs font-bold text-roncedo-navy hover:text-roncedo-celesteDark transition-colors bg-white/90 backdrop-blur-sm px-3.5 py-2 rounded-xl border border-blue-200/80 shadow-sm"
+          >
+            <ArrowLeft className="w-4 h-4 text-roncedo-celeste" />
+            <span>Volver al Inicio</span>
+          </Link>
+
+          <span className="text-[11px] font-semibold text-slate-500">
+            Biblioteca Roncedo • Datos Personales
+          </span>
+        </div>
+
         {/* Cabecera de Perfil con Subida de Foto */}
         <div className="bg-white rounded-3xl p-6 shadow-card border border-blue-200/90 flex flex-col sm:flex-row items-center gap-6">
           {/* Avatar interactivo */}

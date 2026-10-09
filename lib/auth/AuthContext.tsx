@@ -87,6 +87,66 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+  // Escuchar cambios de sesión de Supabase (especialmente para Google OAuth y callbacks)
+  useEffect(() => {
+    if (!isSupabaseConfigured || !supabase) return;
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session?.user) {
+        const u = session.user;
+        const meta = u.user_metadata || {};
+        const email = u.email || '';
+        const fullName = meta.full_name || meta.name || '';
+        const nameParts = fullName.split(' ');
+        const nombre = nameParts[0] || email.split('@')[0] || 'Usuario';
+        const apellido = nameParts.slice(1).join(' ') || '';
+
+        // Si es el correo oficial de administración
+        let role: UserRole = 'usuario';
+        if (
+          email.toLowerCase() === 'biblioroncedo@bibliotecaroncedo.ar' ||
+          email.toLowerCase() === 'admin@bibliotecaroncedo.ar'
+        ) {
+          role = 'admin';
+        }
+
+        const oauthUser: UserProfile = {
+          id: u.id,
+          email,
+          nombre,
+          apellido,
+          role,
+          avatar_url: meta.avatar_url || meta.picture || '',
+          created_at: u.created_at || new Date().toISOString(),
+        };
+
+        setUser((prev) => {
+          if (prev && prev.email === email) {
+            const merged = { ...prev, ...oauthUser };
+            localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(merged));
+            return merged;
+          }
+          localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(oauthUser));
+          return oauthUser;
+        });
+
+        // Limpiar el access_token del hash y redirigir limpiamente a /home si es necesario
+        if (typeof window !== 'undefined' && window.location.hash.includes('access_token')) {
+          window.history.replaceState(null, '', window.location.pathname);
+          if (window.location.pathname === '/' || window.location.pathname === '/login') {
+            window.location.href = '/home';
+          }
+        }
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
   // Guardar usuario actual cada vez que cambie
   const persistUser = (updatedUser: UserProfile | null) => {
     setUser(updatedUser);

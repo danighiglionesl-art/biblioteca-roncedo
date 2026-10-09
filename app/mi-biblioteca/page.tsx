@@ -26,10 +26,12 @@ import {
   RotateCcw,
   PlusCircle,
   Download,
+  RefreshCw,
 } from 'lucide-react';
 import { BibliotecaFisicaView } from '@/components/libros/BibliotecaFisicaView';
 import { BibliotecaDigitalView } from '@/components/digital/BibliotecaDigitalView';
 import { ModalAportarFoto } from '@/components/mi-biblioteca/ModalAportarFoto';
+import { forzarActualizacionCompleta } from '@/components/pwa/ServiceWorkerRegister';
 
 export default function MiBibliotecaPage() {
   const { user, solicitudes } = useAuth();
@@ -97,23 +99,34 @@ export default function MiBibliotecaPage() {
               </div>
             </div>
 
-            {isSocio ? (
-              <Link
-                href="/carnet"
-                className="bg-roncedo-navy hover:bg-blue-900 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm transition-colors flex items-center gap-2"
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                onClick={() => forzarActualizacionCompleta()}
+                className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs px-3.5 py-2.5 rounded-xl transition-colors flex items-center gap-1.5 border border-slate-200 shadow-sm"
+                title="Limpiar caché y recargar la versión más reciente en Android"
               >
-                <CreditCard className="w-4 h-4 text-roncedo-gold" />
-                <span>Ver Mi Carnet</span>
-              </Link>
-            ) : (
-              <Link
-                href="/perfil"
-                className="bg-roncedo-blue hover:bg-blue-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm transition-colors flex items-center gap-1.5"
-              >
-                <span>Hacerme Socio</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </Link>
-            )}
+                <RefreshCw className="w-3.5 h-3.5 text-roncedo-blue" />
+                <span>Actualizar Vista</span>
+              </button>
+
+              {isSocio ? (
+                <Link
+                  href="/carnet"
+                  className="bg-roncedo-navy hover:bg-blue-900 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm transition-colors flex items-center gap-2"
+                >
+                  <CreditCard className="w-4 h-4 text-roncedo-gold" />
+                  <span>Ver Mi Carnet</span>
+                </Link>
+              ) : (
+                <Link
+                  href="/perfil"
+                  className="bg-roncedo-blue hover:bg-blue-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm transition-colors flex items-center gap-1.5"
+                >
+                  <span>Hacerme Socio</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </Link>
+              )}
+            </div>
           </div>
 
           {/* Estado de Socio Banner */}
