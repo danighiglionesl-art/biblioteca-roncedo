@@ -144,20 +144,20 @@ export function CarnetDigital({ user, className = '' }: CarnetDigitalProps) {
                 <p className="text-base font-bold text-white capitalize leading-snug">
                   {user.nombre} {user.apellido}
                 </p>
-                {/* Insignia discreta de Socio Protector con Medalla */}
+                {/* Insignia oficial de Socio Protector */}
                 {isSocioProtectorActivo && (
-                  <div className="mt-1.5 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-rose-500/25 border border-rose-400/40 text-rose-100 text-[11px] font-bold shadow-sm backdrop-blur-sm">
+                  <div className="mt-1.5 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-400/20 border border-amber-300/40 text-amber-200 text-[11px] font-bold shadow-sm backdrop-blur-sm">
                     {medallaInfo && (
                       <div className="relative w-4 h-4 flex-shrink-0 drop-shadow-sm">
                         <Image
                           src={medallaInfo.insignia}
-                          alt={`Medalla ${medallaInfo.label}`}
+                          alt={`Insignia ${medallaInfo.label}`}
                           fill
                           className="object-contain"
                         />
                       </div>
                     )}
-                    <span>Socio Protector {medallaInfo?.label ? `${medallaInfo.label} ` : ''}❤️</span>
+                    <span>Socio Protector {medallaInfo?.label ? `${medallaInfo.label}` : ''}</span>
                   </div>
                 )}
               </div>

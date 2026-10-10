@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   FileText,
   ArrowLeft,
@@ -14,7 +15,6 @@ import {
   BookOpen,
   Calendar,
   Layers,
-  Heart,
   RefreshCw,
 } from 'lucide-react';
 import { UserRole } from '@/types';
@@ -129,8 +129,16 @@ export function ActasHeader({
                 <span>Permisos de Administrador: Gestión total (Crear, Editar, Eliminar)</span>
               </div>
             ) : isSocioProtector ? (
-              <div className="inline-flex items-center gap-1.5 bg-rose-400/20 text-rose-200 px-3 py-1 rounded-full border border-rose-300/30 font-bold">
-                <Heart className="w-3.5 h-3.5 text-rose-300 fill-rose-300" />
+              <div className="inline-flex items-center gap-1.5 bg-amber-400/20 text-amber-200 px-3 py-1 rounded-full border border-amber-300/30 font-bold">
+                <div className="relative w-3.5 h-3.5 flex-shrink-0">
+                  <Image
+                    src="/images/socio-protector/insignia-oro.png"
+                    alt="Insignia"
+                    width={14}
+                    height={14}
+                    className="object-contain"
+                  />
+                </div>
                 <span>Socio Protector: Consulta y Visualización de Actas en Alta Definición</span>
               </div>
             ) : (

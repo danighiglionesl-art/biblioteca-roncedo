@@ -479,4 +479,155 @@ CREATE POLICY "Solo Administrador puede eliminar novedades"
     )
   );
 
+-- =====================================================================
+-- TABLAS DE EVENTOS, CURSOS, TALLERES CULTURALES E INSCRIPCIONES
+-- Soporta tramos escalonados por fecha y beneficios para Socios Protectores
+-- =====================================================================
+
+CREATE TABLE IF NOT EXISTS public.eventos_talleres (
+  id TEXT PRIMARY KEY DEFAULT ('evt-' || floor(extract(epoch from now()) * 1000)::text),
+  titulo TEXT NOT NULL,
+  descripcion TEXT NOT NULL,
+  organizador TEXT NOT NULL,
+  tipo TEXT DEFAULT 'taller_recurrente' NOT NULL, -- 'taller_recurrente', 'evento_unico'
+  categoria TEXT DEFAULT 'Cultura' NOT NULL,
+  
+  -- Fechas y horarios
+  fecha_realizacion DATE,
+  horario TEXT,
+  es_recurrente BOOLEAN DEFAULT TRUE NOT NULL,
+  dias_dictado TEXT[] DEFAULT '{}',
+  horario_recurrente TEXT,
+  fecha_inicio_ciclo DATE,
+  fecha_fin_ciclo DATE,
+
+  -- Lugar y capacidad
+  lugar TEXT DEFAULT 'Biblioteca Roncedo' NOT NULL,
+  cupo_maximo INTEGER,
+  cupo_disponible INTEGER,
+  imagen_url TEXT,
+
+  -- Precios y Tramos
+  es_gratuito BOOLEAN DEFAULT FALSE NOT NULL,
+  precio_base NUMERIC DEFAULT 0 NOT NULL,
+  tramos_precio JSONB DEFAULT '[]'::jsonb, -- Array de { id, fecha_limite, precio, etiqueta }
+  
+  -- Descuentos por nivel de Socio Protector
+  descuento_bronce_porcentaje NUMERIC DEFAULT 2 NOT NULL,
+  descuento_plata_porcentaje NUMERIC DEFAULT 5 NOT NULL,
+  descuento_oro_porcentaje NUMERIC DEFAULT 10 NOT NULL,
+
+  -- Enlaces de pago y cobro
+  link_pago TEXT,
+  datos_transferencia TEXT,
+
+  -- Estado
+  estado TEXT DEFAULT 'activo' NOT NULL, -- 'activo', 'finalizado', 'cancelado'
+  destacado BOOLEAN DEFAULT FALSE NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS public.evento_inscripciones (
+  id TEXT PRIMARY KEY DEFAULT ('ins-' || floor(extract(epoch from now()) * 1000)::text),
+  evento_id TEXT NOT NULL REFERENCES public.eventos_talleres(id) ON DELETE CASCADE,
+  evento_titulo TEXT,
+  user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+  user_nombre TEXT NOT NULL,
+  user_apellido TEXT NOT NULL,
+  user_email TEXT NOT NULL,
+  user_dni TEXT,
+  user_telefono TEXT,
+  user_tipo_protector TEXT DEFAULT 'no_socio' NOT NULL, -- 'Bronce', 'Plata', 'Oro', 'no_socio'
+
+  -- Liquidación
+  monto_base NUMERIC NOT NULL,
+  descuento_porcentaje NUMERIC DEFAULT 0 NOT NULL,
+  monto_descuento NUMERIC DEFAULT 0 NOT NULL,
+  monto_final NUMERIC NOT NULL,
+  tramo_aplicado TEXT,
+
+  -- Pago
+  estado_pago TEXT DEFAULT 'pendiente' NOT NULL, -- 'pendiente', 'aprobado', 'bonificado'
+  comprobante_url TEXT,
+  id_transaccion_pago TEXT,
+
+  -- Asistencia y Certificado
+  asistencia TEXT DEFAULT 'inscripto' NOT NULL, -- 'inscripto', 'presente', 'ausente'
+  certificado_emitido BOOLEAN DEFAULT FALSE NOT NULL,
+  codigo_certificado TEXT UNIQUE,
+
+  fecha_inscripcion TIMESTAMPTZ DEFAULT NOW() NOT NULL
+);
+
+-- Índices de aceleración
+CREATE INDEX IF NOT EXISTS idx_eventos_estado ON public.eventos_talleres(estado);
+CREATE INDEX IF NOT EXISTS idx_eventos_tipo ON public.eventos_talleres(tipo);
+CREATE INDEX IF NOT EXISTS idx_eventos_fecha ON public.eventos_talleres(fecha_realizacion);
+CREATE INDEX IF NOT EXISTS idx_inscripciones_evento ON public.evento_inscripciones(evento_id);
+CREATE INDEX IF NOT EXISTS idx_inscripciones_user ON public.evento_inscripciones(user_id);
+CREATE INDEX IF NOT EXISTS idx_inscripciones_certificado ON public.evento_inscripciones(codigo_certificado);
+
+-- Políticas RLS
+ALTER TABLE public.eventos_talleres ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.evento_inscripciones ENABLE ROW LEVEL SECURITY;
+
+-- Eventos: Lectura pública
+CREATE POLICY "Lectura pública de eventos"
+  ON public.eventos_talleres FOR SELECT
+  USING (true);
+
+-- Eventos: Gestión exclusiva de administradores
+CREATE POLICY "Solo Administrador puede registrar eventos"
+  ON public.eventos_talleres FOR INSERT
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE profiles.id = auth.uid() AND profiles.role = 'admin'
+    )
+  );
+
+CREATE POLICY "Solo Administrador puede modificar eventos"
+  ON public.eventos_talleres FOR UPDATE
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE profiles.id = auth.uid() AND profiles.role = 'admin'
+    )
+  );
+
+CREATE POLICY "Solo Administrador puede eliminar eventos"
+  ON public.eventos_talleres FOR DELETE
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE profiles.id = auth.uid() AND profiles.role = 'admin'
+    )
+  );
+
+-- Inscripciones: El usuario ve sus propias inscripciones, el admin ve todas
+CREATE POLICY "Usuarios ven sus inscripciones a eventos"
+  ON public.evento_inscripciones FOR SELECT
+  USING (
+    auth.uid() = user_id OR
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE profiles.id = auth.uid() AND profiles.role = 'admin'
+    )
+  );
+
+CREATE POLICY "Usuarios se inscriben en eventos"
+  ON public.evento_inscripciones FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Admin o usuario actualiza inscripciones"
+  ON public.evento_inscripciones FOR UPDATE
+  USING (
+    auth.uid() = user_id OR
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE profiles.id = auth.uid() AND profiles.role = 'admin'
+    )
+  );
+
 

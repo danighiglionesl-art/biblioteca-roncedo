@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { AuthProvider } from '@/lib/auth/AuthContext';
 import { LibrosProvider } from '@/lib/context/LibrosContext';
+import { AuthGuard } from '@/components/auth/AuthGuard';
 import { Header } from '@/components/navigation/Header';
 import { BottomNav } from '@/components/navigation/BottomNav';
 import { BotonWhatsappFlotante } from '@/components/common/BotonWhatsappFlotante';
@@ -48,13 +49,15 @@ export default function RootLayout({
       <body className="h-full flex flex-col bg-[#EDF5FD] text-slate-900 font-sans antialiased selection:bg-roncedo-celeste selection:text-white">
         <AuthProvider>
           <LibrosProvider>
-            <ServiceWorkerRegister />
-            <Header />
-            <div className="flex-1">
-              {children}
-            </div>
-            <BottomNav />
-            <BotonWhatsappFlotante />
+            <AuthGuard>
+              <ServiceWorkerRegister />
+              <Header />
+              <main className="flex-1">
+                {children}
+              </main>
+              <BottomNav />
+              <BotonWhatsappFlotante />
+            </AuthGuard>
           </LibrosProvider>
         </AuthProvider>
       </body>

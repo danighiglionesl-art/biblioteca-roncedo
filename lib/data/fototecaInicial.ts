@@ -100,7 +100,7 @@ export const FOTOS_HISTORICAS_INICIALES: FotoHistorica[] = [
     coleccion: 'Fiestas y Tradición',
     imagen_url: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1200&q=80',
     donante_fuente: 'Colección Familia Bonetto',
-    subido_por_nombre: 'Pedro González',
+    subido_por_nombre: 'Archivo Histórico Roncedo',
     estado_moderacion: 'publicada',
     destacada: false,
     etiquetas_personas: [

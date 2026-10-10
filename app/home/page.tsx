@@ -17,7 +17,6 @@ import {
   Sparkles,
   ArrowRight,
   ShieldCheck,
-  Heart,
   Clock,
   MapPin,
   Globe2,
@@ -26,6 +25,7 @@ import {
   Image as ImageIcon,
   Star,
 } from 'lucide-react';
+import { InsigniaSocioProtector } from '@/components/common/InsigniaSocioProtector';
 import { CONTACTO_BIBLIOTECA } from '@/lib/constants/contacto';
 import { NovedadInstitucional } from '@/types';
 import { getNovedades } from '@/lib/supabase/novedades';
@@ -208,8 +208,13 @@ export default function HomePage() {
         {/* Banner Destacado: Socio Protector (Armonía Azul Marino y Celeste Institucional) */}
         <div className="bg-gradient-to-r from-[#0F284B] via-[#1A457D] to-[#1E6091] text-white rounded-3xl p-5 sm:p-6 shadow-xl border border-white/20 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-white/15 border border-white/25 flex items-center justify-center text-amber-300 flex-shrink-0 shadow-sm">
-              <Heart className="w-7 h-7 fill-amber-300" />
+            <div className="relative w-14 h-14 sm:w-16 sm:h-16 flex-shrink-0 drop-shadow-md">
+              <InsigniaSocioProtector
+                tipo={user.tipo_socio_protector}
+                size={64}
+                className="w-full h-full"
+                priority
+              />
             </div>
             <div>
               <div className="flex flex-wrap items-center gap-2">
@@ -217,8 +222,9 @@ export default function HomePage() {
                   Campaña Permanente
                 </span>
                 {user.es_socio_protector && (
-                  <span className="text-[10px] font-extrabold bg-amber-400 text-slate-900 px-2.5 py-0.5 rounded-full shadow-sm">
-                    ¡Sos Socio Protector {user.tipo_socio_protector}! 🤝
+                  <span className="text-[10px] font-extrabold bg-amber-400 text-slate-900 px-2.5 py-0.5 rounded-full shadow-sm inline-flex items-center gap-1.5">
+                    <InsigniaSocioProtector tipo={user.tipo_socio_protector} size={14} />
+                    <span>¡Sos Socio Protector {user.tipo_socio_protector}!</span>
                   </span>
                 )}
               </div>
@@ -234,7 +240,7 @@ export default function HomePage() {
             href="/socio-protector"
             className="px-5 py-3 rounded-xl bg-white text-[#0F284B] hover:bg-[#E5F2FE] text-xs sm:text-sm font-black shadow-md transition-all flex items-center gap-2 flex-shrink-0 active:scale-95"
           >
-            <Heart className="w-4 h-4 fill-[#0F284B] text-[#0F284B]" />
+            <InsigniaSocioProtector tipo={user.tipo_socio_protector} size={18} />
             <span>{user.es_socio_protector ? 'Ver mi Aporte' : 'Quiero Colaborar'}</span>
             <ArrowRight className="w-4 h-4" />
           </Link>
@@ -417,7 +423,7 @@ export default function HomePage() {
           </div>
           <div className="relative z-10 max-w-2xl">
             <div className="flex items-center gap-2 mb-2 text-white/90 text-xs uppercase font-bold tracking-wider">
-              <Heart className="w-4 h-4 text-white" />
+              <Sparkles className="w-4 h-4 text-amber-300" />
               <span>Patrimonio y Memoria Colectiva</span>
             </div>
             <h2 className="text-xl sm:text-2xl font-black text-white">

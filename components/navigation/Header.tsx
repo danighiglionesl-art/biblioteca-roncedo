@@ -4,12 +4,18 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '@/lib/auth/AuthContext';
-import { User as UserIcon, LogOut, Download, Heart } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { User as UserIcon, LogOut, Download } from 'lucide-react';
+import { useRouter, usePathname } from 'next/navigation';
+import { InsigniaSocioProtector } from '@/components/common/InsigniaSocioProtector';
 
 export function Header() {
   const { user, logout } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
+
+  if (!user || pathname === '/login' || pathname === '/recuperar') {
+    return null;
+  }
 
   const handleLogout = async () => {
     await logout();
@@ -75,7 +81,7 @@ export function Header() {
               className="flex items-center gap-1.5 bg-amber-400/15 hover:bg-amber-400/25 text-amber-200 hover:text-white text-xs px-2.5 py-1.5 rounded-lg border border-amber-300/30 transition-colors shadow-sm"
               title="Socio Protector"
             >
-              <Heart className="w-3.5 h-3.5 text-amber-300 fill-amber-300" />
+              <InsigniaSocioProtector tipo={user?.tipo_socio_protector} size={16} />
               <span className="hidden sm:inline font-bold">Socio Protector</span>
             </Link>
 

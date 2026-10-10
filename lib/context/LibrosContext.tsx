@@ -48,29 +48,12 @@ interface LibrosContextType {
 
 const LibrosContext = createContext<LibrosContextType | undefined>(undefined);
 
-const STORAGE_KEY_LIBROS = 'roncedo_libros_fisicos_v3';
-const STORAGE_KEY_PRESTAMOS = 'roncedo_prestamos_v3';
-const STORAGE_KEY_RESERVAS = 'roncedo_reservas_v3';
-const STORAGE_KEY_FOTOS = 'roncedo_fotos_aportadas_v3';
+const STORAGE_KEY_LIBROS = 'roncedo_libros_fisicos_v4';
+const STORAGE_KEY_PRESTAMOS = 'roncedo_prestamos_v4';
+const STORAGE_KEY_RESERVAS = 'roncedo_reservas_v4';
+const STORAGE_KEY_FOTOS = 'roncedo_fotos_aportadas_v4';
 
-const PRESTAMOS_INICIALES: PrestamoActivo[] = [
-  {
-    id: 'prestamo-01',
-    libro_id: 'libro-1',
-    numero_inventario: 1,
-    titulo: 'Maradona, la mano de Dios',
-    autor: 'Burns, Jimmy',
-    editorial: 'Planeta',
-    topografia_ubicacion: 'FUTBOL / FUTBOL ARGENTINO',
-    user_id: 'user-socio-01',
-    nombre_socio: 'Pedro González',
-    numero_socio: '1042',
-    fecha_prestamo: '2026-03-28',
-    fecha_devolucion_prevista: '2026-04-12',
-    estado: 'en_termino',
-    renovaciones: 0,
-  },
-];
+const PRESTAMOS_INICIALES: PrestamoActivo[] = [];
 
 const TALLERES_INICIALES: TallerInscripcion[] = [
   {
@@ -98,10 +81,10 @@ const TALLERES_INICIALES: TallerInscripcion[] = [
 const FOTOS_INICIALES: FotoAportada[] = [
   {
     id: 'foto-01',
-    user_id: 'user-socio-01',
+    user_id: 'user-admin-roncedo',
     titulo: 'Comisión Directiva fundacional en la sede de calle Belgrano',
     anio_aproximado: '1948',
-    descripcion: 'Fotografía en sepia aportada del archivo familiar. Socios fundadores y colaboradores de la biblioteca popular.',
+    descripcion: 'Fotografía en sepia preservada en el archivo institucional. Socios fundadores y colaboradores de la biblioteca popular.',
     imagen_url: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=800&q=80',
     fecha_aporte: '2026-03-10',
     estado: 'aprobada',

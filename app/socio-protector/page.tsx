@@ -6,7 +6,6 @@ import Image from 'next/image';
 import { useAuth } from '@/lib/auth/AuthContext';
 import { PLANES_SOCIO_PROTECTOR } from '@/lib/payments/plans';
 import {
-  Heart,
   ShieldCheck,
   CheckCircle2,
   ExternalLink,
@@ -39,11 +38,16 @@ export default function SocioProtectorPage() {
   if (!user) {
     return (
       <div className="min-h-screen bg-[#E5F2FE] flex items-center justify-center p-4">
-        <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-card border border-slate-200 text-center">
-          <div className="w-16 h-16 rounded-2xl bg-rose-50 text-rose-500 flex items-center justify-center mx-auto mb-4 border border-rose-100">
-            <Heart className="w-8 h-8 fill-rose-500" />
+        <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-card border border-blue-200/80 text-center">
+          <div className="relative w-16 h-16 mx-auto mb-4 drop-shadow-md">
+            <Image
+              src="/images/socio-protector/insignia-oro.png"
+              alt="Insignia Socio Protector"
+              fill
+              className="object-contain"
+            />
           </div>
-          <span className="text-[10px] uppercase font-bold tracking-wider text-rose-700 bg-rose-100 px-3 py-1 rounded-full">
+          <span className="text-[10px] uppercase font-bold tracking-wider text-roncedo-navy bg-blue-100 px-3 py-1 rounded-full">
             Acceso para Usuarios Registrados
           </span>
           <h1 className="text-xl font-black text-slate-900 mt-3">
@@ -94,7 +98,15 @@ export default function SocioProtectorPage() {
         {/* Cabecera Principal Institucional */}
         <div className="text-center max-w-2xl mx-auto">
           <div className="inline-flex items-center gap-2 bg-gradient-to-r from-[#0F2D54] to-[#1B5699] text-white px-3.5 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-wider mb-3 shadow-sm">
-            <Heart className="w-3.5 h-3.5 text-amber-300 fill-amber-300" />
+            <div className="relative w-4 h-4 flex-shrink-0">
+              <Image
+                src="/images/socio-protector/insignia-oro.png"
+                alt="Insignia"
+                width={16}
+                height={16}
+                className="object-contain"
+              />
+            </div>
             <span>Módulo Institucional</span>
           </div>
 
@@ -110,8 +122,17 @@ export default function SocioProtectorPage() {
         {/* Estado actual del usuario si ya es Socio Protector */}
         {isProtectorActivo && (
           <div className="bg-gradient-to-br from-[#0F284B] via-[#1A457D] to-[#2563EB] text-white rounded-3xl p-6 shadow-xl relative overflow-hidden border border-white/20">
-            <div className="absolute right-4 top-4 opacity-15 pointer-events-none">
-              <Heart className="w-36 h-36 fill-white" />
+            <div className="absolute -right-4 -bottom-4 opacity-15 pointer-events-none w-44 h-44">
+              <Image
+                src={
+                  user.tipo_socio_protector
+                    ? `/images/socio-protector/insignia-${user.tipo_socio_protector.toLowerCase()}.png`
+                    : '/images/socio-protector/insignia-oro.png'
+                }
+                alt="Insignia"
+                fill
+                className="object-contain"
+              />
             </div>
 
             <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -273,7 +294,15 @@ export default function SocioProtectorPage() {
                         cardStyles.button
                       }`}
                     >
-                      <Heart className="w-4 h-4 fill-current" />
+                      <div className="relative w-4 h-4 flex-shrink-0">
+                        <Image
+                          src={plan.imagenInsignia || '/images/socio-protector/insignia-oro.png'}
+                          alt="Insignia"
+                          width={16}
+                          height={16}
+                          className="object-contain"
+                        />
+                      </div>
                       <span>Quiero colaborar</span>
                       <ExternalLink className="w-3.5 h-3.5 opacity-80" />
                     </a>
@@ -284,7 +313,7 @@ export default function SocioProtectorPage() {
                     </div>
 
                     {isCurrentTier && (
-                      <span className="mt-2 block text-center text-[10px] font-bold text-rose-600 bg-rose-50 py-1 rounded-lg border border-rose-200">
+                      <span className="mt-2 block text-center text-[10px] font-bold text-amber-800 bg-amber-50 py-1 rounded-lg border border-amber-200">
                         Tu plan actual
                       </span>
                     )}
@@ -334,7 +363,15 @@ export default function SocioProtectorPage() {
 
             <div className="space-y-2">
               <h4 className="font-bold text-slate-900 flex items-center gap-1.5 text-xs">
-                <Heart className="w-3.5 h-3.5 text-rose-500" />
+                <div className="relative w-3.5 h-3.5 flex-shrink-0">
+                  <Image
+                    src="/images/socio-protector/insignia-oro.png"
+                    alt="Insignia"
+                    width={14}
+                    height={14}
+                    className="object-contain"
+                  />
+                </div>
                 <span>Independencia de Categorías</span>
               </h4>
               <p className="leading-relaxed">

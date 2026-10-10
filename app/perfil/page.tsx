@@ -26,7 +26,6 @@ import {
   Globe,
   Home,
   FileText,
-  Heart,
 } from 'lucide-react';
 import { formatFechaArgentina } from '@/lib/utils';
 import { obtenerMedallaProtector } from '@/lib/payments/plans';
@@ -402,11 +401,21 @@ export default function PerfilPage() {
         </div>
 
         {/* Ficha Institucional: Condición de Socio Protector */}
-        <div className="bg-white rounded-3xl p-6 shadow-card border border-rose-100 relative overflow-hidden">
+        <div className="bg-white rounded-3xl p-6 shadow-card border border-amber-200/80 relative overflow-hidden">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-rose-50 border border-rose-200 flex items-center justify-center text-rose-600 shadow-sm flex-shrink-0">
-                <Heart className="w-6 h-6 fill-rose-500" />
+              <div className="relative w-12 h-12 flex-shrink-0 drop-shadow-md">
+                <Image
+                  src={
+                    user.es_socio_protector && user.tipo_socio_protector
+                      ? `/images/socio-protector/insignia-${user.tipo_socio_protector.toLowerCase()}.png`
+                      : '/images/socio-protector/insignia-oro.png'
+                  }
+                  alt="Insignia Socio Protector"
+                  width={48}
+                  height={48}
+                  className="object-contain"
+                />
               </div>
               <div>
                 <div className="flex items-center gap-2">
@@ -443,9 +452,17 @@ export default function PerfilPage() {
 
             <Link
               href="/socio-protector"
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-700 hover:to-pink-700 text-white text-xs font-bold rounded-xl shadow-sm transition-all flex-shrink-0"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#0F284B] to-[#1E6091] hover:brightness-110 text-white text-xs font-bold rounded-xl shadow-sm transition-all flex-shrink-0"
             >
-              <Heart className="w-3.5 h-3.5 fill-current" />
+              <div className="relative w-3.5 h-3.5 flex-shrink-0">
+                <Image
+                  src="/images/socio-protector/insignia-oro.png"
+                  alt="Insignia"
+                  width={14}
+                  height={14}
+                  className="object-contain"
+                />
+              </div>
               <span>{user.es_socio_protector ? 'Ver o Cambiar Plan' : 'Quiero Colaborar'}</span>
             </Link>
           </div>

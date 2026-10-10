@@ -63,7 +63,7 @@ export const PLANES_SOCIO_PROTECTOR: PlanSocioProtector[] = [
     beneficios: [
       '2% de descuento en compras y eventos publicados',
       'Préstamos de hasta 4 libros al año',
-      'Medalla Bronce y reconocimiento oficial "Socio Protector ❤️"',
+      'Medalla Bronce e insignia oficial como Socio Protector',
       'Acceso al boletín digital y rendiciones semestrales',
       'Débito automático mensual simple y seguro vía Mercado Pago',
     ],

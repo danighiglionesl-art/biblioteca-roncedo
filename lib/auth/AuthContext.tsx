@@ -36,9 +36,9 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const STORAGE_KEY_USER = 'roncedo_current_user_v2';
-const STORAGE_KEY_USERS = 'roncedo_all_users_v2';
-const STORAGE_KEY_SOLICITUDES = 'roncedo_solicitudes_v2';
+const STORAGE_KEY_USER = 'roncedo_current_user_v4';
+const STORAGE_KEY_USERS = 'roncedo_all_users_v4';
+const STORAGE_KEY_SOLICITUDES = 'roncedo_solicitudes_v4';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -46,9 +46,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [solicitudes, setSolicitudes] = useState<SocioSolicitud[]>(INITIAL_SOLICITUDES);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Inicializar estado desde LocalStorage si está en modo offline/preview
+  // Inicializar estado desde LocalStorage (modo seguro de producción)
   useEffect(() => {
     try {
+      // Limpiar versiones de caché anteriores que contenían Pedro González o datos demo
+      ['roncedo_current_user_v2', 'roncedo_all_users_v2', 'roncedo_solicitudes_v2',
+       'roncedo_current_user_v3', 'roncedo_all_users_v3', 'roncedo_solicitudes_v3',
+       'roncedo_prestamos_v2', 'roncedo_prestamos_v3'].forEach((key) => {
+        try { localStorage.removeItem(key); } catch {}
+      });
+
       const storedUsers = localStorage.getItem(STORAGE_KEY_USERS);
       if (storedUsers) {
         setAllUsers(JSON.parse(storedUsers));
@@ -66,22 +73,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const storedUser = localStorage.getItem(STORAGE_KEY_USER);
       if (storedUser) {
         const parsed = JSON.parse(storedUser);
-        // Si el usuario en cache era el demo viejo admin, reemplazar por socio activo por defecto
-        if (parsed.id === 'user-admin-01' || parsed.email === 'admin@bibliotecaroncedo.ar') {
-          const defaultUser = INITIAL_USERS[1];
-          setUser(defaultUser);
-          localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(defaultUser));
+        // Si en cache quedó Pedro González o cualquier usuario demo anterior, descartarlo
+        if (
+          parsed.id === 'user-socio-01' ||
+          parsed.email === 'socio@bibliotecaroncedo.ar' ||
+          parsed.nombre === 'Pedro' ||
+          parsed.apellido === 'González'
+        ) {
+          localStorage.removeItem(STORAGE_KEY_USER);
+          setUser(null);
         } else {
           setUser(parsed);
         }
       } else {
-        // Por defecto en la primera carga, usuario logueado como socio demo para explorar
-        const defaultUser = INITIAL_USERS[1]; // Socio activo Pedro González
-        setUser(defaultUser);
-        localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(defaultUser));
+        // EN PRODUCCIÓN: Nadie está logueado por defecto. Debe ingresar por /login.
+        setUser(null);
       }
     } catch (e) {
       console.error('Error cargando datos locales', e);
+      setUser(null);
     } finally {
       setIsLoading(false);
     }
@@ -176,14 +186,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const cleanPass = pass.trim();
 
       // Autenticación Oficial del Administrador de la Biblioteca Roncedo
-      if (cleanInput === 'biblioroncedo' || cleanInput === 'biblioroncedo@bibliotecaroncedo.ar') {
-        if (cleanPass !== 'Roncedo-2026') {
+      const isAdminAccount =
+        cleanInput === 'biblioteca-roncedo' ||
+        cleanInput === 'biblioroncedo' ||
+        cleanInput === 'biblioroncedo@bibliotecaroncedo.ar' ||
+        cleanInput === 'admin@bibliotecaroncedo.ar';
+
+      if (isAdminAccount) {
+        const isPasswordCorrect =
+          cleanPass === 'Biblioteca2026Roncedo' ||
+          cleanPass === 'Roncedo-2026';
+
+        if (!isPasswordCorrect) {
           return { success: false, error: 'Contraseña incorrecta para el usuario de Administración.' };
         }
 
         const adminUser: UserProfile = {
           id: 'user-admin-roncedo',
-          username: 'biblioroncedo',
+          username: 'biblioteca-roncedo',
           email: 'biblioroncedo@bibliotecaroncedo.ar',
           role: 'admin',
           nombre: 'Biblioteca',
@@ -218,12 +238,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return { success: true };
       }
 
+      // Supabase Auth (si el socio o admin fue creado en Supabase Auth)
       if (isSupabaseConfigured && supabase) {
-        const { data, error } = await supabase.auth.signInWithPassword({ email: emailOrUsername, password: pass });
-        if (error) throw error;
+        try {
+          const { data, error } = await supabase.auth.signInWithPassword({
+            email: emailOrUsername,
+            password: pass,
+          });
+          if (!error && data?.user) {
+            const u = data.user;
+            const meta = u.user_metadata || {};
+            const email = u.email || '';
+            const fullName = meta.full_name || meta.name || '';
+            const nameParts = fullName.split(' ');
+            const authUser: UserProfile = {
+              id: u.id,
+              email,
+              nombre: nameParts[0] || email.split('@')[0] || 'Usuario',
+              apellido: nameParts.slice(1).join(' ') || '',
+              role: (email.toLowerCase().includes('admin') || email.toLowerCase().includes('biblioroncedo')) ? 'admin' : 'socio',
+              avatar_url: meta.avatar_url || meta.picture || '',
+              created_at: u.created_at || new Date().toISOString(),
+            };
+            persistUser(authUser);
+            return { success: true };
+          }
+        } catch {
+          // Continúa a verificar usuarios locales
+        }
       }
 
-      // Fallback local robusto (busca por email o username)
+      // Fallback local robusto (busca por email o username existente)
       const existingUser = allUsers.find(
         u => u.email.toLowerCase() === cleanInput || (u.username && u.username.toLowerCase() === cleanInput)
       );
@@ -233,21 +278,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return { success: true };
       }
 
-      // Si no existe pero introdujo credenciales, creamos una sesión con rol 'usuario'
-      const newUser: UserProfile = {
-        id: `user-${Date.now()}`,
-        email: cleanInput.includes('@') ? cleanInput : `${cleanInput}@usuario.ar`,
-        username: cleanInput,
-        nombre: cleanInput.split('@')[0],
-        apellido: '',
-        role: 'usuario',
-        created_at: new Date().toISOString(),
+      // En producción: rechazar credenciales no registradas
+      return {
+        success: false,
+        error: 'Credenciales no válidas. Verificá tu usuario y contraseña o regístrate.',
       };
-
-      const updatedList = [...allUsers, newUser];
-      persistAllUsers(updatedList);
-      persistUser(newUser);
-      return { success: true };
     } catch (err: any) {
       return { success: false, error: err.message || 'Error al iniciar sesión' };
     } finally {

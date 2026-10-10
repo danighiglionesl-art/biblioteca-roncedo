@@ -12,22 +12,8 @@
     "donante_o_detalle": "Battaglino, Roberto",
     "topografia_ubicacion": "",
     "portada_url": "",
-    "estado": "prestado",
-    "prestado_a": {
-      "user_id": "user-demo-other",
-      "nombre_socio": "Juan Carlos Martínez",
-      "numero_socio": "984",
-      "fecha_prestamo": "2026-03-25",
-      "fecha_devolucion_prevista": "2026-04-12"
-    },
-    "lista_espera": [
-      {
-        "user_id": "user-demo-other2",
-        "nombre_socio": "Romina Gallardo",
-        "numero_socio": "1012",
-        "fecha_solicitud": "2026-03-28T10:00:00Z"
-      }
-    ],
+    "estado": "disponible",
+    "lista_espera": [],
     "estado_portada": "sin_portada",
     "portada_fuente": "ninguna",
     "portada_confianza": "ninguna",
@@ -46,14 +32,7 @@
     "donante_o_detalle": "Battaglino, Roberto",
     "topografia_ubicacion": "",
     "portada_url": "",
-    "estado": "prestado",
-    "prestado_a": {
-      "user_id": "user-demo-other3",
-      "nombre_socio": "Lucía Benítez",
-      "numero_socio": "1035",
-      "fecha_prestamo": "2026-04-01",
-      "fecha_devolucion_prevista": "2026-04-18"
-    },
+    "estado": "disponible",
     "lista_espera": [],
     "estado_portada": "sin_portada",
     "portada_fuente": "ninguna",

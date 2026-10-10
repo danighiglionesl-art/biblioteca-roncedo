@@ -406,3 +406,102 @@ export interface ActaHistorica {
   created_at?: string;
   updated_at?: string;
 }
+
+// =====================================================================
+// TIPOS DEL MÓDULO EVENTOS, CURSOS Y TALLERES CULTURALES
+// =====================================================================
+
+export interface TramoPrecioFecha {
+  id: string;
+  fecha_limite: string; // YYYY-MM-DD
+  precio: number;
+  etiqueta?: string; // Ej: "Preventa 1", "Inscripción Temprana", "General"
+}
+
+export type TipoActividadEvento = 'taller_recurrente' | 'evento_unico';
+
+export type CategoriaEvento =
+  | 'Cultura'
+  | 'Deportes'
+  | 'Educación'
+  | 'Infantil'
+  | 'Salud y Bienestar'
+  | 'General';
+
+export interface EventoTaller {
+  id: string;
+  titulo: string;
+  descripcion: string;
+  organizador: string; // Quién lo organiza o dicta (ej: Prof. de Yoga)
+  tipo: TipoActividadEvento;
+  categoria: CategoriaEvento;
+  
+  // Para eventos únicos / jornadas puntuales
+  fecha_realizacion?: string; // YYYY-MM-DD
+  horario?: string; // Ej: '19:00 a 21:00 hs'
+  
+  // Para talleres regulares / clases recurrentes
+  es_recurrente: boolean;
+  dias_dictado: string[]; // Ej: ['Martes', 'Jueves']
+  horario_recurrente?: string; // Ej: '18:00 a 19:30 hs'
+  fecha_inicio_ciclo?: string; // YYYY-MM-DD
+  fecha_fin_ciclo?: string; // YYYY-MM-DD
+
+  // Ubicación y capacidad
+  lugar: string; // Ej: 'Sede Social', 'Sala de Lectura', 'Salón de Actos'
+  cupo_maximo?: number;
+  cupo_disponible?: number;
+  imagen_url?: string;
+
+  // Esquema económico
+  es_gratuito: boolean;
+  precio_base: number; // Precio estándar / último tramo
+  tramos_precio: TramoPrecioFecha[]; // Tramos escalonados por fecha límite
+  
+  // Descuentos para Socios Protectores (Default: 2%, 5%, 10%)
+  descuento_bronce_porcentaje: number;
+  descuento_plata_porcentaje: number;
+  descuento_oro_porcentaje: number;
+
+  // Vías de pago
+  link_pago?: string; // Enlace de Mercado Pago u otro
+  datos_transferencia?: string; // Alias / CBU
+
+  // Estado y visibilidad
+  estado: 'activo' | 'finalizado' | 'cancelado';
+  destacado?: boolean;
+  created_at: string;
+  updated_at?: string;
+}
+
+export interface EventoInscripcion {
+  id: string;
+  evento_id: string;
+  evento_titulo?: string;
+  user_id: string;
+  user_nombre: string;
+  user_apellido: string;
+  user_email: string;
+  user_dni?: string;
+  user_telefono?: string;
+  user_tipo_protector: TipoSocioProtector | 'no_socio';
+  
+  // Liquidación del precio
+  monto_base: number;
+  descuento_porcentaje: number;
+  monto_descuento: number;
+  monto_final: number;
+  tramo_aplicado?: string;
+
+  // Estado del pago
+  estado_pago: 'pendiente' | 'aprobado' | 'bonificado';
+  comprobante_url?: string;
+  id_transaccion_pago?: string;
+
+  // Asistencia y Certificación
+  asistencia: 'inscripto' | 'presente' | 'ausente';
+  certificado_emitido: boolean;
+  codigo_certificado?: string;
+
+  fecha_inscripcion: string;
+}

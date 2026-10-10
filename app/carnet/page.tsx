@@ -68,7 +68,7 @@ export default function CarnetPage() {
 
             {/* Ficha Informativa de Socio Protector si está activo */}
             {isSocioProtector && (
-              <div className="bg-gradient-to-r from-rose-50 via-white to-amber-50/50 border border-rose-200 rounded-2xl p-4 mb-4 shadow-sm flex items-center justify-between gap-3">
+              <div className="bg-gradient-to-r from-amber-50/70 via-white to-blue-50/50 border border-amber-200/80 rounded-2xl p-4 mb-4 shadow-sm flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
                   {medallaInfo ? (
                     <div className="relative w-12 h-12 flex-shrink-0 drop-shadow-md">
@@ -80,12 +80,18 @@ export default function CarnetPage() {
                       />
                     </div>
                   ) : (
-                    <span className="text-2xl">❤️</span>
+                    <div className="relative w-12 h-12 flex-shrink-0 drop-shadow-md">
+                      <Image
+                        src="/images/socio-protector/insignia-oro.png"
+                        alt="Insignia Socio Protector"
+                        fill
+                        className="object-contain"
+                      />
+                    </div>
                   )}
                   <div>
-                    <h3 className="text-xs font-black text-rose-950 uppercase tracking-wide flex items-center gap-1.5">
+                    <h3 className="text-xs font-black text-slate-900 uppercase tracking-wide flex items-center gap-1.5">
                       <span>Socio Protector {user.tipo_socio_protector || 'Activo'}</span>
-                      <span className="text-xs">❤️</span>
                     </h3>
                     <p className="text-[11px] text-slate-700 mt-0.5">
                       Aporte mensual activo de ${user.importe_mensual?.toLocaleString('es-AR') || '2.000'}/mes vía {user.proveedor_pago === 'mercadopago' ? 'Mercado Pago' : user.proveedor_pago || 'Mercado Pago'}.
@@ -104,7 +110,7 @@ export default function CarnetPage() {
                 </div>
                 <Link
                   href="/socio-protector"
-                  className="px-3 py-1.5 rounded-xl bg-white text-rose-700 hover:bg-rose-100 text-xs font-bold border border-rose-200 transition-colors flex-shrink-0"
+                  className="px-3 py-1.5 rounded-xl bg-white text-roncedo-navy hover:bg-slate-50 text-xs font-bold border border-slate-200 transition-colors flex-shrink-0"
                 >
                   Gestionar
                 </Link>
@@ -115,9 +121,16 @@ export default function CarnetPage() {
             {isSocio && !isSocioProtector && (
               <div className="bg-white border border-blue-200/80 rounded-2xl p-4 mb-4 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                 <div>
-                  <h4 className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                  <h4 className="text-xs font-bold text-slate-900 flex items-center gap-2">
+                    <div className="relative w-4 h-4 flex-shrink-0">
+                      <Image
+                        src="/images/socio-protector/insignia-oro.png"
+                        alt="Insignia"
+                        fill
+                        className="object-contain"
+                      />
+                    </div>
                     <span>Sumá tu distinción de Socio Protector</span>
-                    <span>❤️</span>
                   </h4>
                   <p className="text-[11px] text-slate-500 mt-0.5">
                     Colaborá con un aporte mensual voluntario para apoyar las actividades culturales y educativas.
@@ -193,15 +206,24 @@ export default function CarnetPage() {
               Aún no tienes un Carnet Digital emitido
             </h2>
             <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto mt-2 leading-relaxed">
-              Estás registrado como usuario general. Puedes obtener tu carnet como <strong>Socio Oficial</strong> completando tu solicitud, o convertirte en <strong>Socio Protector ❤️</strong> colaborando con el sostenimiento de la institución.
+              Estás registrado como usuario general. Puedes obtener tu carnet como <strong>Socio Oficial</strong> completando tu solicitud, o convertirte en <strong>Socio Protector</strong> colaborando con el sostenimiento de la institución.
             </p>
 
             <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
               <Link
                 href="/socio-protector"
-                className="inline-flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-700 text-white font-bold px-5 py-3 rounded-2xl shadow-md text-xs sm:text-sm transition-all"
+                className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-[#0F284B] to-[#1E6091] hover:brightness-110 text-white font-bold px-5 py-3 rounded-2xl shadow-md text-xs sm:text-sm transition-all"
               >
-                <span>Ser Socio Protector ❤️</span>
+                <div className="relative w-4 h-4 flex-shrink-0">
+                  <Image
+                    src="/images/socio-protector/insignia-oro.png"
+                    alt="Insignia"
+                    width={16}
+                    height={16}
+                    className="object-contain"
+                  />
+                </div>
+                <span>Ser Socio Protector</span>
                 <ArrowRight className="w-4 h-4" />
               </Link>
               <Link

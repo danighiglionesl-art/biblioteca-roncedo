@@ -23,7 +23,6 @@ import {
   ArrowRight,
   ArrowLeft,
   UserCheck,
-  Heart,
   Download,
   Edit3,
   PlusCircle,
@@ -39,6 +38,7 @@ import {
 } from 'lucide-react';
 import { GestionPortadas } from '@/components/admin/GestionPortadas';
 import { GestionNovedades } from '@/components/admin/GestionNovedades';
+import { GestionEventos } from '@/components/admin/GestionEventos';
 
 export default function AdminPage() {
   const {
@@ -51,7 +51,7 @@ export default function AdminPage() {
     actualizarSocioProtector,
   } = useAuth();
 
-  const [activeTab, setActiveTab] = useState<'portadas' | 'novedades' | 'protectores' | 'solicitudes' | 'padron' | 'usuarios'>('portadas');
+  const [activeTab, setActiveTab] = useState<'portadas' | 'novedades' | 'eventos' | 'protectores' | 'solicitudes' | 'padron' | 'usuarios'>('portadas');
   const [searchTerm, setSearchTerm] = useState('');
 
   // Leer pestaña desde query param si viene especificada
@@ -61,6 +61,7 @@ export default function AdminPage() {
       const tabParam = params.get('tab');
       if (
         tabParam === 'novedades' ||
+        tabParam === 'eventos' ||
         tabParam === 'protectores' ||
         tabParam === 'solicitudes' ||
         tabParam === 'padron' ||
@@ -385,7 +386,7 @@ export default function AdminPage() {
         </div>
 
         {/* Pestañas de Gestión */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm gap-1 text-xs font-bold">
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm gap-1 text-xs font-bold">
           <button
             onClick={() => setActiveTab('portadas')}
             className={`py-2.5 rounded-xl transition-colors flex items-center justify-center gap-1.5 ${
@@ -411,14 +412,34 @@ export default function AdminPage() {
           </button>
 
           <button
-            onClick={() => setActiveTab('protectores')}
+            onClick={() => setActiveTab('eventos')}
             className={`py-2.5 rounded-xl transition-colors flex items-center justify-center gap-1.5 ${
-              activeTab === 'protectores'
-                ? 'bg-gradient-to-r from-rose-700 to-rose-900 text-white shadow-sm'
+              activeTab === 'eventos'
+                ? 'bg-gradient-to-r from-purple-700 to-indigo-800 text-white shadow-sm'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            <Heart className={`w-4 h-4 ${activeTab === 'protectores' ? 'text-rose-300 fill-rose-300' : 'text-rose-500'}`} />
+            <Calendar className={`w-4 h-4 ${activeTab === 'eventos' ? 'text-roncedo-gold' : 'text-purple-600'}`} />
+            <span>Eventos/Talleres</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('protectores')}
+            className={`py-2.5 rounded-xl transition-colors flex items-center justify-center gap-1.5 ${
+              activeTab === 'protectores'
+                ? 'bg-gradient-to-r from-[#0F284B] to-[#1E6091] text-white shadow-sm'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <div className="relative w-4 h-4 flex-shrink-0">
+              <Image
+                src="/images/socio-protector/insignia-oro.png"
+                alt="Insignia"
+                width={16}
+                height={16}
+                className="object-contain"
+              />
+            </div>
             <span>Protectores ({protectoresTodos.length})</span>
           </button>
 
@@ -465,21 +486,29 @@ export default function AdminPage() {
         {/* Pestaña: Gestión de Novedades (ABM con hasta 5 fotos) */}
         {activeTab === 'novedades' && <GestionNovedades />}
 
+        {/* Pestaña: Gestión de Eventos y Talleres */}
+        {activeTab === 'eventos' && <GestionEventos />}
+
         {/* Pestaña: Socios Protectores */}
         {activeTab === 'protectores' && (
           <div className="space-y-6">
             {/* Indicadores Generales de Socios Protectores */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              <div className="bg-white p-4 rounded-2xl shadow-card border border-rose-100">
+              <div className="bg-white p-4 rounded-2xl shadow-card border border-amber-200">
                 <span className="text-[10px] uppercase font-bold text-slate-400 block">
                   Protectores Activos
                 </span>
                 <div className="flex items-center justify-between mt-1">
-                  <span className="text-2xl font-black text-rose-700">
+                  <span className="text-2xl font-black text-amber-700">
                     {protectoresActivos.length}
                   </span>
-                  <div className="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
-                    <Heart className="w-4 h-4 fill-current" />
+                  <div className="relative w-8 h-8 flex-shrink-0 drop-shadow-sm">
+                    <Image
+                      src="/images/socio-protector/insignia-oro.png"
+                      alt="Insignia"
+                      fill
+                      className="object-contain"
+                    />
                   </div>
                 </div>
                 <span className="text-[10px] text-slate-500 mt-1 block">
@@ -545,7 +574,14 @@ export default function AdminPage() {
               <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 pb-4 border-b border-slate-100">
                 <div>
                   <h2 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
-                    <Heart className="w-4 h-4 text-rose-600 fill-rose-600" />
+                    <div className="relative w-5 h-5 flex-shrink-0">
+                      <Image
+                        src="/images/socio-protector/insignia-oro.png"
+                        alt="Insignia"
+                        fill
+                        className="object-contain"
+                      />
+                    </div>
                     <span>Nómina de Socios Protectores</span>
                   </h2>
                   <p className="text-xs text-slate-500 mt-0.5">
@@ -556,7 +592,7 @@ export default function AdminPage() {
                 <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto">
                   <button
                     onClick={() => setModalNuevoProtector(true)}
-                    className="px-3.5 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors"
+                    className="px-3.5 py-2 bg-roncedo-navy hover:bg-blue-900 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition-colors"
                   >
                     <PlusCircle className="w-3.5 h-3.5" />
                     <span>Asignar Protector</span>
@@ -1051,7 +1087,14 @@ export default function AdminPage() {
             <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 my-8">
               <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                 <div className="flex items-center gap-2">
-                  <Heart className="w-5 h-5 text-rose-600 fill-rose-600" />
+                  <div className="relative w-5 h-5 flex-shrink-0">
+                    <Image
+                      src="/images/socio-protector/insignia-oro.png"
+                      alt="Insignia"
+                      fill
+                      className="object-contain"
+                    />
+                  </div>
                   <h3 className="text-base font-black text-slate-900">
                     Editar Socio Protector
                   </h3>
@@ -1074,9 +1117,9 @@ export default function AdminPage() {
                   <select
                     value={editEstado}
                     onChange={(e) => setEditEstado(e.target.value as EstadoSocioProtector)}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-200 font-semibold focus:outline-none focus:ring-2 focus:ring-rose-500"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 font-semibold focus:outline-none focus:ring-2 focus:ring-roncedo-navy"
                   >
-                    <option value="activo">Activo (Al día con carnet ❤️)</option>
+                    <option value="activo">Activo (Al día con insignia oficial)</option>
                     <option value="pendiente">Pendiente de confirmación</option>
                     <option value="inactivo">Inactivo / Pausado</option>
                   </select>
