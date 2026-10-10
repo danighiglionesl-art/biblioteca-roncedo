@@ -175,15 +175,20 @@ export default function HomePage() {
                   Condición Institucional
                 </p>
                 <div className="flex items-center gap-2">
-                  <span className="text-lg sm:text-xl font-black text-[#0F284B]">
+                  <span className="text-base sm:text-lg font-black text-[#0F284B]">
                     {user.role === 'admin'
                       ? 'Administrador General'
-                      : isSocio
-                      ? `Socio #${user.numero_socio || '1042'}`
-                      : 'Usuario Registrado'}
+                      : user.es_socio_protector && user.estado_socio_protector === 'activo'
+                      ? `Socio Protector ${user.tipo_socio_protector || 'Bronce'}`
+                      : 'Usuario de la App'}
                   </span>
+                  {!user.es_socio_protector && user.role !== 'admin' && (
+                    <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-blue-100 text-[#1E40AF]">
+                      Servicios restringidos
+                    </span>
+                  )}
                 </div>
-                {isSocio ? (
+                {user.es_socio_protector && user.estado_socio_protector === 'activo' ? (
                   <Link
                     href="/carnet"
                     className="inline-flex items-center gap-1 text-xs sm:text-sm text-emerald-800 font-black hover:text-emerald-950 hover:underline mt-1"
@@ -193,10 +198,10 @@ export default function HomePage() {
                   </Link>
                 ) : (
                   <Link
-                    href="/perfil"
-                    className="inline-flex items-center gap-1 text-xs sm:text-sm text-[#92400E] font-black hover:text-[#78350F] hover:underline mt-1"
+                    href="/socio-protector"
+                    className="inline-flex items-center gap-1 text-xs sm:text-sm text-roncedo-navy font-black hover:text-blue-950 hover:underline mt-1"
                   >
-                    <span>Solicitar ser Socio Oficial</span>
+                    <span>Adherirme como Socio Protector</span>
                     <ChevronRight className="w-3.5 h-3.5" />
                   </Link>
                 )}

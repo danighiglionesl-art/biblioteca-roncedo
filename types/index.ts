@@ -27,6 +27,10 @@ export interface UserProfile {
   calle?: string;
   numero?: string;
   domicilio?: string;
+  // Preferencias deportivas y pertenencia
+  hincha_club?: 'Lautaro Roncedo' | 'Lutgardis Riveros' | 'Me da lo mismo' | string;
+  hincha_nacional?: string[];
+  hincha_nacional_otro?: string;
   observaciones?: string;
   avatar_url?: string;
   datos_completados?: boolean;

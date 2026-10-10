@@ -26,8 +26,8 @@ export function Header() {
     <header className="sticky top-0 z-40 bg-gradient-to-r from-[#0F284B] via-[#1A457D] to-[#2B6CB5] text-white shadow-md border-b border-roncedo-celeste/40">
       <div className="max-w-6xl mx-auto px-4 py-2 flex items-center justify-between">
         {/* Logo e Identidad Institucional */}
-        <Link href="/home" className="flex items-center gap-3 group">
-          <div className="relative w-12 h-12 sm:w-14 sm:h-14 flex-shrink-0 group-hover:scale-105 transition-transform drop-shadow-md">
+        <Link href="/home" className="flex items-center gap-3 sm:gap-3.5 group">
+          <div className="relative w-13 h-13 sm:w-16 sm:h-16 flex-shrink-0 group-hover:scale-105 transition-transform drop-shadow-md">
             <Image
               src="/images/logo-biblioteca.png"
               alt="Logo Biblioteca Roncedo"
@@ -38,11 +38,11 @@ export function Header() {
           </div>
           <div>
             <div className="flex items-center gap-1.5">
-              <span className="text-[11px] sm:text-xs uppercase tracking-wider font-bold text-roncedo-celesteLight">
+              <span className="text-[11px] sm:text-xs uppercase tracking-wider font-extrabold text-roncedo-celesteLight">
                 Cultura y Deporte
               </span>
             </div>
-            <h1 className="text-base sm:text-lg font-bold tracking-tight text-white leading-tight">
+            <h1 className="text-xl sm:text-2xl md:text-[26px] font-black tracking-tight text-white leading-tight">
               Biblioteca Roncedo
             </h1>
           </div>

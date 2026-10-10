@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useState, useRef, useMemo } from 'react';
+import React, { useState, useRef, useMemo, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth/AuthContext';
-import { CategoriaSocio, SexoOption } from '@/types';
+import { SexoOption } from '@/types';
 import confetti from 'canvas-confetti';
 import LOCALIDADES_DATA_RAW from '@/lib/data/localidadesArgentina.json';
 import {
@@ -18,7 +18,6 @@ import {
   CheckCircle2,
   Clock,
   Save,
-  Send,
   AlertCircle,
   Camera,
   ArrowLeft,
@@ -28,9 +27,16 @@ import {
   Home,
   FileText,
   LogOut,
+  Award,
+  ShieldCheck,
+  Sparkles,
+  Check,
+  ChevronRight,
+  Info,
 } from 'lucide-react';
 import { formatFechaArgentina, isPerfilCompleto } from '@/lib/utils';
 import { obtenerMedallaProtector } from '@/lib/payments/plans';
+import { ClubBadge } from '@/components/perfil/ClubBadges';
 
 const LOCALIDADES_POR_PROVINCIA: Record<string, string[]> = LOCALIDADES_DATA_RAW;
 
@@ -77,15 +83,38 @@ const PROVINCIAS_ARGENTINA = [
   'Tucumán',
 ];
 
+const CLUBES_LOCALES = [
+  { id: 'Lautaro Roncedo', label: 'Lautaro Roncedo', sublabel: 'El orgullo albiceleste' },
+  { id: 'Lutgardis Riveros', label: 'Lutgardis Riveros', sublabel: 'El clásico rival de Alcira Gigena' },
+  { id: 'Me da lo mismo', label: 'Me da lo mismo', sublabel: 'Sin preferencia en el clásico local' },
+];
+
+const CLUBES_ARGENTINA = [
+  'Boca Juniors',
+  'River Plate',
+  'Independiente',
+  'Racing Club',
+  'San Lorenzo',
+  'Rosario Central',
+  "Newell's Old Boys",
+  'Huracán',
+  'Vélez Sarsfield',
+  'Estudiantes de La Plata',
+  'Gimnasia de la Plata',
+  'Talleres de Córdoba',
+  'Belgrano de Córdoba',
+  'Instituto de Córdoba',
+  'Banfield',
+];
+
 function getLocalidadesParaProvincia(provincia: string): string[] {
   let key = provincia;
   if (provincia.includes('CABA') || provincia.includes('Ciudad Autónoma')) {
     key = 'Ciudad Autónoma de Buenos Aires';
   }
   const lista = LOCALIDADES_POR_PROVINCIA[key] || LOCALIDADES_POR_PROVINCIA['Córdoba'] || [];
-  // Asegurarnos de que si es Córdoba, Alcira Gigena esté en el tope
   if (key === 'Córdoba') {
-    const sinGigena = lista.filter(l => l !== 'Alcira Gigena');
+    const sinGigena = lista.filter((l) => l !== 'Alcira Gigena');
     return ['Alcira Gigena', ...sinGigena];
   }
   return lista;
@@ -93,7 +122,7 @@ function getLocalidadesParaProvincia(provincia: string): string[] {
 
 export default function PerfilPage() {
   const router = useRouter();
-  const { user, updateProfile, submitSolicitudSocio, solicitudes, logout } = useAuth();
+  const { user, updateProfile, logout } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [perfilRecienCompletado, setPerfilRecienCompletado] = useState(false);
 
@@ -121,16 +150,29 @@ export default function PerfilPage() {
   const [barrio, setBarrio] = useState(user?.barrio || '');
   const [calle, setCalle] = useState(user?.calle || '');
   const [numero, setNumero] = useState(user?.numero || '');
+
+  // Nuevos campos: Preferencias deportivas
+  const [hinchaClub, setHinchaClub] = useState<string>(user?.hincha_club || 'Lautaro Roncedo');
+  const [hinchaNacional, setHinchaNacional] = useState<string[]>(user?.hincha_nacional || []);
+  const [hinchaNacionalOtro, setHinchaNacionalOtro] = useState<string>(user?.hincha_nacional_otro || '');
+  const [esOtroHinchaNacional, setEsOtroHinchaNacional] = useState<boolean>(
+    Boolean(user?.hincha_nacional_otro || user?.hincha_nacional?.includes('Otro'))
+  );
+
   const [observaciones, setObservaciones] = useState(user?.observaciones || '');
   const [avatarUrl, setAvatarUrl] = useState(user?.avatar_url || '');
+
+  const [guardadoExito, setGuardadoExito] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [guardando, setGuardando] = useState(false);
 
   // Localidades disponibles para la provincia seleccionada
   const localidadesDisponibles = useMemo(() => {
     return getLocalidadesParaProvincia(provincia);
   }, [provincia]);
 
-  // Sincronizar estado cuando el usuario cambia (ej: cambio de sesión o inicio con Gmail)
-  React.useEffect(() => {
+  // Sincronizar estado cuando el usuario cambia
+  useEffect(() => {
     if (user) {
       setNombre(user.nombre || '');
       setApellido(user.apellido || '');
@@ -153,27 +195,28 @@ export default function PerfilPage() {
         setEsOtraLocalidad(false);
         setLocalidadManual('');
       }
-      setCodigoPostal(user.codigo_postal || (provInicial === 'Córdoba' && locInicial === 'Alcira Gigena' ? '5811' : ''));
+      setCodigoPostal(
+        user.codigo_postal ||
+          (provInicial === 'Córdoba' && locInicial === 'Alcira Gigena' ? '5811' : '')
+      );
       setBarrio(user.barrio || '');
       setCalle(user.calle || '');
       setNumero(user.numero || '');
+
+      setHinchaClub(user.hincha_club || 'Lautaro Roncedo');
+      setHinchaNacional(user.hincha_nacional || []);
+      setHinchaNacionalOtro(user.hincha_nacional_otro || '');
+      setEsOtroHinchaNacional(
+        Boolean(user.hincha_nacional_otro || user.hincha_nacional?.includes('Otro'))
+      );
+
       setObservaciones(user.observaciones || '');
       setAvatarUrl(user.avatar_url || '');
     }
   }, [user]);
 
-  const [categoriaDeseada, setCategoriaDeseada] = useState<CategoriaSocio>('Activo');
-  const [guardadoExito, setGuardadoExito] = useState(false);
-  const [solicitudEnviada, setSolicitudEnviada] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [guardando, setGuardando] = useState(false);
-
-  // Buscar si tiene solicitud pendiente
-  const miSolicitudPendiente = solicitudes.find(
-    (s) => s.user_id === user?.id && s.estado === 'pendiente'
-  );
-
-  const isSocio = user?.role === 'socio' || user?.role === 'admin';
+  const esProtectorActivo =
+    user?.es_socio_protector && user?.estado_socio_protector === 'activo';
 
   // Manejador para subir foto de perfil
   const handleFotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -189,7 +232,6 @@ export default function PerfilPage() {
     reader.onload = async () => {
       const base64 = reader.result as string;
       setAvatarUrl(base64);
-      // Guardar inmediatamente en el perfil
       await updateProfile({ avatar_url: base64 });
       setGuardadoExito(true);
       setTimeout(() => setGuardadoExito(false), 2500);
@@ -201,6 +243,14 @@ export default function PerfilPage() {
     setAvatarUrl('');
     await updateProfile({ avatar_url: '' });
     if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const handleToggleClubNacional = (club: string) => {
+    if (hinchaNacional.includes(club)) {
+      setHinchaNacional(hinchaNacional.filter((c) => c !== club));
+    } else {
+      setHinchaNacional([...hinchaNacional, club]);
+    }
   };
 
   const handleGuardarDatos = async (e: React.FormEvent) => {
@@ -262,11 +312,12 @@ export default function PerfilPage() {
       }
 
       const provinciaFinal = pais === 'Argentina' ? provincia : provinciaManual;
-      const localidadFinal = (
-        pais === 'Argentina'
-          ? (esOtraLocalidad ? localidadManual.trim() : localidad.trim())
-          : localidad.trim()
-      ) || 'Alcira Gigena';
+      const localidadFinal =
+        (pais === 'Argentina'
+          ? esOtraLocalidad
+            ? localidadManual.trim()
+            : localidad.trim()
+          : localidad.trim()) || 'Alcira Gigena';
       const domicilioCompleto = `${calle} ${numero}${barrio ? `, B° ${barrio}` : ''}`.trim();
 
       const yaEstabaCompleto = isPerfilCompleto(user);
@@ -287,6 +338,9 @@ export default function PerfilPage() {
         calle: calle.trim(),
         numero: numero.trim(),
         domicilio: domicilioCompleto,
+        hincha_club: hinchaClub,
+        hincha_nacional: hinchaNacional,
+        hincha_nacional_otro: esOtroHinchaNacional ? hinchaNacionalOtro.trim() : undefined,
         observaciones: observaciones.trim(),
         avatar_url: avatarUrl,
         datos_completados: true,
@@ -298,6 +352,7 @@ export default function PerfilPage() {
       }
 
       setGuardadoExito(true);
+
       if (!yaEstabaCompleto) {
         setPerfilRecienCompletado(true);
         confetti({
@@ -313,51 +368,6 @@ export default function PerfilPage() {
       }
     } catch (err: any) {
       setError(err.message || 'Error al guardar');
-    } finally {
-      setGuardando(false);
-    }
-  };
-
-  const handleSolicitarSocio = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-
-    if (!dni.trim() || !whatsapp.trim() || (!calle.trim() && !numero.trim())) {
-      setError('Por favor completa DNI, WhatsApp, calle y número antes de solicitar ser socio.');
-      return;
-    }
-
-    setGuardando(true);
-    try {
-      const localidadFinal = (
-        pais === 'Argentina'
-          ? (esOtraLocalidad ? localidadManual.trim() : localidad.trim())
-          : localidad.trim()
-      ) || 'Alcira Gigena';
-      const domicilioCompleto = `${calle} ${numero}${barrio ? `, B° ${barrio}` : ''}`.trim();
-      const res = await submitSolicitudSocio({
-        dni,
-        telefono: `${whatsappCodigo} ${whatsapp}`,
-        domicilio: domicilioCompleto,
-        localidad: localidadFinal,
-        codigo_postal: codigoPostal.trim(),
-        fecha_nacimiento: fechaNacimiento,
-        categoria: categoriaDeseada,
-      });
-
-      if (!res.success) {
-        setError(res.error || 'No se pudo enviar la solicitud');
-        return;
-      }
-
-      setSolicitudEnviada(true);
-      confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: { y: 0.6 },
-      });
-    } catch (err: any) {
-      setError(err.message || 'Error enviando solicitud');
     } finally {
       setGuardando(false);
     }
@@ -438,7 +448,6 @@ export default function PerfilPage() {
               )}
             </div>
 
-            {/* Botón flotante para subir foto */}
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
@@ -461,13 +470,20 @@ export default function PerfilPage() {
               <h1 className="text-2xl font-black text-slate-900">
                 {user.nombre} {user.apellido}
               </h1>
-              {isSocio ? (
-                <span className="bg-emerald-100 text-emerald-800 text-xs font-bold px-2.5 py-0.5 rounded-full border border-emerald-300">
-                  Socio #{user.numero_socio || '1042'}
+
+              {/* Distinción Institucional Actualizada */}
+              {user.role === 'admin' ? (
+                <span className="bg-purple-100 text-purple-900 text-xs font-bold px-2.5 py-0.5 rounded-full border border-purple-300">
+                  Administrador
+                </span>
+              ) : esProtectorActivo ? (
+                <span className="bg-amber-100 text-amber-900 text-xs font-bold px-2.5 py-0.5 rounded-full border border-amber-300 flex items-center gap-1 shadow-xs">
+                  <Award className="w-3.5 h-3.5 text-amber-600" />
+                  <span>Socio Protector {user.tipo_socio_protector || 'Bronce'}</span>
                 </span>
               ) : (
-                <span className="bg-blue-100 text-[#1E40AF] text-xs font-bold px-2.5 py-0.5 rounded-full border border-blue-200">
-                  Usuario Registrado
+                <span className="bg-blue-50 text-[#1E40AF] text-xs font-bold px-2.5 py-0.5 rounded-full border border-blue-200">
+                  Usuario de la App (Servicios restringidos)
                 </span>
               )}
             </div>
@@ -499,239 +515,199 @@ export default function PerfilPage() {
             </div>
           </div>
 
-          {isSocio && (
-            <Link
-              href="/carnet"
-              className="bg-roncedo-navy hover:bg-[#1A457D] text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm transition-colors flex items-center gap-1.5 flex-shrink-0"
-            >
-              <CreditCard className="w-4 h-4 text-roncedo-gold" />
-              <span>Ver Carnet</span>
-            </Link>
-          )}
+          <Link
+            href="/carnet"
+            className="bg-roncedo-navy hover:bg-[#1A457D] text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm transition-colors flex items-center gap-1.5 flex-shrink-0"
+          >
+            <CreditCard className="w-4 h-4 text-roncedo-gold" />
+            <span>Ver Carnet</span>
+          </Link>
         </div>
 
-        {/* Ficha Institucional: Condición de Socio Protector */}
-        <div className="bg-white rounded-3xl p-6 shadow-card border border-amber-200/80 relative overflow-hidden">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
-            <div className="flex items-center gap-3">
-              <div className="relative w-12 h-12 flex-shrink-0 drop-shadow-md">
-                <Image
-                  src={
-                    user.es_socio_protector && user.tipo_socio_protector
-                      ? `/images/socio-protector/insignia-${user.tipo_socio_protector.toLowerCase()}.png`
-                      : '/images/socio-protector/insignia-oro.png'
-                  }
-                  alt="Insignia Socio Protector"
-                  width={48}
-                  height={48}
-                  className="object-contain"
-                />
-              </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h3 className="text-base font-extrabold text-slate-900">
-                    Socio Protector
-                  </h3>
-                  {user.es_socio_protector ? (
-                    <span
-                      className={`text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full border ${
-                        user.estado_socio_protector === 'activo'
-                          ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
-                          : user.estado_socio_protector === 'pendiente'
-                          ? 'bg-amber-50 text-amber-700 border-amber-300'
-                          : 'bg-slate-100 text-slate-600 border-slate-300'
-                      }`}
-                    >
-                      {user.estado_socio_protector === 'activo'
-                        ? 'Activo'
-                        : user.estado_socio_protector === 'pendiente'
-                        ? 'Pendiente'
-                        : 'Inactivo'}
-                    </span>
-                  ) : (
-                    <span className="text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-500 border border-slate-200">
-                      No adherido
-                    </span>
-                  )}
-                </div>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  Aporte voluntario mensual para el sostenimiento de las actividades culturales y sociales.
-                </p>
-              </div>
-            </div>
-
-            <Link
-              href="/socio-protector"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#0F284B] to-[#1E6091] hover:brightness-110 text-white text-xs font-bold rounded-xl shadow-sm transition-all flex-shrink-0"
-            >
-              <div className="relative w-3.5 h-3.5 flex-shrink-0">
-                <Image
-                  src="/images/socio-protector/insignia-oro.png"
-                  alt="Insignia"
-                  width={14}
-                  height={14}
-                  className="object-contain"
-                />
-              </div>
-              <span>{user.es_socio_protector ? 'Ver o Cambiar Plan' : 'Quiero Colaborar'}</span>
-            </Link>
-          </div>
-
-          {/* Grilla de Datos del Socio Protector */}
-          {user.es_socio_protector ? (
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 text-xs">
-              <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100 flex items-center gap-2.5">
-                {(() => {
-                  const medalla = obtenerMedallaProtector(user.tipo_socio_protector);
-                  return medalla ? (
-                    <div className="relative w-8 h-8 flex-shrink-0 drop-shadow-sm">
-                      <Image
-                        src={medalla.insignia}
-                        alt={`Medalla ${medalla.label}`}
-                        fill
-                        className="object-contain"
-                      />
-                    </div>
-                  ) : null;
-                })()}
-                <div>
-                  <span className="text-[10px] uppercase font-bold text-slate-400 block">
-                    Categoría
-                  </span>
-                  <span className="font-extrabold text-slate-900 mt-0.5 block text-sm">
-                    {user.tipo_socio_protector || 'Bronce'}
-                  </span>
-                </div>
-              </div>
-
-              <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
-                <span className="text-[10px] uppercase font-bold text-slate-400 block">
-                  Aporte Mensual
-                </span>
-                <span className="font-extrabold text-emerald-700 mt-0.5 block text-sm">
-                  ${user.importe_mensual?.toLocaleString('es-AR') || '2.000'} / mes
-                </span>
-              </div>
-
-              <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
-                <span className="text-[10px] uppercase font-bold text-slate-400 block">
-                  Proveedor de Pago
-                </span>
-                <span className="font-extrabold text-slate-900 mt-0.5 block capitalize">
-                  {user.proveedor_pago === 'mercadopago' ? 'Mercado Pago' : user.proveedor_pago || 'Mercado Pago'}
-                </span>
-              </div>
-
-              <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
-                <span className="text-[10px] uppercase font-bold text-slate-400 block">
-                  ID Suscripción
-                </span>
-                <span className="font-mono font-bold text-slate-700 mt-0.5 block truncate text-[11px]">
-                  {user.id_suscripcion_externa || 'Pendiente'}
-                </span>
-              </div>
-
-              <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
-                <span className="text-[10px] uppercase font-bold text-slate-400 block">
-                  Fecha de Adhesión
-                </span>
-                <span className="font-semibold text-slate-800 mt-0.5 block">
-                  {formatFechaArgentina(user.fecha_adhesion)}
-                </span>
-              </div>
-
-              <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
-                <span className="text-[10px] uppercase font-bold text-slate-400 block">
-                  Último Pago
-                </span>
-                <span className="font-semibold text-slate-800 mt-0.5 block">
-                  {formatFechaArgentina(user.fecha_ultimo_pago)}
-                </span>
-              </div>
-
-              <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100 col-span-2">
-                <span className="text-[10px] uppercase font-bold text-slate-400 block">
-                  Próximo Vencimiento
-                </span>
-                <span className="font-semibold text-slate-800 mt-0.5 block">
-                  {user.proximo_vencimiento ? formatFechaArgentina(user.proximo_vencimiento) : 'Renovación mensual automática'}
-                </span>
-              </div>
-            </div>
-          ) : (
-            <div className="pt-4 text-xs text-slate-500 flex items-center justify-between">
-              <p>
-                Aún no estás adherido como Socio Protector. Con un aporte desde $2.000 mensuales ayudas a sostener la biblioteca.
-              </p>
-            </div>
-          )}
-        </div>
-
-        {/* Sección de Solicitud de Socio para Usuarios */}
-        {!isSocio && (
-          <div className="bg-gradient-to-br from-[#0F2D54] via-[#1B5699] to-[#5B9BE5] text-white rounded-3xl p-6 sm:p-7 shadow-lg border border-white/20 relative overflow-hidden">
-            <div className="max-w-xl">
-              <span className="text-[10px] uppercase font-bold tracking-wider text-white bg-white/20 px-2.5 py-0.5 rounded-full border border-white/30 inline-block mb-2 backdrop-blur-sm">
-                Asociate a la Biblioteca
-              </span>
-              <h2 className="text-xl font-black text-white">
-                ¿Querés ser socio de la Biblioteca Roncedo?
-              </h2>
-              <p className="text-xs sm:text-sm text-blue-100 mt-1 leading-relaxed">
-                Como socio accedes a préstamo de libros en sala y a domicilio, descuentos en talleres culturales y tu Carnet Digital con código QR.
-              </p>
-
-              {miSolicitudPendiente || solicitudEnviada ? (
-                <div className="mt-4 bg-emerald-500/20 border border-emerald-400/40 rounded-2xl p-4 flex items-start gap-3 text-emerald-200">
-                  <Clock className="w-5 h-5 flex-shrink-0 mt-0.5 text-emerald-300" />
+        {/* =================================================================== */}
+        {/* CUADRO INSTITUCIONAL: USUARIO DE LA APP vs. SOCIO PROTECTOR         */}
+        {/* (Reemplaza definitivamente las antiguas solicitudes de socio)       */}
+        {/* =================================================================== */}
+        <div className="bg-white rounded-3xl p-6 sm:p-7 shadow-card border border-blue-200/90 relative overflow-hidden">
+          {esProtectorActivo ? (
+            /* USUARIO ADHERIDO COMO SOCIO PROTECTOR */
+            <div className="space-y-5">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+                <div className="flex items-center gap-3.5">
+                  <div className="relative w-12 h-12 flex-shrink-0 drop-shadow-md">
+                    <Image
+                      src={
+                        user.tipo_socio_protector
+                          ? `/images/socio-protector/insignia-${user.tipo_socio_protector.toLowerCase()}.png`
+                          : '/images/socio-protector/insignia-oro.png'
+                      }
+                      alt="Insignia Socio Protector"
+                      width={48}
+                      height={48}
+                      className="object-contain"
+                    />
+                  </div>
                   <div>
-                    <h4 className="text-sm font-bold text-white">
-                      ¡Tu solicitud está en revisión!
-                    </h4>
-                    <p className="text-xs text-emerald-100 mt-0.5">
-                      La Comisión Directiva revisará tus datos a la brevedad. Te asignarán un número de socio y tu Carnet Digital se activará automáticamente.
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-base font-extrabold text-slate-900">
+                        Socio Protector {user.tipo_socio_protector}
+                      </h3>
+                      <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-300">
+                        Activo • Membresía Plena
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Tu colaboración mensual sostiene activamente la Biblioteca y el Club Roncedo. Tenés acceso total a todos los servicios, préstamos de libros, actas históricas y descuentos exclusivos.
                     </p>
                   </div>
                 </div>
-              ) : (
-                <div className="mt-5 bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/15">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-200 mb-3">
-                    Selecciona tu categoría de socio:
-                  </h3>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
-                    {(['Activo', 'Cadete', 'Familiar', 'Vitalicio'] as CategoriaSocio[]).map(
-                      (cat) => (
-                        <button
-                          key={cat}
-                          type="button"
-                          onClick={() => setCategoriaDeseada(cat)}
-                          className={`py-2 px-3 rounded-xl text-xs font-bold transition-all border ${
-                            categoriaDeseada === cat
-                              ? 'bg-roncedo-celeste text-white border-white shadow-sm'
-                              : 'bg-white/10 text-white/80 border-white/10 hover:bg-white/20'
-                          }`}
-                        >
-                          {cat}
-                        </button>
-                      )
-                    )}
+
+                <Link
+                  href="/socio-protector"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#0F284B] to-[#1E6091] hover:brightness-110 text-white text-xs font-bold rounded-xl shadow-sm transition-all flex-shrink-0"
+                >
+                  <span>Ver o Cambiar Plan</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+
+              {/* Grilla de Datos de la Suscripción */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                  <span className="text-[10px] uppercase font-bold text-slate-400 block">
+                    Categoría Activa
+                  </span>
+                  <span className="font-extrabold text-slate-900 mt-0.5 block text-sm">
+                    {user.tipo_socio_protector}
+                  </span>
+                </div>
+
+                <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                  <span className="text-[10px] uppercase font-bold text-slate-400 block">
+                    Aporte Mensual
+                  </span>
+                  <span className="font-extrabold text-emerald-700 mt-0.5 block text-sm">
+                    ${user.importe_mensual?.toLocaleString('es-AR') || '2.000'} / mes
+                  </span>
+                </div>
+
+                <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                  <span className="text-[10px] uppercase font-bold text-slate-400 block">
+                    Beneficio en Tienda
+                  </span>
+                  <span className="font-extrabold text-amber-700 mt-0.5 block text-sm">
+                    {user.tipo_socio_protector === 'Bronce' && '2% Descuento'}
+                    {user.tipo_socio_protector === 'Plata' && '5% Descuento'}
+                    {user.tipo_socio_protector === 'Oro' && '10% Descuento'}
+                  </span>
+                </div>
+
+                <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                  <span className="text-[10px] uppercase font-bold text-slate-400 block">
+                    Préstamo de Libros
+                  </span>
+                  <span className="font-semibold text-slate-800 mt-0.5 block text-sm">
+                    {user.tipo_socio_protector === 'Oro' ? 'Sin límites' : user.tipo_socio_protector === 'Plata' ? 'Hasta 10 / año' : 'Hasta 4 / año'}
+                  </span>
+                </div>
+              </div>
+            </div>
+          ) : (
+            /* CONDICIÓN: USUARIO DE LA APP (SERVICIOS RESTRINGIDOS) */
+            <div className="space-y-5">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+                <div className="flex items-center gap-3.5">
+                  <div className="w-12 h-12 rounded-2xl bg-blue-50 text-roncedo-navy flex items-center justify-center border border-blue-200 flex-shrink-0">
+                    <User className="w-6 h-6 text-roncedo-celeste" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-base font-extrabold text-slate-900">
+                        Condición actual: Usuario de la App
+                      </h3>
+                      <span className="text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
+                        Servicios restringidos
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-600 mt-1 leading-relaxed">
+                      Tu cuenta se encuentra registrada como <strong>Usuario de la App</strong>. En la Biblioteca Roncedo no existen cuotas de socios activos, cadetes o familiares; el sostenimiento institucional y acceso pleno a todos los servicios se canaliza a través del programa voluntario de <strong>Socios Protectores</strong>.
+                    </p>
+                  </div>
+                </div>
+
+                <Link
+                  href="/socio-protector"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-roncedo-navy to-[#1E6091] hover:brightness-110 text-white text-xs font-extrabold rounded-xl shadow-md transition-all flex-shrink-0"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-roncedo-gold" />
+                  <span>Adherirme como Socio Protector</span>
+                </Link>
+              </div>
+
+              {/* Presentación de las 3 Categorías de Socio Protector */}
+              <div>
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-700 block mb-2.5 flex items-center gap-1.5">
+                  <Award className="w-4 h-4 text-amber-500" />
+                  <span>Conocé las 3 categorías de Socio Protector para acceder a todos los beneficios:</span>
+                </span>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {/* Categoría Bronce */}
+                  <div className="p-4 rounded-2xl border border-amber-700/20 bg-gradient-to-b from-amber-50/50 to-white space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-black uppercase text-amber-900">Bronce</span>
+                      <div className="relative w-6 h-6">
+                        <Image src="/images/socio-protector/insignia-bronce.png" alt="Bronce" fill className="object-contain" />
+                      </div>
+                    </div>
+                    <div className="text-lg font-black text-slate-900">$2.000 <span className="text-[11px] font-normal text-slate-500">/ mes</span></div>
+                    <ul className="text-[11px] text-slate-600 space-y-1 pt-1 border-t border-amber-200/40">
+                      <li>• 2% de descuento en tienda y talleres</li>
+                      <li>• Hasta 4 libros prestados al año</li>
+                      <li>• Carnet Digital con insignia Bronce</li>
+                    </ul>
                   </div>
 
-                  <button
-                    onClick={handleSolicitarSocio}
-                    disabled={guardando}
-                    className="w-full sm:w-auto bg-roncedo-gold hover:bg-amber-500 text-slate-900 font-extrabold text-xs sm:text-sm py-3 px-6 rounded-xl shadow-md transition-colors flex items-center justify-center gap-2"
-                  >
-                    <Send className="w-4 h-4" />
-                    <span>Enviar Solicitud de Socio Ahora</span>
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
+                  {/* Categoría Plata */}
+                  <div className="p-4 rounded-2xl border border-slate-300 bg-gradient-to-b from-slate-50 to-white space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-black uppercase text-slate-800">Plata</span>
+                      <div className="relative w-6 h-6">
+                        <Image src="/images/socio-protector/insignia-plata.png" alt="Plata" fill className="object-contain" />
+                      </div>
+                    </div>
+                    <div className="text-lg font-black text-slate-900">$5.000 <span className="text-[11px] font-normal text-slate-500">/ mes</span></div>
+                    <ul className="text-[11px] text-slate-600 space-y-1 pt-1 border-t border-slate-200">
+                      <li>• 5% de descuento en tienda y talleres</li>
+                      <li>• Hasta 10 libros prestados al año</li>
+                      <li>• Carnet Digital con insignia Plata</li>
+                    </ul>
+                  </div>
 
-        {/* Cuadro de Datos Personales con Leve Celeste y Campos en Blanco Sobresalientes */}
+                  {/* Categoría Oro */}
+                  <div className="p-4 rounded-2xl border border-yellow-400 bg-gradient-to-b from-amber-50 to-white space-y-2 relative shadow-xs">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-black uppercase text-amber-900">Oro</span>
+                      <div className="relative w-6 h-6">
+                        <Image src="/images/socio-protector/insignia-oro.png" alt="Oro" fill className="object-contain" />
+                      </div>
+                    </div>
+                    <div className="text-lg font-black text-slate-900">$10.000 <span className="text-[11px] font-normal text-slate-500">/ mes</span></div>
+                    <ul className="text-[11px] text-slate-600 space-y-1 pt-1 border-t border-amber-200">
+                      <li>• 10% de descuento en tienda y talleres</li>
+                      <li>• Préstamo ilimitado de libros</li>
+                      <li>• Carnet Digital con insignia Oro</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* =================================================================== */}
+        {/* FORMULARIO DE DATOS PERSONALES                                      */}
+        {/* =================================================================== */}
         <div className="bg-[#EAF3FD] rounded-3xl p-6 sm:p-8 shadow-card border border-[#BFDBFE]">
           <div className="flex items-center justify-between mb-6 pb-4 border-b border-blue-200/70">
             <div>
@@ -752,36 +728,36 @@ export default function PerfilPage() {
           )}
 
           {guardadoExito && (
-            <div className="mb-4 p-3.5 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs flex items-center gap-2 shadow-sm">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-              <span>
+            <div className="mb-4 p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2 animate-fade-in">
+              <CheckCircle2 className="w-4 h-4 flex-shrink-0 text-emerald-600" />
+              <span className="font-bold">
                 {perfilRecienCompletado
-                  ? '¡Ficha completada con éxito! Tu cuenta y carnet han quedado habilitados. Ingresando a la plataforma...'
-                  : '¡Datos personales actualizados correctamente!'}
+                  ? '¡Excelente! Tus datos personales se han guardado exitosamente.'
+                  : 'Datos personales actualizados correctamente.'}
               </span>
             </div>
           )}
 
           <form onSubmit={handleGuardarDatos} className="space-y-5">
-            {/* Nombre/s y Apellido/s */}
+            {/* Nombre y Apellido */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                  Nombre/s *
+                  Nombre *
                 </label>
                 <input
                   type="text"
                   required
                   value={nombre}
                   onChange={(e) => setNombre(e.target.value)}
-                  placeholder="Tu nombre completo"
+                  placeholder="Tu nombre"
                   className="w-full bg-white px-3.5 py-2.5 rounded-xl border border-blue-200 focus:outline-none focus:ring-2 focus:ring-roncedo-celeste focus:border-roncedo-celeste text-sm text-slate-900 shadow-sm transition-all"
                 />
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                  Apellido/s *
+                  Apellido *
                 </label>
                 <input
                   type="text"
@@ -805,7 +781,7 @@ export default function PerfilPage() {
                   required
                   value={dni}
                   onChange={(e) => setDni(e.target.value)}
-                  placeholder="Ej: 34.892.110"
+                  placeholder="Sin puntos ni espacios"
                   className="w-full bg-white px-3.5 py-2.5 rounded-xl border border-blue-200 focus:outline-none focus:ring-2 focus:ring-roncedo-celeste focus:border-roncedo-celeste text-sm text-slate-900 shadow-sm transition-all"
                 />
               </div>
@@ -825,7 +801,7 @@ export default function PerfilPage() {
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                  Sexo *
+                  Sexo / Género *
                 </label>
                 <select
                   required
@@ -840,20 +816,20 @@ export default function PerfilPage() {
               </div>
             </div>
 
-            {/* WhatsApp y Correo Electrónico Registrado */}
+            {/* Teléfono / WhatsApp y Email */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                  WhatsApp (para avisos y reservas) *
+                  WhatsApp / Celular de Contacto *
                 </label>
                 <div className="flex gap-2">
                   <select
                     value={whatsappCodigo}
                     onChange={(e) => setWhatsappCodigo(e.target.value)}
-                    className="w-28 sm:w-32 bg-white px-2 py-2.5 rounded-xl border border-blue-200 focus:outline-none focus:ring-2 focus:ring-roncedo-celeste text-xs font-semibold text-slate-900 shadow-sm"
+                    className="w-28 bg-white px-2.5 py-2.5 rounded-xl border border-blue-200 focus:outline-none focus:ring-2 focus:ring-roncedo-celeste text-xs font-semibold text-slate-800 shadow-sm"
                   >
                     {PAISES.map((p) => (
-                      <option key={`${p.nombre}-${p.codigo}`} value={p.codigo}>
+                      <option key={p.nombre} value={p.codigo}>
                         {p.codigo} ({p.nombre})
                       </option>
                     ))}
@@ -863,10 +839,13 @@ export default function PerfilPage() {
                     required
                     value={whatsapp}
                     onChange={(e) => setWhatsapp(e.target.value)}
-                    placeholder="Ej: 3585 621547"
+                    placeholder="Ej: 3585123456"
                     className="flex-1 bg-white px-3.5 py-2.5 rounded-xl border border-blue-200 focus:outline-none focus:ring-2 focus:ring-roncedo-celeste focus:border-roncedo-celeste text-sm text-slate-900 shadow-sm transition-all"
                   />
                 </div>
+                <p className="text-[11px] text-slate-500 mt-1">
+                  Número activo para notificaciones y avisos de la biblioteca.
+                </p>
               </div>
 
               <div>
@@ -874,28 +853,23 @@ export default function PerfilPage() {
                   <label className="block text-xs font-bold text-slate-700">
                     Correo Electrónico
                   </label>
-                  <span className="text-[10px] font-bold text-slate-600 bg-slate-200/80 px-2 py-0.5 rounded-md">
+                  <span className="text-[10px] font-bold text-slate-500 bg-slate-200/70 px-2 py-0.5 rounded-md">
                     No modificable
                   </span>
                 </div>
-                <div className="relative">
-                  <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
-                  <input
-                    type="email"
-                    readOnly
-                    disabled
-                    value={email}
-                    className="w-full bg-slate-100 pl-10 pr-3.5 py-2.5 rounded-xl border border-slate-200 text-sm text-slate-600 shadow-sm cursor-not-allowed select-none"
-                    title="El correo electrónico registrado no se puede modificar"
-                  />
-                </div>
+                <input
+                  type="email"
+                  disabled
+                  value={email}
+                  className="w-full bg-slate-100 text-slate-600 px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm cursor-not-allowed shadow-inner"
+                />
                 <p className="text-[11px] text-slate-500 mt-1">
-                  Dirección oficial asociada a tu cuenta.
+                  Asociado a tu cuenta de acceso institucional.
                 </p>
               </div>
             </div>
 
-            {/* País y Provincia */}
+            {/* Domicilio: País y Provincia */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1.5">
@@ -962,7 +936,7 @@ export default function PerfilPage() {
               </div>
             </div>
 
-            {/* Localidad y Código Postal (debajo de Localidad) */}
+            {/* Localidad y Código Postal */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1.5">
@@ -1087,8 +1061,147 @@ export default function PerfilPage() {
               </div>
             </div>
 
-            {/* Observaciones */}
-            <div>
+            {/* ================================================================= */}
+            {/* NUEVA SECCIÓN: PREFERENCIAS DEPORTIVAS E IDENTIDAD (ANTES DE OBS) */}
+            {/* ================================================================= */}
+            <div className="pt-3 border-t border-blue-200/80 space-y-5">
+              {/* Pregunta 1: Soy hincha del Club (solo una opción) */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-extrabold text-slate-900 flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-roncedo-celeste" />
+                    <span>Soy hincha del Club:</span>
+                  </label>
+                  <span className="text-[10px] font-bold text-slate-500 bg-white/90 px-2.5 py-0.5 rounded-full border border-blue-200">
+                    Se puede marcar solo una opción
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {CLUBES_LOCALES.map((cl) => {
+                    const seleccionado = hinchaClub === cl.id;
+                    return (
+                      <button
+                        key={cl.id}
+                        type="button"
+                        onClick={() => setHinchaClub(cl.id)}
+                        className={`p-3.5 rounded-2xl border text-left flex items-center gap-3 transition-all ${
+                          seleccionado
+                            ? cl.id === 'Lautaro Roncedo'
+                              ? 'bg-blue-50 border-[#1B5699] ring-2 ring-[#1B5699] shadow-sm'
+                              : cl.id === 'Lutgardis Riveros'
+                              ? 'bg-amber-50 border-blue-900 ring-2 ring-blue-900 shadow-sm'
+                              : 'bg-slate-100 border-slate-500 ring-2 ring-slate-500 shadow-sm'
+                            : 'bg-white border-blue-200 hover:border-slate-300'
+                        }`}
+                      >
+                        <div className="w-9 h-9 flex-shrink-0 flex items-center justify-center">
+                          {cl.id === 'Me da lo mismo' ? (
+                            <span className="text-2xl">🤝</span>
+                          ) : (
+                            <ClubBadge nombre={cl.id} className="w-8 h-8" />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <span className="text-xs font-black text-slate-900 block truncate">
+                            {cl.label}
+                          </span>
+                          <span className="text-[10px] text-slate-500 block truncate">
+                            {cl.sublabel}
+                          </span>
+                        </div>
+                        {seleccionado && (
+                          <span className="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center flex-shrink-0 shadow-xs">
+                            <Check className="w-3 h-3 stroke-[3]" />
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Pregunta 2: En el país soy hincha del Club (más de una opción) */}
+              <div className="space-y-3 pt-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-extrabold text-slate-900 flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-600" />
+                    <span>En el país soy hincha del Club:</span>
+                  </label>
+                  <span className="text-[10px] font-bold text-slate-500 bg-white/90 px-2.5 py-0.5 rounded-full border border-blue-200">
+                    Se puede marcar más de una opción
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
+                  {CLUBES_ARGENTINA.map((club) => {
+                    const seleccionado = hinchaNacional.includes(club);
+                    return (
+                      <button
+                        key={club}
+                        type="button"
+                        onClick={() => handleToggleClubNacional(club)}
+                        className={`p-2.5 rounded-xl border text-left flex items-center gap-2.5 transition-all ${
+                          seleccionado
+                            ? 'bg-blue-50 border-roncedo-celeste ring-2 ring-roncedo-celeste font-bold text-roncedo-navy shadow-xs'
+                            : 'bg-white border-blue-200/80 hover:bg-slate-50 text-slate-700 text-xs font-semibold'
+                        }`}
+                      >
+                        <div className="w-6 h-6 flex-shrink-0 flex items-center justify-center">
+                          <ClubBadge nombre={club} className="w-5 h-5" />
+                        </div>
+                        <span className="text-xs truncate flex-1">{club}</span>
+                        {seleccionado && (
+                          <span className="w-4 h-4 rounded-full bg-roncedo-celeste text-white flex items-center justify-center flex-shrink-0">
+                            <Check className="w-2.5 h-2.5 stroke-[3]" />
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+
+                  {/* Opción personalizada: Otro. ¿Cuál? */}
+                  <button
+                    type="button"
+                    onClick={() => setEsOtroHinchaNacional(!esOtroHinchaNacional)}
+                    className={`p-2.5 rounded-xl border text-left flex items-center gap-2.5 transition-all ${
+                      esOtroHinchaNacional
+                        ? 'bg-blue-50 border-roncedo-celeste ring-2 ring-roncedo-celeste font-bold text-roncedo-navy shadow-xs'
+                        : 'bg-white border-blue-200/80 hover:bg-slate-50 text-slate-700 text-xs font-semibold'
+                    }`}
+                  >
+                    <div className="w-6 h-6 flex-shrink-0 flex items-center justify-center">
+                      <ClubBadge nombre="Otro" className="w-5 h-5" />
+                    </div>
+                    <span className="text-xs truncate flex-1">Otro. ¿Cuál?</span>
+                    {esOtroHinchaNacional && (
+                      <span className="w-4 h-4 rounded-full bg-roncedo-celeste text-white flex items-center justify-center flex-shrink-0">
+                        <Check className="w-2.5 h-2.5 stroke-[3]" />
+                      </span>
+                    )}
+                  </button>
+                </div>
+
+                {/* Input de texto para Otro */}
+                {esOtroHinchaNacional && (
+                  <div className="pt-1 animate-fade-in">
+                    <label className="text-[11px] font-bold text-slate-700 block mb-1">
+                      ¿Cuál otro club del país?
+                    </label>
+                    <input
+                      type="text"
+                      value={hinchaNacionalOtro}
+                      onChange={(e) => setHinchaNacionalOtro(e.target.value)}
+                      placeholder="Escribe el nombre de tu club..."
+                      className="w-full bg-white px-3.5 py-2.5 rounded-xl border border-blue-200 focus:outline-none focus:ring-2 focus:ring-roncedo-celeste text-sm text-slate-900 shadow-sm"
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Observaciones (Opcional) */}
+            <div className="pt-2 border-t border-blue-200/80">
               <div className="flex items-center justify-between mb-1.5">
                 <label className="block text-xs font-bold text-slate-700">
                   Observaciones
@@ -1106,6 +1219,7 @@ export default function PerfilPage() {
               />
             </div>
 
+            {/* Botón Guardar Cambios */}
             <div className="pt-4 border-t border-blue-200/80 flex flex-col sm:flex-row items-center justify-between gap-3">
               <span className="text-xs text-slate-500">
                 Los datos quedan protegidos y bajo custodia de la Biblioteca Roncedo
@@ -1113,10 +1227,10 @@ export default function PerfilPage() {
               <button
                 type="submit"
                 disabled={guardando}
-                className="w-full sm:w-auto bg-roncedo-navy hover:bg-[#1A457D] text-white font-bold text-xs sm:text-sm py-3 px-7 rounded-xl shadow-md transition-colors flex items-center justify-center gap-2"
+                className="w-full sm:w-auto bg-roncedo-navy hover:bg-[#1A457D] text-white font-bold text-xs sm:text-sm py-3 px-7 rounded-xl shadow-md transition-colors flex items-center justify-center gap-2 active:scale-98"
               >
                 <Save className="w-4 h-4" />
-                <span>Guardar Cambios</span>
+                <span>{guardando ? 'Guardando...' : 'Guardar Cambios'}</span>
               </button>
             </div>
           </form>

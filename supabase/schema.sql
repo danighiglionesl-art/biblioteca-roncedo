@@ -35,6 +35,10 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   calle TEXT,
   numero TEXT,
   domicilio TEXT,
+  -- Preferencias deportivas
+  hincha_club TEXT, -- 'Lautaro Roncedo', 'Lutgardis Riveros', 'Me da lo mismo'
+  hincha_nacional TEXT[], -- Array de clubes del país
+  hincha_nacional_otro TEXT,
   observaciones TEXT,
   avatar_url TEXT,
   -- Módulo Socio Protector (Arquitectura desacoplada de la condición de socio)

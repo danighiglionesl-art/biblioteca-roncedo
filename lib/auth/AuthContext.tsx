@@ -482,6 +482,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const updatedList = allUsers.map(u => u.id === user.id ? updated : u);
     persistAllUsers(updatedList);
 
+    if (isSupabaseConfigured && supabase && user.id && !user.id.startsWith('user-') && !user.id.startsWith('google-')) {
+      try {
+        await supabase.from('profiles').update(safeData).eq('id', user.id);
+      } catch (err) {
+        console.warn('Error sincronizando perfil con Supabase:', err);
+      }
+    }
+
     return { success: true };
   };
 
