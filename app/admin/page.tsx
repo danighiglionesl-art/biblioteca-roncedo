@@ -35,10 +35,12 @@ import {
   RefreshCw,
   Sparkles,
   Newspaper,
+  ShoppingBag,
 } from 'lucide-react';
 import { GestionPortadas } from '@/components/admin/GestionPortadas';
 import { GestionNovedades } from '@/components/admin/GestionNovedades';
 import { GestionEventos } from '@/components/admin/GestionEventos';
+import { GestionTienda } from '@/components/admin/GestionTienda';
 
 export default function AdminPage() {
   const {
@@ -51,7 +53,7 @@ export default function AdminPage() {
     actualizarSocioProtector,
   } = useAuth();
 
-  const [activeTab, setActiveTab] = useState<'portadas' | 'novedades' | 'eventos' | 'protectores' | 'solicitudes' | 'padron' | 'usuarios'>('portadas');
+  const [activeTab, setActiveTab] = useState<'portadas' | 'novedades' | 'eventos' | 'tienda' | 'protectores' | 'solicitudes' | 'padron' | 'usuarios'>('portadas');
   const [searchTerm, setSearchTerm] = useState('');
 
   // Leer pestaña desde query param si viene especificada
@@ -62,6 +64,7 @@ export default function AdminPage() {
       if (
         tabParam === 'novedades' ||
         tabParam === 'eventos' ||
+        tabParam === 'tienda' ||
         tabParam === 'protectores' ||
         tabParam === 'solicitudes' ||
         tabParam === 'padron' ||
@@ -386,7 +389,7 @@ export default function AdminPage() {
         </div>
 
         {/* Pestañas de Gestión */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm gap-1 text-xs font-bold">
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm gap-1 text-xs font-bold">
           <button
             onClick={() => setActiveTab('portadas')}
             className={`py-2.5 rounded-xl transition-colors flex items-center justify-center gap-1.5 ${
@@ -421,6 +424,18 @@ export default function AdminPage() {
           >
             <Calendar className={`w-4 h-4 ${activeTab === 'eventos' ? 'text-roncedo-gold' : 'text-purple-600'}`} />
             <span>Eventos/Talleres</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('tienda')}
+            className={`py-2.5 rounded-xl transition-colors flex items-center justify-center gap-1.5 ${
+              activeTab === 'tienda'
+                ? 'bg-gradient-to-r from-rose-700 to-pink-800 text-white shadow-sm'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <ShoppingBag className={`w-4 h-4 ${activeTab === 'tienda' ? 'text-roncedo-celesteLight' : 'text-rose-600'}`} />
+            <span>Tienda Oficial</span>
           </button>
 
           <button
@@ -488,6 +503,9 @@ export default function AdminPage() {
 
         {/* Pestaña: Gestión de Eventos y Talleres */}
         {activeTab === 'eventos' && <GestionEventos />}
+
+        {/* Pestaña: Gestión de Tienda Oficial */}
+        {activeTab === 'tienda' && <GestionTienda />}
 
         {/* Pestaña: Socios Protectores */}
         {activeTab === 'protectores' && (

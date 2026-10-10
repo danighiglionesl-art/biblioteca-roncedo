@@ -4,7 +4,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { UserProfile, UserRole, SocioSolicitud, CategoriaSocio, EstadoCuota } from '@/types';
 import { INITIAL_USERS, INITIAL_SOLICITUDES } from './mockData';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase/client';
-import { generarHashQR } from '@/lib/utils';
+import { generarHashQR, isPerfilCompleto } from '@/lib/utils';
 
 interface AuthContextType {
   user: UserProfile | null;
@@ -12,9 +12,9 @@ interface AuthContextType {
   isSupabaseConnected: boolean;
   solicitudes: SocioSolicitud[];
   allUsers: UserProfile[];
-  loginWithEmail: (email: string, pass: string) => Promise<{ success: boolean; error?: string }>;
-  loginWithGoogle: () => Promise<{ success: boolean; error?: string }>;
-  registerWithEmail: (email: string, pass: string, nombre: string, apellido: string) => Promise<{ success: boolean; error?: string }>;
+  loginWithEmail: (email: string, pass: string) => Promise<{ success: boolean; user?: UserProfile; error?: string }>;
+  loginWithGoogle: () => Promise<{ success: boolean; user?: UserProfile; error?: string }>;
+  registerWithEmail: (email: string, pass: string, nombre?: string, apellido?: string) => Promise<{ success: boolean; user?: UserProfile; error?: string }>;
   resetPassword: (email: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
   updateProfile: (data: Partial<UserProfile>) => Promise<{ success: boolean; error?: string }>;
@@ -93,62 +93,129 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error('Error cargando datos locales', e);
       setUser(null);
     } finally {
-      setIsLoading(false);
+      // Si la URL contiene un token de OAuth de Supabase, mantener isLoading activo
+      // para que onAuthStateChange y getSession procesen la sesión antes de redirigir
+      const hasOAuthHash = typeof window !== 'undefined' && (
+        window.location.hash.includes('access_token') ||
+        window.location.hash.includes('refresh_token')
+      );
+      if (!hasOAuthHash) {
+        setIsLoading(false);
+      }
     }
   }, []);
 
   // Escuchar cambios de sesión de Supabase (especialmente para Google OAuth y callbacks)
   useEffect(() => {
-    if (!isSupabaseConfigured || !supabase) return;
+    if (!isSupabaseConfigured || !supabase) {
+      setIsLoading(false);
+      return;
+    }
 
+    // Detectar si vino con error en el hash
+    if (typeof window !== 'undefined' && window.location.hash.includes('error=')) {
+      try {
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        const errorDesc =
+          hashParams.get('error_description') ||
+          hashParams.get('error') ||
+          'Error al autenticar con Google';
+        console.warn('OAuth redirect error:', errorDesc);
+        window.history.replaceState(null, '', '/login');
+        setIsLoading(false);
+        window.location.href = `/login?error=${encodeURIComponent(errorDesc)}`;
+      } catch {}
+      return;
+    }
+
+    const processSessionUser = (u: any) => {
+      const meta = u.user_metadata || {};
+      const email = u.email || '';
+      const fullName = meta.full_name || meta.name || '';
+      const nameParts = fullName.split(' ');
+      const nombre = nameParts[0] || meta.nombre || email.split('@')[0] || 'Usuario';
+      const apellido = nameParts.slice(1).join(' ') || meta.apellido || '';
+
+      // Si es el correo oficial de administración
+      let role: UserRole = 'usuario';
+      if (
+        email.toLowerCase() === 'biblioroncedo@bibliotecaroncedo.ar' ||
+        email.toLowerCase() === 'admin@bibliotecaroncedo.ar'
+      ) {
+        role = 'admin';
+      }
+
+      const oauthUser: UserProfile = {
+        id: u.id,
+        email,
+        nombre,
+        apellido,
+        role,
+        avatar_url: meta.avatar_url || meta.picture || '',
+        created_at: u.created_at || new Date().toISOString(),
+      };
+
+      setUser((prev) => {
+        if (prev && prev.email === email) {
+          const merged = { ...prev, ...oauthUser };
+          localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(merged));
+          return merged;
+        }
+        localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(oauthUser));
+        return oauthUser;
+      });
+
+      // Asegurar que quede registrado en allUsers
+      setAllUsers((prevUsers) => {
+        const exists = prevUsers.some(
+          (pu) => pu.id === u.id || pu.email.toLowerCase() === email.toLowerCase()
+        );
+        let updatedList: UserProfile[];
+        if (exists) {
+          updatedList = prevUsers.map((pu) =>
+            pu.id === u.id || pu.email.toLowerCase() === email.toLowerCase()
+              ? { ...pu, ...oauthUser }
+              : pu
+          );
+        } else {
+          updatedList = [...prevUsers, oauthUser];
+        }
+        localStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(updatedList));
+        return updatedList;
+      });
+
+      setIsLoading(false);
+
+      // Limpiar hash de access_token y redirigir
+      if (typeof window !== 'undefined' && window.location.hash.includes('access_token')) {
+        const destino = isPerfilCompleto(oauthUser) ? '/home' : '/perfil';
+        window.history.replaceState(null, '', destino);
+        window.location.href = destino;
+      }
+    };
+
+    // 1. Verificar sesión existente o token en URL inmediatamente
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      if (error) {
+        console.warn('Aviso verificando sesión de Supabase:', error.message);
+        setIsLoading(false);
+      } else if (session?.user) {
+        processSessionUser(session.user);
+      } else {
+        if (typeof window !== 'undefined' && !window.location.hash.includes('access_token')) {
+          setIsLoading(false);
+        }
+      }
+    });
+
+    // 2. Suscripción a eventos de autenticación en tiempo real
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (session?.user) {
-        const u = session.user;
-        const meta = u.user_metadata || {};
-        const email = u.email || '';
-        const fullName = meta.full_name || meta.name || '';
-        const nameParts = fullName.split(' ');
-        const nombre = nameParts[0] || email.split('@')[0] || 'Usuario';
-        const apellido = nameParts.slice(1).join(' ') || '';
-
-        // Si es el correo oficial de administración
-        let role: UserRole = 'usuario';
-        if (
-          email.toLowerCase() === 'biblioroncedo@bibliotecaroncedo.ar' ||
-          email.toLowerCase() === 'admin@bibliotecaroncedo.ar'
-        ) {
-          role = 'admin';
-        }
-
-        const oauthUser: UserProfile = {
-          id: u.id,
-          email,
-          nombre,
-          apellido,
-          role,
-          avatar_url: meta.avatar_url || meta.picture || '',
-          created_at: u.created_at || new Date().toISOString(),
-        };
-
-        setUser((prev) => {
-          if (prev && prev.email === email) {
-            const merged = { ...prev, ...oauthUser };
-            localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(merged));
-            return merged;
-          }
-          localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(oauthUser));
-          return oauthUser;
-        });
-
-        // Limpiar el access_token del hash y redirigir limpiamente a /home si es necesario
-        if (typeof window !== 'undefined' && window.location.hash.includes('access_token')) {
-          window.history.replaceState(null, '', window.location.pathname);
-          if (window.location.pathname === '/' || window.location.pathname === '/login') {
-            window.location.href = '/home';
-          }
-        }
+        processSessionUser(session.user);
+      } else if (event === 'SIGNED_OUT') {
+        setIsLoading(false);
       }
     });
 
@@ -261,7 +328,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               created_at: u.created_at || new Date().toISOString(),
             };
             persistUser(authUser);
-            return { success: true };
+            return { success: true, user: authUser };
           }
         } catch {
           // Continúa a verificar usuarios locales
@@ -275,7 +342,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (existingUser) {
         persistUser(existingUser);
-        return { success: true };
+        return { success: true, user: existingUser };
       }
 
       // En producción: rechazar credenciales no registradas
@@ -294,17 +361,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(true);
     try {
       if (isSupabaseConfigured && supabase) {
+        const origin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000';
         const { error } = await supabase.auth.signInWithOAuth({
           provider: 'google',
           options: {
-            redirectTo: `${window.location.origin}/home`,
+            redirectTo: `${origin}/`,
+            queryParams: {
+              access_type: 'offline',
+              prompt: 'select_account',
+            },
           },
         });
         if (error) throw error;
         return { success: true };
       }
 
-      // Simulación inmediata de Google OAuth
+      // Simulación inmediata de Google OAuth si Supabase no estuviera configurado
       const googleUser: UserProfile = {
         id: `google-${Date.now()}`,
         email: 'usuario.google@gmail.com',
@@ -318,7 +390,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const updatedList = [...allUsers, googleUser];
       persistAllUsers(updatedList);
       persistUser(googleUser);
-      return { success: true };
+      return { success: true, user: googleUser };
     } catch (err: any) {
       return { success: false, error: err.message || 'Error con Google' };
     } finally {
@@ -326,7 +398,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const registerWithEmail = async (email: string, pass: string, nombre: string, apellido: string) => {
+  const registerWithEmail = async (email: string, pass: string, nombre: string = '', apellido: string = '') => {
     setIsLoading(true);
     try {
       const cleanEmail = email.trim().toLowerCase();
@@ -344,10 +416,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         created_at: new Date().toISOString(),
       };
 
+      // Si Supabase está configurado, intentar registrarlo en Supabase Auth también
+      if (isSupabaseConfigured && supabase) {
+        try {
+          const fullName = `${nombre.trim()} ${apellido.trim()}`.trim();
+          const { data, error } = await supabase.auth.signUp({
+            email: cleanEmail,
+            password: pass,
+            options: {
+              data: {
+                full_name: fullName,
+                name: nombre.trim(),
+                nombre: nombre.trim(),
+                apellido: apellido.trim(),
+              },
+            },
+          });
+          if (data?.user?.id) {
+            newUser.id = data.user.id;
+          }
+          if (error) {
+            console.warn('Aviso en registro Supabase (se utiliza registro local):', error.message);
+          }
+        } catch (supaErr: any) {
+          console.warn('Excepción en registro Supabase:', supaErr);
+        }
+      }
+
       const updatedList = [...allUsers, newUser];
       persistAllUsers(updatedList);
       persistUser(newUser);
-      return { success: true };
+      return { success: true, user: newUser };
     } catch (err: any) {
       return { success: false, error: err.message || 'Error al registrarse' };
     } finally {
@@ -375,7 +474,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const updateProfile = async (data: Partial<UserProfile>) => {
     if (!user) return { success: false, error: 'No hay usuario autenticado' };
-    const updated = { ...user, ...data };
+    // El correo electrónico no es modificable (asociado a la cuenta institucional)
+    const { email: _ignorarEmail, ...safeData } = data;
+    const updated = { ...user, ...safeData, email: user.email };
     persistUser(updated);
 
     const updatedList = allUsers.map(u => u.id === user.id ? updated : u);

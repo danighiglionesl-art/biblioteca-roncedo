@@ -3,15 +3,29 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth/AuthContext';
+import { isPerfilCompleto } from '@/lib/utils';
 
 export default function RootPage() {
   const router = useRouter();
   const { user, isLoading } = useAuth();
 
   useEffect(() => {
+    // Si la URL contiene un token de OAuth o retorno de Supabase en el hash, esperar a que AuthContext lo procese
+    if (typeof window !== 'undefined' && (
+      window.location.hash.includes('access_token') ||
+      window.location.hash.includes('refresh_token') ||
+      window.location.hash.includes('error=')
+    )) {
+      return;
+    }
+
     if (!isLoading) {
       if (user) {
-        router.replace('/home');
+        if (!isPerfilCompleto(user)) {
+          router.replace('/perfil');
+        } else {
+          router.replace('/home');
+        }
       } else {
         router.replace('/login');
       }

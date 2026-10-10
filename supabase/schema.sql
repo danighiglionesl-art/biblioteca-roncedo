@@ -630,4 +630,96 @@ CREATE POLICY "Admin o usuario actualiza inscripciones"
     )
   );
 
+-- =====================================================================
+-- 13. TIENDA INSTITUCIONAL Y MARKETPLACE (ETAPA 7)
+-- =====================================================================
+
+CREATE TABLE IF NOT EXISTS public.tienda_productos (
+  id TEXT PRIMARY KEY,
+  titulo TEXT NOT NULL,
+  subtitulo TEXT,
+  descripcion TEXT NOT NULL,
+  categoria TEXT NOT NULL, -- 'centenario', 'indumentaria', 'libros', 'souvenirs', 'accesorios'
+  precio NUMERIC NOT NULL,
+  precio_socio_bronce NUMERIC,
+  precio_socio_plata NUMERIC,
+  precio_socio_oro NUMERIC,
+  imagen_url TEXT NOT NULL,
+  imagenes_galeria TEXT[] DEFAULT '{}',
+  stock INTEGER DEFAULT 0 NOT NULL,
+  destacado BOOLEAN DEFAULT FALSE,
+  talles TEXT[] DEFAULT '{}',
+  colores TEXT[] DEFAULT '{}',
+  activo BOOLEAN DEFAULT TRUE,
+  etiqueta_especial TEXT,
+  detalles_tecnicos TEXT[] DEFAULT '{}',
+  created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS public.tienda_pedidos (
+  id TEXT PRIMARY KEY,
+  codigo_pedido TEXT NOT NULL UNIQUE,
+  user_id UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
+  nombre_cliente TEXT NOT NULL,
+  telefono_whatsapp TEXT NOT NULL,
+  email_cliente TEXT,
+  dni_cliente TEXT,
+  metodo_entrega TEXT NOT NULL, -- 'retiro_biblioteca', 'envio_domicilio'
+  direccion_envio TEXT,
+  localidad TEXT,
+  items JSONB NOT NULL DEFAULT '[]'::jsonb,
+  total_bruto NUMERIC NOT NULL,
+  descuento_protector NUMERIC DEFAULT 0,
+  total_final NUMERIC NOT NULL,
+  tipo_protector_aplicado TEXT DEFAULT 'ninguno',
+  metodo_pago TEXT NOT NULL, -- 'whatsapp_acordar', 'transferencia', 'mercadopago'
+  estado TEXT DEFAULT 'pendiente' NOT NULL, -- 'pendiente', 'confirmado', 'preparado', 'entregado', 'cancelado'
+  notas TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
+);
+
+-- RLS: Tienda Productos
+ALTER TABLE public.tienda_productos ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Lectura pública de productos activos"
+  ON public.tienda_productos FOR SELECT
+  USING (true);
+
+CREATE POLICY "Admin gestiona productos de tienda"
+  ON public.tienda_productos FOR ALL
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE profiles.id = auth.uid() AND profiles.role = 'admin'
+    )
+  );
+
+-- RLS: Tienda Pedidos
+ALTER TABLE public.tienda_pedidos ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Cualquiera puede registrar un pedido"
+  ON public.tienda_pedidos FOR INSERT
+  WITH CHECK (true);
+
+CREATE POLICY "Usuario ve sus pedidos o Admin ve todos"
+  ON public.tienda_pedidos FOR SELECT
+  USING (
+    (auth.uid() IS NOT NULL AND auth.uid() = user_id) OR
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE profiles.id = auth.uid() AND profiles.role = 'admin'
+    )
+  );
+
+CREATE POLICY "Admin gestiona pedidos"
+  ON public.tienda_pedidos FOR UPDATE
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE profiles.id = auth.uid() AND profiles.role = 'admin'
+    )
+  );
+
 

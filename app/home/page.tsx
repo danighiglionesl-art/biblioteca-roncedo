@@ -127,11 +127,12 @@ export default function HomePage() {
     },
     {
       titulo: 'Tienda Institucional',
-      descripcion: 'Merchandising, publicaciones y recuerdos',
+      descripcion: 'Libros del Centenario, indumentaria oficial y recuerdos',
       href: '/tienda',
       icon: ShoppingBag,
       color: 'from-rose-600 to-pink-800',
-      etapa: 'Etapa 7',
+      badge: 'Tienda Activa',
+      badgeColor: 'bg-rose-500/20 text-rose-800 border-rose-300',
     },
   ];
 
@@ -282,11 +283,7 @@ export default function HomePage() {
                       <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#5B9BE5] to-[#3E83D4] text-white flex items-center justify-center shadow-sm group-hover:scale-105 group-hover:shadow transition-all border border-blue-200/60">
                         <Icon className="w-6 h-6 stroke-[2]" />
                       </div>
-                      {item.etapa ? (
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-[#2563EB] border border-blue-200">
-                          {item.etapa}
-                        </span>
-                      ) : item.badge ? (
+                      {item.badge ? (
                         <span
                           className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${item.badgeColor}`}
                         >

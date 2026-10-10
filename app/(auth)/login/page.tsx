@@ -5,10 +5,10 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth/AuthContext';
+import { isPerfilCompleto } from '@/lib/utils';
 import {
   Lock,
   Mail,
-  User,
   ArrowRight,
   AlertCircle,
 } from 'lucide-react';
@@ -21,10 +21,18 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [nombre, setNombre] = useState('');
-  const [apellido, setApellido] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const urlError = params.get('error');
+      if (urlError) {
+        setError(decodeURIComponent(urlError));
+      }
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,12 +46,12 @@ export default function LoginPage() {
           setError(res.error || 'Credenciales no válidas');
           return;
         }
-        router.push('/home');
-      } else {
-        if (!nombre.trim() || !apellido.trim()) {
-          setError('Por favor indica tu nombre y apellido completo');
-          return;
+        if (!isPerfilCompleto(res.user)) {
+          router.push('/perfil');
+        } else {
+          router.push('/home');
         }
+      } else {
         if (password.length < 6) {
           setError('La contraseña debe tener al menos 6 caracteres');
           return;
@@ -53,12 +61,13 @@ export default function LoginPage() {
           return;
         }
 
-        const res = await registerWithEmail(email, password, nombre, apellido);
+        const res = await registerWithEmail(email, password);
         if (!res.success) {
           setError(res.error || 'No se pudo completar el registro');
           return;
         }
-        router.push('/home');
+        // En el primer ingreso debe dirigirse a los datos personales obligatorios
+        router.push('/perfil');
       }
     } catch (err: any) {
       setError(err.message || 'Ocurrió un error inesperado');
@@ -76,7 +85,11 @@ export default function LoginPage() {
         setError(res.error || 'No se pudo iniciar con Google');
         return;
       }
-      router.push('/home');
+      if (!isPerfilCompleto(res.user)) {
+        router.push('/perfil');
+      } else {
+        router.push('/home');
+      }
     } catch (err: any) {
       setError(err.message || 'Error con Google');
     } finally {
@@ -191,40 +204,8 @@ export default function LoginPage() {
           {/* OPCIÓN B: Formulario Email y Contraseña */}
           <form onSubmit={handleSubmit} className="space-y-4">
             {mode === 'register' && (
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    Nombre
-                  </label>
-                  <div className="relative">
-                    <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
-                    <input
-                      type="text"
-                      required
-                      value={nombre}
-                      onChange={(e) => setNombre(e.target.value)}
-                      placeholder="Juan"
-                      className="w-full pl-10 pr-3 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-roncedo-blue text-sm"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">
-                    Apellido
-                  </label>
-                  <div className="relative">
-                    <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
-                    <input
-                      type="text"
-                      required
-                      value={apellido}
-                      onChange={(e) => setApellido(e.target.value)}
-                      placeholder="Pérez"
-                      className="w-full pl-10 pr-3 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-roncedo-blue text-sm"
-                    />
-                  </div>
-                </div>
+              <div className="bg-blue-50/80 border border-blue-200/80 rounded-2xl p-3.5 text-xs text-roncedo-navy leading-relaxed">
+                <span className="font-bold">Registro Directo:</span> Crea tu cuenta con tu correo y contraseña. Al ingresar por primera vez serás guiado a completar tus datos personales obligatorios para tu carnet de socio.
               </div>
             )}
 

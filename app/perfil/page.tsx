@@ -3,6 +3,7 @@
 import React, { useState, useRef, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth/AuthContext';
 import { CategoriaSocio, SexoOption } from '@/types';
 import confetti from 'canvas-confetti';
@@ -26,8 +27,9 @@ import {
   Globe,
   Home,
   FileText,
+  LogOut,
 } from 'lucide-react';
-import { formatFechaArgentina } from '@/lib/utils';
+import { formatFechaArgentina, isPerfilCompleto } from '@/lib/utils';
 import { obtenerMedallaProtector } from '@/lib/payments/plans';
 
 const LOCALIDADES_POR_PROVINCIA: Record<string, string[]> = LOCALIDADES_DATA_RAW;
@@ -90,8 +92,15 @@ function getLocalidadesParaProvincia(provincia: string): string[] {
 }
 
 export default function PerfilPage() {
-  const { user, updateProfile, submitSolicitudSocio, solicitudes } = useAuth();
+  const router = useRouter();
+  const { user, updateProfile, submitSolicitudSocio, solicitudes, logout } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [perfilRecienCompletado, setPerfilRecienCompletado] = useState(false);
+
+  const handleLogout = async () => {
+    await logout();
+    router.replace('/login');
+  };
 
   // Formulario de datos personales
   const [nombre, setNombre] = useState(user?.nombre || '');
@@ -201,6 +210,57 @@ export default function PerfilPage() {
     setGuardadoExito(false);
 
     try {
+      if (!nombre.trim() || !apellido.trim()) {
+        setError('Por favor indica tu Nombre y Apellido completo.');
+        setGuardando(false);
+        return;
+      }
+      if (!dni.trim()) {
+        setError('Por favor indica tu DNI / Documento.');
+        setGuardando(false);
+        return;
+      }
+      if (!fechaNacimiento) {
+        setError('Por favor selecciona tu Fecha de Nacimiento.');
+        setGuardando(false);
+        return;
+      }
+      if (!whatsapp.trim()) {
+        setError('Por favor indica tu número de WhatsApp para contacto.');
+        setGuardando(false);
+        return;
+      }
+      if (pais === 'Argentina' && !provincia.trim()) {
+        setError('Por favor selecciona tu Provincia.');
+        setGuardando(false);
+        return;
+      }
+      if (pais !== 'Argentina' && !provinciaManual.trim()) {
+        setError('Por favor indica tu Provincia / Estado / Región.');
+        setGuardando(false);
+        return;
+      }
+      if (pais === 'Argentina' && esOtraLocalidad && !localidadManual.trim()) {
+        setError('Por favor escribe el nombre de tu Localidad.');
+        setGuardando(false);
+        return;
+      }
+      if (!codigoPostal.trim()) {
+        setError('Por favor indica tu Código Postal.');
+        setGuardando(false);
+        return;
+      }
+      if (!barrio.trim()) {
+        setError('Por favor indica el Barrio de tu domicilio.');
+        setGuardando(false);
+        return;
+      }
+      if (!calle.trim() || !numero.trim()) {
+        setError('Por favor indica la Calle y Número / Altura de tu domicilio.');
+        setGuardando(false);
+        return;
+      }
+
       const provinciaFinal = pais === 'Argentina' ? provincia : provinciaManual;
       const localidadFinal = (
         pais === 'Argentina'
@@ -208,6 +268,8 @@ export default function PerfilPage() {
           : localidad.trim()
       ) || 'Alcira Gigena';
       const domicilioCompleto = `${calle} ${numero}${barrio ? `, B° ${barrio}` : ''}`.trim();
+
+      const yaEstabaCompleto = isPerfilCompleto(user);
 
       const res = await updateProfile({
         nombre: nombre.trim(),
@@ -217,7 +279,6 @@ export default function PerfilPage() {
         sexo: sexo as SexoOption,
         whatsapp_codigo: whatsappCodigo,
         whatsapp: whatsapp.trim(),
-        email: email.trim(),
         pais,
         provincia: provinciaFinal,
         localidad: localidadFinal,
@@ -228,6 +289,7 @@ export default function PerfilPage() {
         domicilio: domicilioCompleto,
         observaciones: observaciones.trim(),
         avatar_url: avatarUrl,
+        datos_completados: true,
       });
 
       if (!res.success) {
@@ -236,7 +298,19 @@ export default function PerfilPage() {
       }
 
       setGuardadoExito(true);
-      setTimeout(() => setGuardadoExito(false), 3500);
+      if (!yaEstabaCompleto) {
+        setPerfilRecienCompletado(true);
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 },
+        });
+        setTimeout(() => {
+          router.push('/home');
+        }, 1800);
+      } else {
+        setTimeout(() => setGuardadoExito(false), 3500);
+      }
     } catch (err: any) {
       setError(err.message || 'Error al guardar');
     } finally {
@@ -294,20 +368,56 @@ export default function PerfilPage() {
   return (
     <div className="min-h-screen bg-[#E5F2FE] pb-28 pt-6 px-4">
       <div className="max-w-3xl mx-auto space-y-6">
-        {/* Navegación Superior: Volver al Inicio */}
+        {/* Navegación Superior */}
         <div className="flex items-center justify-between">
-          <Link
-            href="/home"
-            className="inline-flex items-center gap-2 text-xs font-bold text-roncedo-navy hover:text-roncedo-celesteDark transition-colors bg-white/90 backdrop-blur-sm px-3.5 py-2 rounded-xl border border-blue-200/80 shadow-sm"
-          >
-            <ArrowLeft className="w-4 h-4 text-roncedo-celeste" />
-            <span>Volver al Inicio</span>
-          </Link>
+          {isPerfilCompleto(user) ? (
+            <Link
+              href="/home"
+              className="inline-flex items-center gap-2 text-xs font-bold text-roncedo-navy hover:text-roncedo-celesteDark transition-colors bg-white/90 backdrop-blur-sm px-3.5 py-2 rounded-xl border border-blue-200/80 shadow-sm"
+            >
+              <ArrowLeft className="w-4 h-4 text-roncedo-celeste" />
+              <span>Volver al Inicio</span>
+            </Link>
+          ) : (
+            <div className="inline-flex items-center gap-2 text-xs font-bold text-amber-900 bg-amber-100/80 px-3.5 py-2 rounded-xl border border-amber-300 shadow-sm">
+              <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping" />
+              <span>Primer Ingreso • Ficha Obligatoria</span>
+            </div>
+          )}
 
-          <span className="text-[11px] font-semibold text-slate-500">
-            Biblioteca Roncedo • Datos Personales
-          </span>
+          <div className="flex items-center gap-2 sm:gap-3">
+            <span className="text-[11px] font-semibold text-slate-500 hidden sm:inline">
+              Biblioteca Roncedo • Datos Personales
+            </span>
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700 hover:text-red-700 bg-white/90 hover:bg-red-50 px-3 py-1.5 rounded-xl border border-slate-200 hover:border-red-200 transition-colors shadow-sm"
+              title="Cerrar sesión"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span>Cerrar Sesión</span>
+            </button>
+          </div>
         </div>
+
+        {/* Banner de Primer Ingreso cuando faltan datos obligatorios */}
+        {!isPerfilCompleto(user) && (
+          <div className="bg-gradient-to-r from-amber-50 via-orange-50 to-amber-50 border-2 border-amber-300 rounded-3xl p-5 text-amber-950 shadow-md flex items-start gap-3.5 animate-fade-in">
+            <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+            <div className="space-y-1">
+              <h3 className="text-sm font-black text-amber-950">
+                Primer ingreso: Completa tus Datos Personales Obligatorios
+              </h3>
+              <p className="text-xs text-amber-900 leading-relaxed">
+                Para habilitar tu acceso al catálogo de libros, préstamos, actas y emitir tu Carnet Digital con código QR, por favor completa todos los campos marcados con asterisco (*).
+              </p>
+              <p className="text-[11px] text-amber-800 font-medium">
+                Nota: Tu correo electrónico queda fijado a tu cuenta y no es modificable. El campo Observaciones es opcional.
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Cabecera de Perfil con Subida de Foto */}
         <div className="bg-white rounded-3xl p-6 shadow-card border border-blue-200/90 flex flex-col sm:flex-row items-center gap-6">
@@ -644,7 +754,11 @@ export default function PerfilPage() {
           {guardadoExito && (
             <div className="mb-4 p-3.5 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs flex items-center gap-2 shadow-sm">
               <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-              <span>¡Datos personales actualizados correctamente!</span>
+              <span>
+                {perfilRecienCompletado
+                  ? '¡Ficha completada con éxito! Tu cuenta y carnet han quedado habilitados. Ingresando a la plataforma...'
+                  : '¡Datos personales actualizados correctamente!'}
+              </span>
             </div>
           )}
 
@@ -688,6 +802,7 @@ export default function PerfilPage() {
                 </label>
                 <input
                   type="text"
+                  required
                   value={dni}
                   onChange={(e) => setDni(e.target.value)}
                   placeholder="Ej: 34.892.110"
@@ -697,10 +812,11 @@ export default function PerfilPage() {
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                  Fecha de Nacimiento
+                  Fecha de Nacimiento *
                 </label>
                 <input
                   type="date"
+                  required
                   value={fechaNacimiento}
                   onChange={(e) => setFechaNacimiento(e.target.value)}
                   className="w-full bg-white px-3.5 py-2.5 rounded-xl border border-blue-200 focus:outline-none focus:ring-2 focus:ring-roncedo-celeste focus:border-roncedo-celeste text-sm text-slate-900 shadow-sm transition-all"
@@ -709,9 +825,10 @@ export default function PerfilPage() {
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                  Sexo
+                  Sexo *
                 </label>
                 <select
+                  required
                   value={sexo}
                   onChange={(e) => setSexo(e.target.value)}
                   className="w-full bg-white px-3.5 py-2.5 rounded-xl border border-blue-200 focus:outline-none focus:ring-2 focus:ring-roncedo-celeste focus:border-roncedo-celeste text-sm text-slate-900 shadow-sm transition-all"
@@ -727,7 +844,7 @@ export default function PerfilPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                  WhatsApp (para avisos y reservas)
+                  WhatsApp (para avisos y reservas) *
                 </label>
                 <div className="flex gap-2">
                   <select
@@ -743,6 +860,7 @@ export default function PerfilPage() {
                   </select>
                   <input
                     type="tel"
+                    required
                     value={whatsapp}
                     onChange={(e) => setWhatsapp(e.target.value)}
                     placeholder="Ej: 3585 621547"
@@ -752,17 +870,28 @@ export default function PerfilPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                  Correo Electrónico *
-                </label>
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="ejemplo@correo.com"
-                  className="w-full bg-white px-3.5 py-2.5 rounded-xl border border-blue-200 focus:outline-none focus:ring-2 focus:ring-roncedo-celeste focus:border-roncedo-celeste text-sm text-slate-900 shadow-sm transition-all"
-                />
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-bold text-slate-700">
+                    Correo Electrónico
+                  </label>
+                  <span className="text-[10px] font-bold text-slate-600 bg-slate-200/80 px-2 py-0.5 rounded-md">
+                    No modificable
+                  </span>
+                </div>
+                <div className="relative">
+                  <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                  <input
+                    type="email"
+                    readOnly
+                    disabled
+                    value={email}
+                    className="w-full bg-slate-100 pl-10 pr-3.5 py-2.5 rounded-xl border border-slate-200 text-sm text-slate-600 shadow-sm cursor-not-allowed select-none"
+                    title="El correo electrónico registrado no se puede modificar"
+                  />
+                </div>
+                <p className="text-[11px] text-slate-500 mt-1">
+                  Dirección oficial asociada a tu cuenta.
+                </p>
               </div>
             </div>
 
@@ -770,9 +899,10 @@ export default function PerfilPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                  País
+                  País *
                 </label>
                 <select
+                  required
                   value={pais}
                   onChange={(e) => {
                     const nuevoPais = e.target.value;
@@ -792,10 +922,11 @@ export default function PerfilPage() {
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                  Provincia
+                  Provincia *
                 </label>
                 {pais === 'Argentina' ? (
                   <select
+                    required
                     value={provincia}
                     onChange={(e) => {
                       const nuevaProv = e.target.value;
@@ -821,6 +952,7 @@ export default function PerfilPage() {
                 ) : (
                   <input
                     type="text"
+                    required
                     value={provinciaManual}
                     onChange={(e) => setProvinciaManual(e.target.value)}
                     placeholder="Estado / Región / Provincia"
@@ -894,10 +1026,11 @@ export default function PerfilPage() {
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                  Código Postal
+                  Código Postal *
                 </label>
                 <input
                   type="text"
+                  required
                   value={codigoPostal}
                   onChange={(e) => setCodigoPostal(e.target.value)}
                   placeholder="Ej: 5811"
@@ -913,10 +1046,11 @@ export default function PerfilPage() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                  Barrio
+                  Barrio *
                 </label>
                 <input
                   type="text"
+                  required
                   value={barrio}
                   onChange={(e) => setBarrio(e.target.value)}
                   placeholder="Ej: Centro, San Vicente..."
@@ -926,10 +1060,11 @@ export default function PerfilPage() {
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                  Calle
+                  Calle *
                 </label>
                 <input
                   type="text"
+                  required
                   value={calle}
                   onChange={(e) => setCalle(e.target.value)}
                   placeholder="Ej: San Martín, Córdoba..."
@@ -939,10 +1074,11 @@ export default function PerfilPage() {
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                  Número / Altura
+                  Número / Altura *
                 </label>
                 <input
                   type="text"
+                  required
                   value={numero}
                   onChange={(e) => setNumero(e.target.value)}
                   placeholder="Ej: 128 o S/N"
@@ -953,9 +1089,14 @@ export default function PerfilPage() {
 
             {/* Observaciones */}
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                Observaciones
-              </label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-bold text-slate-700">
+                  Observaciones
+                </label>
+                <span className="text-[10px] font-semibold text-slate-500 bg-slate-200/70 px-2 py-0.5 rounded-md">
+                  Opcional
+                </span>
+              </div>
               <textarea
                 rows={3}
                 value={observaciones}

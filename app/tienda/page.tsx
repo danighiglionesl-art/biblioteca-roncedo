@@ -1,95 +1,316 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { ShoppingBag, ArrowLeft, Sparkles, CheckCircle2, MessageCircle } from 'lucide-react';
-import { CONTACTO_BIBLIOTECA } from '@/lib/constants/contacto';
+import {
+  ShoppingBag,
+  ArrowLeft,
+  Sparkles,
+  Award,
+  Layers,
+  Settings,
+  ShieldCheck,
+  AlertCircle,
+} from 'lucide-react';
+import { useAuth } from '@/lib/auth/AuthContext';
+import {
+  ProductoTienda,
+  CategoriaProductoTienda,
+  ItemCarritoTienda,
+  TipoSocioProtector,
+} from '@/types';
+import {
+  getProductosTienda,
+  calcularDescuentoProtector,
+} from '@/lib/supabase/tienda';
+import { TiendaHeader } from '@/components/tienda/TiendaHeader';
+import { ProductoCard } from '@/components/tienda/ProductoCard';
+import { ProductoDetalleModal } from '@/components/tienda/ProductoDetalleModal';
+import { CarritoModal } from '@/components/tienda/CarritoModal';
+
+const LOCAL_STORAGE_CARRITO_KEY = 'roncedo_carrito_items_v1';
 
 export default function TiendaPage() {
+  const { user } = useAuth();
+
+  const [productos, setProductos] = useState<ProductoTienda[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [categoriaActiva, setCategoriaActiva] = useState<CategoriaProductoTienda | 'todos'>('todos');
+  const [searchTerm, setSearchTerm] = useState('');
+
+  // Condición de socio protector
+  const tipoProtectorReal: TipoSocioProtector | 'ninguno' =
+    user?.es_socio_protector &&
+    user?.estado_socio_protector === 'activo' &&
+    user?.tipo_socio_protector
+      ? user.tipo_socio_protector
+      : 'ninguno';
+
+  // Simulador de rol para visualización de precios
+  const [tipoProtectorSimulado, setTipoProtectorSimulado] = useState<TipoSocioProtector | 'ninguno'>(
+    tipoProtectorReal
+  );
+
+  useEffect(() => {
+    setTipoProtectorSimulado(tipoProtectorReal);
+  }, [tipoProtectorReal]);
+
+  // Carrito de compras
+  const [carrito, setCarrito] = useState<ItemCarritoTienda[]>([]);
+  const [carritoModalAbierto, setCarritoModalAbierto] = useState(false);
+  const [productoParaDetalle, setProductoParaDetalle] = useState<ProductoTienda | null>(null);
+
+  // Cargar productos
+  useEffect(() => {
+    const cargar = async () => {
+      setLoading(true);
+      try {
+        const data = await getProductosTienda();
+        setProductos(data);
+      } catch (err) {
+        console.error('Error cargando tienda:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    cargar();
+  }, []);
+
+  // Cargar carrito de localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const local = localStorage.getItem(LOCAL_STORAGE_CARRITO_KEY);
+      if (local) {
+        try {
+          setCarrito(JSON.parse(local));
+        } catch (e) {
+          console.error('Error parseando carrito:', e);
+        }
+      }
+    }
+  }, []);
+
+  // Guardar carrito en localStorage
+  const guardarCarrito = (nuevosItems: ItemCarritoTienda[]) => {
+    setCarrito(nuevosItems);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(LOCAL_STORAGE_CARRITO_KEY, JSON.stringify(nuevosItems));
+    }
+  };
+
+  // Agregar al carrito
+  const handleAgregarCarrito = (
+    producto: ProductoTienda,
+    cantidad: number = 1,
+    talle?: string,
+    color?: string
+  ) => {
+    const { precioFinal, descuentoMonto } = calcularDescuentoProtector(
+      producto.precio,
+      tipoProtectorSimulado
+    );
+
+    const copia = [...carrito];
+    const indexExistente = copia.findIndex(
+      (item) =>
+        item.producto.id === producto.id &&
+        item.talleSeleccionado === talle &&
+        item.colorSeleccionado === color
+    );
+
+    if (indexExistente >= 0) {
+      copia[indexExistente].cantidad += cantidad;
+      copia[indexExistente].subtotal =
+        copia[indexExistente].cantidad * copia[indexExistente].precioFinalUnitario;
+    } else {
+      copia.push({
+        producto,
+        cantidad,
+        talleSeleccionado: talle,
+        colorSeleccionado: color,
+        precioUnitario: producto.precio,
+        descuentoUnitario: descuentoMonto,
+        precioFinalUnitario: precioFinal,
+        subtotal: precioFinal * cantidad,
+      });
+    }
+
+    guardarCarrito(copia);
+  };
+
+  // Actualizar cantidad en carrito
+  const handleActualizarCantidadCarrito = (index: number, delta: number) => {
+    const copia = [...carrito];
+    if (index >= 0 && index < copia.length) {
+      const nuevaCantidad = copia[index].cantidad + delta;
+      if (nuevaCantidad <= 0) {
+        copia.splice(index, 1);
+      } else {
+        copia[index].cantidad = nuevaCantidad;
+        copia[index].subtotal = nuevaCantidad * copia[index].precioFinalUnitario;
+      }
+      guardarCarrito(copia);
+    }
+  };
+
+  // Eliminar item de carrito
+  const handleEliminarItemCarrito = (index: number) => {
+    const copia = [...carrito];
+    if (index >= 0 && index < copia.length) {
+      copia.splice(index, 1);
+      guardarCarrito(copia);
+    }
+  };
+
+  // Vaciar carrito
+  const handleVaciarCarrito = () => {
+    guardarCarrito([]);
+  };
+
+  // Filtrado de catálogo
+  const productosFiltrados = productos.filter((p) => {
+    if (!p.activo) return false;
+    const matchCat =
+      categoriaActiva === 'todos' || p.categoria === categoriaActiva;
+    const matchSearch =
+      p.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      p.descripcion.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (p.subtitulo && p.subtitulo.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (p.talles && p.talles.some((t) => t.toLowerCase().includes(searchTerm.toLowerCase())));
+    return matchCat && matchSearch;
+  });
+
+  const totalItemsEnCarrito = carrito.reduce((acc, it) => acc + it.cantidad, 0);
+  const totalMontoCarrito = carrito.reduce((acc, it) => acc + it.subtotal, 0);
+
   return (
-    <div className="min-h-screen bg-[#E5F2FE] pb-24 pt-6 px-4">
-      <div className="max-w-4xl mx-auto space-y-6">
-        {/* Navegación Superior: Volver al Inicio */}
-        <div className="flex items-center justify-between">
-          <Link
-            href="/home"
-            className="inline-flex items-center gap-2 text-xs font-bold text-roncedo-navy hover:text-roncedo-celesteDark transition-colors bg-white/90 backdrop-blur-sm px-3.5 py-2 rounded-xl border border-blue-200/80 shadow-sm"
-          >
-            <ArrowLeft className="w-4 h-4 text-roncedo-celeste" />
-            <span>Volver al Inicio</span>
-          </Link>
-
-          <span className="text-[11px] font-semibold text-slate-500">
-            Biblioteca Roncedo • Tienda Oficial
-          </span>
-        </div>
-
-        <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-card border border-blue-200/80">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 rounded-2xl bg-[#5B9BE5] text-white flex items-center justify-center shadow-md">
-              <ShoppingBag className="w-6 h-6" />
+    <div className="min-h-screen bg-[#E5F2FE] pb-28 pt-6 px-4">
+      <div className="max-w-6xl mx-auto space-y-6">
+        {/* Banner de acceso de administración para administradores */}
+        {user?.role === 'admin' && (
+          <div className="bg-white/90 backdrop-blur-sm p-3 sm:p-4 rounded-2xl border border-roncedo-celeste flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs">
+            <div className="flex items-center gap-2 text-xs font-bold text-roncedo-navy">
+              <Settings className="w-4 h-4 text-roncedo-celeste" />
+              <span>Modo Administrador: Podés agregar o modificar stock y precios en el panel.</span>
             </div>
-            <div>
-              <span className="text-[10px] uppercase font-bold tracking-wider text-rose-700 bg-rose-100 px-2.5 py-0.5 rounded-full border border-rose-300">
-                Módulo Programado • Etapa 7
-              </span>
-              <h1 className="text-2xl font-black text-slate-900 mt-0.5">
-                Tienda y Marketplace Institucional
-              </h1>
-            </div>
-          </div>
-
-          <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-2xl">
-            Tienda oficial para la adquisición de merchandising institucional, libros editados por la institución, indumentaria conmemorativa de Roncedo, souvenirs del Centenario y obras literarias, con integración inicial de pedidos vía WhatsApp y soporte futuro de pagos online.
-          </p>
-
-          <div className="mt-6 p-4 rounded-2xl bg-slate-50 border border-slate-200">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 mb-2 flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-rose-500" />
-              <span>Funcionalidades listas para activarse en la Etapa 7:</span>
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs text-slate-600">
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                <span>Catálogo de productos con fotos, talles, stock y precios</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                <span>Pedidos directos y consultas rápidas por WhatsApp</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                <span>Preparado para pagos con Mercado Pago y cobro de cuotas</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                <span>Retiro en sede de la Biblioteca y envíos a domicilio</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Contacto directo por WhatsApp */}
-          <div className="mt-6 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-emerald-500 text-white flex items-center justify-center flex-shrink-0 shadow-sm">
-                <MessageCircle className="w-5 h-5 fill-current" />
-              </div>
-              <div className="text-xs">
-                <p className="font-bold text-slate-800">¿Buscás souvenirs, indumentaria o libros de la institución?</p>
-                <p className="text-slate-600">Consultas y reservas por WhatsApp oficial: <strong>{CONTACTO_BIBLIOTECA.whatsappFormato}</strong></p>
-              </div>
-            </div>
-            <a
-              href={CONTACTO_BIBLIOTECA.getWhatsAppTiendaUrl()}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs rounded-xl font-bold flex items-center gap-2 flex-shrink-0 transition-colors shadow-sm"
+            <Link
+              href="/admin?tab=tienda"
+              className="px-3.5 py-1.5 bg-roncedo-navy hover:bg-slate-900 text-white text-xs font-bold rounded-xl transition-colors shadow-xs"
             >
-              <MessageCircle className="w-4 h-4 fill-current" />
-              <span>Consultar por WhatsApp</span>
-            </a>
+              Gestionar Catálogo en Admin
+            </Link>
           </div>
-        </div>
+        )}
+
+        {/* Encabezado con buscador, categorías y simulador */}
+        <TiendaHeader
+          categoriaActiva={categoriaActiva}
+          onSelectCategoria={setCategoriaActiva}
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          tipoProtector={tipoProtectorSimulado}
+          onSimularProtector={setTipoProtectorSimulado}
+          totalItemsCarrito={totalItemsEnCarrito}
+          onAbrirCarrito={() => setCarritoModalAbierto(true)}
+          totalProductos={productosFiltrados.length}
+        />
+
+        {/* Grilla de Productos */}
+        {loading ? (
+          <div className="py-20 text-center space-y-3">
+            <div className="w-10 h-10 border-4 border-roncedo-celeste border-t-transparent rounded-full animate-spin mx-auto" />
+            <p className="text-xs font-bold text-slate-500">
+              Cargando catálogo institucional...
+            </p>
+          </div>
+        ) : productosFiltrados.length === 0 ? (
+          <div className="bg-white rounded-3xl p-12 text-center border border-blue-200/80 shadow-card space-y-3">
+            <div className="w-14 h-14 rounded-2xl bg-blue-50 text-roncedo-navy flex items-center justify-center mx-auto">
+              <ShoppingBag className="w-7 h-7 text-roncedo-celeste" />
+            </div>
+            <h3 className="text-base font-bold text-slate-800">
+              No se encontraron productos
+            </h3>
+            <p className="text-xs text-slate-500 max-w-sm mx-auto">
+              No hay artículos que coincidan con la búsqueda actual o categoría seleccionada.
+            </p>
+            <button
+              onClick={() => {
+                setCategoriaActiva('todos');
+                setSearchTerm('');
+              }}
+              className="px-4 py-2 bg-roncedo-navy text-white text-xs font-bold rounded-xl hover:bg-slate-900 transition-colors shadow-xs"
+            >
+              Restablecer Filtros
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+            {productosFiltrados.map((prod) => (
+              <ProductoCard
+                key={prod.id}
+                producto={prod}
+                tipoProtector={tipoProtectorSimulado}
+                onVerDetalle={(p) => setProductoParaDetalle(p)}
+                onAgregarCarrito={handleAgregarCarrito}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Modal de Detalle de Producto */}
+        <ProductoDetalleModal
+          producto={productoParaDetalle}
+          onClose={() => setProductoParaDetalle(null)}
+          tipoProtector={tipoProtectorSimulado}
+          onAgregarCarrito={handleAgregarCarrito}
+        />
+
+        {/* Modal de Carrito y Checkout de WhatsApp */}
+        <CarritoModal
+          isOpen={carritoModalAbierto}
+          onClose={() => setCarritoModalAbierto(false)}
+          items={carrito}
+          onActualizarCantidad={handleActualizarCantidadCarrito}
+          onEliminarItem={handleEliminarItemCarrito}
+          onVaciarCarrito={handleVaciarCarrito}
+          tipoProtector={tipoProtectorSimulado}
+          user={user}
+        />
+
+        {/* Barra Flotante Inferior en Móviles si hay items en carrito */}
+        {totalItemsEnCarrito > 0 && !carritoModalAbierto && (
+          <div className="fixed bottom-4 left-4 right-4 z-40 sm:hidden animate-bounce-subtle">
+            <button
+              onClick={() => setCarritoModalAbierto(true)}
+              className="w-full p-4 rounded-2xl bg-roncedo-navy text-white shadow-2xl border border-blue-400/40 flex items-center justify-between"
+            >
+              <div className="flex items-center gap-3">
+                <div className="relative">
+                  <ShoppingBag className="w-6 h-6 text-roncedo-celesteLight" />
+                  <span className="absolute -top-1.5 -right-2 px-1.5 py-0.5 text-[10px] font-black bg-rose-500 rounded-full">
+                    {totalItemsEnCarrito}
+                  </span>
+                </div>
+                <div className="text-left">
+                  <span className="text-xs font-bold block">Ver mi pedido</span>
+                  <span className="text-[11px] text-blue-200">
+                    {totalItemsEnCarrito} {totalItemsEnCarrito === 1 ? 'item' : 'items'}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="text-base font-black text-emerald-400">
+                  ${totalMontoCarrito.toLocaleString('es-AR')}
+                </span>
+                <span className="text-xs bg-white/20 px-2.5 py-1 rounded-xl font-bold">
+                  Continuar →
+                </span>
+              </div>
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

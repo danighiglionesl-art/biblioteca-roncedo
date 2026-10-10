@@ -4,6 +4,7 @@ import React, { useEffect } from 'react';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth/AuthContext';
+import { isPerfilCompleto } from '@/lib/utils';
 
 // Rutas públicas accesibles sin iniciar sesión
 const PUBLIC_ROUTES = ['/login', '/recuperar', '/instalar'];
@@ -19,10 +20,23 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (isLoading) return;
 
-    // Caso 1: Ruta raíz '/' -> redirigir inmediatamente según estado de sesión
+    // Si la URL contiene un token de OAuth o retorno de Supabase en el hash, esperar a que se procese
+    if (typeof window !== 'undefined' && (
+      window.location.hash.includes('access_token') ||
+      window.location.hash.includes('refresh_token') ||
+      window.location.hash.includes('error=')
+    )) {
+      return;
+    }
+
+    // Caso 1: Ruta raíz '/' -> redirigir inmediatamente según estado de sesión y completitud de datos
     if (normalizedPath === '/') {
       if (user) {
-        router.replace('/home');
+        if (!isPerfilCompleto(user)) {
+          router.replace('/perfil');
+        } else {
+          router.replace('/home');
+        }
       } else {
         router.replace('/login');
       }
@@ -35,10 +49,21 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    // Caso 3: Usuario YA logueado intentando entrar a /login o /recuperar -> enviar a /home
+    // Caso 3: Usuario YA logueado intentando entrar a /login o /recuperar -> enviar a /home o /perfil
     // (Nota: /instalar sigue siendo accesible aún estando logueado)
     if (user && (normalizedPath === '/login' || normalizedPath === '/recuperar')) {
-      router.replace('/home');
+      if (!isPerfilCompleto(user)) {
+        router.replace('/perfil');
+      } else {
+        router.replace('/home');
+      }
+      return;
+    }
+
+    // Caso 4: Usuario autenticado con datos obligatorios incompletos (primer ingreso)
+    // Debe dirigirse a /perfil para completar su ficha de socio
+    if (user && !isPerfilCompleto(user) && normalizedPath !== '/perfil' && normalizedPath !== '/instalar') {
+      router.replace('/perfil');
       return;
     }
   }, [user, isLoading, isPublicRoute, normalizedPath, router]);
@@ -112,7 +137,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     );
   }
 
-  // Si está autenticado pero intenta entrar a /login o /recuperar, mostrar transición a /home
+  // Si está autenticado pero intenta entrar a /login o /recuperar, mostrar transición
   if (user && (normalizedPath === '/login' || normalizedPath === '/recuperar')) {
     return (
       <div className="min-h-screen bg-[#EDF5FD] flex items-center justify-center text-slate-800 p-4">
@@ -120,6 +145,20 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
           <div className="w-8 h-8 border-3 border-roncedo-celeste border-t-transparent rounded-full animate-spin" />
           <p className="text-xs uppercase tracking-widest text-roncedo-navy font-bold">
             Ingresando a Biblioteca Roncedo...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Si está autenticado pero le faltan datos obligatorios y se encuentra fuera de /perfil o /instalar
+  if (user && !isPerfilCompleto(user) && normalizedPath !== '/perfil' && normalizedPath !== '/instalar') {
+    return (
+      <div className="min-h-screen bg-[#EDF5FD] flex items-center justify-center text-slate-800 p-4">
+        <div className="flex flex-col items-center gap-3 text-center">
+          <div className="w-8 h-8 border-3 border-roncedo-celeste border-t-transparent rounded-full animate-spin" />
+          <p className="text-xs uppercase tracking-widest text-roncedo-navy font-bold">
+            Dirigiendo a Datos Personales Obligatorios...
           </p>
         </div>
       </div>

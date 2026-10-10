@@ -29,6 +29,7 @@ export interface UserProfile {
   domicilio?: string;
   observaciones?: string;
   avatar_url?: string;
+  datos_completados?: boolean;
   created_at: string;
   // Campos cuando es socio
   numero_socio?: string;
@@ -504,4 +505,76 @@ export interface EventoInscripcion {
   codigo_certificado?: string;
 
   fecha_inscripcion: string;
+}
+
+// =====================================================================
+// TIPOS DE LA TIENDA INSTITUCIONAL Y MARKETPLACE (ETAPA 7)
+// =====================================================================
+
+export type CategoriaProductoTienda =
+  | 'libros'
+  | 'indumentaria'
+  | 'souvenirs'
+  | 'centenario'
+  | 'accesorios';
+
+export interface ProductoTienda {
+  id: string;
+  titulo: string;
+  subtitulo?: string;
+  descripcion: string;
+  categoria: CategoriaProductoTienda;
+  precio: number;
+  precio_socio_bronce?: number; // 2% off
+  precio_socio_plata?: number;  // 5% off
+  precio_socio_oro?: number;    // 10% off
+  imagen_url: string;
+  imagenes_galeria?: string[];
+  stock: number;
+  destacado?: boolean;
+  talles?: string[]; // Ej: ['S', 'M', 'L', 'XL', 'XXL']
+  colores?: string[];
+  activo: boolean;
+  etiqueta_especial?: string; // Ej: 'Edición Centenario', 'Más vendido', 'Novedad'
+  detalles_tecnicos?: string[];
+  created_at: string;
+  updated_at?: string;
+}
+
+export interface ItemCarritoTienda {
+  producto: ProductoTienda;
+  cantidad: number;
+  talleSeleccionado?: string;
+  colorSeleccionado?: string;
+  precioUnitario: number;
+  descuentoUnitario: number;
+  precioFinalUnitario: number;
+  subtotal: number;
+}
+
+export type MetodoEntregaTienda = 'retiro_biblioteca' | 'envio_domicilio';
+export type EstadoPedidoTienda = 'pendiente' | 'confirmado' | 'preparado' | 'entregado' | 'cancelado';
+export type MetodoPagoTienda = 'whatsapp_acordar' | 'transferencia' | 'mercadopago';
+
+export interface PedidoTienda {
+  id: string;
+  codigo_pedido: string;
+  user_id?: string;
+  nombre_cliente: string;
+  telefono_whatsapp: string;
+  email_cliente?: string;
+  dni_cliente?: string;
+  metodo_entrega: MetodoEntregaTienda;
+  direccion_envio?: string;
+  localidad?: string;
+  items: ItemCarritoTienda[];
+  total_bruto: number;
+  descuento_protector: number;
+  total_final: number;
+  tipo_protector_aplicado: TipoSocioProtector | 'ninguno';
+  metodo_pago: MetodoPagoTienda;
+  estado: EstadoPedidoTienda;
+  notas?: string;
+  created_at: string;
+  updated_at?: string;
 }
