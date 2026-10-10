@@ -422,9 +422,6 @@ export default function PerfilPage() {
               <p className="text-xs text-amber-900 leading-relaxed">
                 Para habilitar tu acceso al catálogo de libros, préstamos, actas y emitir tu Carnet Digital con código QR, por favor completa todos los campos marcados con asterisco (*).
               </p>
-              <p className="text-[11px] text-amber-800 font-medium">
-                Nota: Tu correo electrónico queda fijado a tu cuenta y no es modificable. El campo Observaciones es opcional.
-              </p>
             </div>
           </div>
         )}

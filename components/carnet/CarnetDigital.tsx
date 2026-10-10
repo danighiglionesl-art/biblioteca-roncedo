@@ -25,12 +25,15 @@ export function CarnetDigital({ user, className = '' }: CarnetDigitalProps) {
   // Payload seguro para el QR institucional
   const qrData = JSON.stringify({
     org: 'CSyB-RONCEDO',
-    socio: user.numero_socio || (isSocioProtectorActivo ? 'PROTECTOR' : 'REGISTRADO'),
+    socio: isSocioProtectorActivo
+      ? `PROTECTOR-${user.tipo_socio_protector || 'BRONCE'}`
+      : `APP-USER-${user.id.slice(-4).toUpperCase()}`,
     nombre: `${user.nombre} ${user.apellido}`,
     dni: user.dni || 'S/D',
-    categoria: user.categoria_socio || 'General',
+    condicion: isSocioProtectorActivo
+      ? `Socio Protector ${user.tipo_socio_protector || 'Bronce'}`
+      : 'Usuario de la App (Servicios restringidos)',
     protector: isSocioProtectorActivo ? `Socio Protector ${user.tipo_socio_protector || ''}`.trim() : 'no',
-    cuota: user.estado_cuota || 'al_dia',
     alta: user.fecha_alta_socio || user.fecha_adhesion || '2026-04-01',
     val: 'OFICIAL-VERIFICADO',
   });
@@ -71,7 +74,7 @@ export function CarnetDigital({ user, className = '' }: CarnetDigitalProps) {
             </div>
             <div>
               <p className="text-[10px] tracking-widest uppercase font-bold text-roncedo-celesteLight">
-                CARNET DE SOCIO OFICIAL
+                {isSocioProtectorActivo ? 'CARNET DE SOCIO PROTECTOR' : 'CREDENCIAL DIGITAL DE APP'}
               </p>
               <h2 className="text-sm font-extrabold text-white leading-tight">
                 Biblioteca Roncedo
@@ -97,10 +100,10 @@ export function CarnetDigital({ user, className = '' }: CarnetDigitalProps) {
             )}
             <div>
               <span className="text-[9px] uppercase tracking-wider text-slate-400 block font-semibold">
-                {user.numero_socio ? 'N° DE SOCIO' : 'IDENTIFICADOR'}
+                {isSocioProtectorActivo ? 'N° PROTECTOR' : 'ID USUARIO'}
               </span>
               <span className="text-lg font-black text-amber-300 tracking-wider">
-                {user.numero_socio ? `#${user.numero_socio}` : isSocioProtectorActivo ? '#PROT' : '#REG'}
+                {isSocioProtectorActivo ? `#PROT-${user.tipo_socio_protector ? user.tipo_socio_protector.slice(0, 3).toUpperCase() : 'ORO'}` : `#USR-${user.id.slice(-4).toUpperCase()}`}
               </span>
             </div>
           </div>
@@ -109,7 +112,7 @@ export function CarnetDigital({ user, className = '' }: CarnetDigitalProps) {
         {/* Cuerpo del Carnet */}
         <div className="p-5 relative z-10">
           <div className="flex gap-4 items-start">
-            {/* Foto de perfil del socio */}
+            {/* Foto de perfil */}
             <div className="flex flex-col items-center">
               <div className="relative w-24 h-28 rounded-xl overflow-hidden border-2 border-white/30 bg-white/10 shadow-md">
                 {user.avatar_url ? (
@@ -125,13 +128,17 @@ export function CarnetDigital({ user, className = '' }: CarnetDigitalProps) {
                       {user.nombre.charAt(0)}{user.apellido.charAt(0) || 'R'}
                     </span>
                     <span className="text-[9px] text-blue-200 mt-1 uppercase font-semibold">
-                      {user.role === 'usuario' ? 'Usuario' : 'Socio'}
+                      {isSocioProtectorActivo ? 'Protector' : 'Usuario'}
                     </span>
                   </div>
                 )}
               </div>
-              <span className="mt-1.5 text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-white/15 text-white tracking-wide border border-white/10 text-center">
-                {user.role === 'usuario' ? 'Usuario' : user.categoria_socio || 'Activo'}
+              <span className={`mt-1.5 text-[9px] uppercase font-black px-2 py-0.5 rounded-full tracking-wide border text-center ${
+                isSocioProtectorActivo
+                  ? 'bg-amber-400/20 text-amber-300 border-amber-300/40'
+                  : 'bg-white/15 text-white border-white/10'
+              }`}>
+                {isSocioProtectorActivo ? `Protector ${user.tipo_socio_protector || 'Bronce'}` : 'Usuario App'}
               </span>
             </div>
 
@@ -192,34 +199,36 @@ export function CarnetDigital({ user, className = '' }: CarnetDigitalProps) {
             </div>
           </div>
 
-          {/* Sección de Estado de Cuota y Código QR */}
+          {/* Sección de Condición Institucional y Código QR */}
           <div className="mt-4 pt-4 border-t border-white/15 flex items-center justify-between gap-3 bg-white/5 p-3 rounded-xl border border-white/10">
-            {/* Estado de cuota */}
+            {/* Condición de acceso */}
             <div className="space-y-1">
               <span className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold block">
-                Estado Social
+                {isSocioProtectorActivo ? 'Condición Social' : 'Condición de Cuenta'}
               </span>
               <div
                 className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${
-                  isCuotaAlDia
+                  isSocioProtectorActivo
                     ? 'bg-emerald-500/25 text-emerald-300 border border-emerald-400/40'
-                    : 'bg-amber-500/25 text-amber-300 border border-amber-400/40'
+                    : 'bg-slate-500/25 text-blue-200 border border-blue-400/30'
                 }`}
               >
-                {isCuotaAlDia ? (
+                {isSocioProtectorActivo ? (
                   <>
                     <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>CUOTA AL DÍA</span>
+                    <span>PROTECTOR ACTIVO</span>
                   </>
                 ) : (
                   <>
-                    <AlertCircle className="w-3.5 h-3.5 text-amber-400" />
-                    <span>CUOTA PENDIENTE</span>
+                    <Shield className="w-3.5 h-3.5 text-roncedo-celeste" />
+                    <span>USUARIO DE LA APP</span>
                   </>
                 )}
               </div>
               <p className="text-[10px] text-slate-400">
-                Válido para biblioteca y préstamos
+                {isSocioProtectorActivo
+                  ? 'Aporte al día • Membresía plena'
+                  : 'Servicios restringidos'}
               </p>
             </div>
 
