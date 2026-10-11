@@ -1375,7 +1375,7 @@ export default function PerfilPage() {
                   </div>
 
                   {/* Título de categorías en dos líneas con destaque institucional */}
-                  <div className="text-center py-3 sm:py-4 space-y-1.5">
+                  <div className="text-center py-3 sm:py-4 space-y-1">
                     <div className="text-lg sm:text-xl md:text-2xl font-black text-slate-900 tracking-tight flex items-center justify-center gap-2.5">
                       <Award className="w-6 h-6 sm:w-8 sm:h-8 text-amber-500 flex-shrink-0" />
                       <span>
@@ -1385,8 +1385,8 @@ export default function PerfilPage() {
                         </strong>
                       </span>
                     </div>
-                    <p className="text-sm sm:text-base font-bold text-slate-600">
-                      para acceder a todos los beneficios
+                    <p className="text-lg sm:text-xl md:text-2xl font-bold text-slate-700 tracking-tight">
+                      para acceder a los beneficios
                     </p>
                   </div>
 
