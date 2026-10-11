@@ -1162,22 +1162,33 @@ export default function PerfilPage() {
 
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
                   {CLUBES_ARGENTINA.map((club) => {
-                    const seleccionado = hinchaNacional.includes(club);
+                    const seleccionado = hinchaNacional.includes(club.id);
                     return (
                       <button
-                        key={club}
+                        key={club.id}
                         type="button"
-                        onClick={() => handleToggleClubNacional(club)}
-                        className={`p-2.5 rounded-xl border text-left flex items-center gap-2.5 transition-all ${
+                        onClick={() => handleToggleClubNacional(club.id)}
+                        className={`p-2.5 rounded-2xl border text-left flex items-center gap-2.5 transition-all ${
                           seleccionado
-                            ? 'bg-blue-50 border-roncedo-celeste ring-2 ring-roncedo-celeste font-bold text-roncedo-navy shadow-xs'
-                            : 'bg-white border-blue-200/80 hover:bg-slate-50 text-slate-700 text-xs font-semibold'
+                            ? 'bg-blue-50 border-roncedo-celeste ring-2 ring-roncedo-celeste shadow-xs'
+                            : 'bg-white border-blue-200/80 hover:bg-slate-50'
                         }`}
                       >
-                        <div className="w-6 h-6 flex-shrink-0 flex items-center justify-center">
-                          <ClubBadge nombre={club} className="w-5 h-5" />
+                        <div className="w-7 h-7 flex-shrink-0 flex items-center justify-center">
+                          <ClubBadge nombre={club.id} className="w-6 h-6" />
                         </div>
-                        <span className="text-xs truncate flex-1">{club}</span>
+                        <div className="flex-1 min-w-0">
+                          <span
+                            className={`text-xs block truncate ${
+                              seleccionado ? 'font-black text-roncedo-navy' : 'font-bold text-slate-900'
+                            }`}
+                          >
+                            {club.label}
+                          </span>
+                          <span className="text-[10px] text-slate-500 block truncate">
+                            {club.sublabel}
+                          </span>
+                        </div>
                         {seleccionado && (
                           <span className="w-4 h-4 rounded-full bg-roncedo-celeste text-white flex items-center justify-center flex-shrink-0">
                             <Check className="w-2.5 h-2.5 stroke-[3]" />
@@ -1191,16 +1202,27 @@ export default function PerfilPage() {
                   <button
                     type="button"
                     onClick={() => setEsOtroHinchaNacional(!esOtroHinchaNacional)}
-                    className={`p-2.5 rounded-xl border text-left flex items-center gap-2.5 transition-all ${
+                    className={`p-2.5 rounded-2xl border text-left flex items-center gap-2.5 transition-all ${
                       esOtroHinchaNacional
-                        ? 'bg-blue-50 border-roncedo-celeste ring-2 ring-roncedo-celeste font-bold text-roncedo-navy shadow-xs'
-                        : 'bg-white border-blue-200/80 hover:bg-slate-50 text-slate-700 text-xs font-semibold'
+                        ? 'bg-blue-50 border-roncedo-celeste ring-2 ring-roncedo-celeste shadow-xs'
+                        : 'bg-white border-blue-200/80 hover:bg-slate-50'
                     }`}
                   >
-                    <div className="w-6 h-6 flex-shrink-0 flex items-center justify-center">
-                      <ClubBadge nombre="Otro" className="w-5 h-5" />
+                    <div className="w-7 h-7 flex-shrink-0 flex items-center justify-center">
+                      <ClubBadge nombre="Otro" className="w-6 h-6" />
                     </div>
-                    <span className="text-xs truncate flex-1">Otro. ¿Cuál?</span>
+                    <div className="flex-1 min-w-0">
+                      <span
+                        className={`text-xs block truncate ${
+                          esOtroHinchaNacional ? 'font-black text-roncedo-navy' : 'font-bold text-slate-900'
+                        }`}
+                      >
+                        Otro. ¿Cuál?
+                      </span>
+                      <span className="text-[10px] text-slate-500 block truncate">
+                        Tu club favorito
+                      </span>
+                    </div>
                     {esOtroHinchaNacional && (
                       <span className="w-4 h-4 rounded-full bg-roncedo-celeste text-white flex items-center justify-center flex-shrink-0">
                         <Check className="w-2.5 h-2.5 stroke-[3]" />
@@ -1353,17 +1375,17 @@ export default function PerfilPage() {
                   </div>
 
                   {/* Título de categorías en dos líneas con destaque institucional */}
-                  <div className="text-center py-2 space-y-1">
-                    <div className="text-sm sm:text-base font-extrabold text-slate-800 tracking-normal flex items-center justify-center gap-2">
-                      <Award className="w-5 h-5 text-amber-500 flex-shrink-0" />
+                  <div className="text-center py-3 sm:py-4 space-y-1.5">
+                    <div className="text-lg sm:text-xl md:text-2xl font-black text-slate-900 tracking-tight flex items-center justify-center gap-2.5">
+                      <Award className="w-6 h-6 sm:w-8 sm:h-8 text-amber-500 flex-shrink-0" />
                       <span>
                         Conocé las 3 categorías de{' '}
-                        <strong className="text-roncedo-navy font-black underline decoration-amber-400 decoration-2 underline-offset-4">
+                        <strong className="text-roncedo-navy font-black underline decoration-amber-400 decoration-[3px] underline-offset-4">
                           Socio Protector
                         </strong>
                       </span>
                     </div>
-                    <p className="text-xs sm:text-sm font-semibold text-slate-600">
+                    <p className="text-sm sm:text-base font-bold text-slate-600">
                       para acceder a todos los beneficios
                     </p>
                   </div>
@@ -1443,7 +1465,7 @@ export default function PerfilPage() {
                         onClick={(e) => handleAdherirmeClick(e, 'Bronce')}
                         className="mt-5 w-full py-3 px-3.5 rounded-2xl text-xs font-black text-center flex items-center justify-center gap-2 bg-gradient-to-r from-[#0F284B] to-[#1E5699] hover:from-[#153f75] hover:to-[#2563EB] text-white shadow-md transition-all active:scale-98 cursor-pointer"
                       >
-                        <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                        <Sparkles className="w-3.5 h-3.5 text-amber-300 flex-shrink-0" />
                         <span>Adherirme como Socio Protector Bronce</span>
                       </button>
                     </div>
@@ -1523,10 +1545,12 @@ export default function PerfilPage() {
                       <button
                         type="button"
                         onClick={(e) => handleAdherirmeClick(e, 'Plata')}
-                        className="mt-5 w-full py-3 px-3.5 rounded-2xl text-xs font-black text-center flex items-center justify-center gap-2 bg-gradient-to-r from-[#0F284B] to-[#1E5699] hover:from-[#153f75] hover:to-[#2563EB] text-white shadow-md transition-all active:scale-98 cursor-pointer"
+                        className="mt-5 w-full min-h-[68px] py-3 px-3.5 rounded-2xl text-xs font-black text-center flex items-center justify-center gap-2 bg-gradient-to-r from-[#0F284B] to-[#1E5699] hover:from-[#153f75] hover:to-[#2563EB] text-white shadow-md transition-all active:scale-98 cursor-pointer leading-tight"
                       >
-                        <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-                        <span>Adherirme como Socio Protector Plata</span>
+                        <Sparkles className="w-3.5 h-3.5 text-amber-300 flex-shrink-0" />
+                        <span>
+                          Adherirme como<br />Socio Protector<br />Plata
+                        </span>
                       </button>
                     </div>
 
