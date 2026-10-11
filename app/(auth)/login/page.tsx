@@ -220,7 +220,7 @@ export default function LoginPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder={mode === 'login' ? 'biblioteca-roncedo o tu correo' : 'ejemplo@correo.com'}
+                  placeholder="tu correo"
                   className="w-full pl-10 pr-3 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-roncedo-blue text-sm"
                 />
               </div>
