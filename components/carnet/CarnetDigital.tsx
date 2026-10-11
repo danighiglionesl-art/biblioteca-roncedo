@@ -17,7 +17,7 @@ export function CarnetDigital({ user, className = '' }: CarnetDigitalProps) {
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   const isCuotaAlDia = (user.estado_cuota || 'al_dia') === 'al_dia';
-  const isSocioProtectorActivo = user.estado_socio_protector === 'activo';
+  const isSocioProtectorActivo = Boolean(user.es_socio_protector && user.estado_socio_protector === 'activo');
   const medallaInfo = isSocioProtectorActivo
     ? obtenerMedallaProtector(user.tipo_socio_protector)
     : undefined;

@@ -289,14 +289,14 @@ export default function PerfilPage() {
       setSexo(user.sexo || 'Prefiero no decirlo');
       setWhatsappCodigo(user.whatsapp_codigo || '+54');
       setWhatsapp(user.whatsapp || '');
-      setEmail(user.email || '');
-      setPais(user.pais || 'Argentina');
+      const paisInicial = user.pais || 'Argentina';
+      setPais(paisInicial);
       const provInicial = user.provincia || 'Córdoba';
       setProvincia(provInicial);
       const locInicial = user.localidad || 'Alcira Gigena';
       setLocalidad(locInicial);
       const lista = getLocalidadesParaProvincia(provInicial);
-      if (locInicial && !lista.includes(locInicial)) {
+      if (locInicial && lista.length > 0 && !lista.includes(locInicial)) {
         setEsOtraLocalidad(true);
         setLocalidadManual(locInicial);
       } else {
@@ -829,6 +829,7 @@ export default function PerfilPage() {
                   País *
                 </label>
                 <select
+                  id="input-pais"
                   required
                   value={pais}
                   onChange={(e) => {
@@ -836,11 +837,20 @@ export default function PerfilPage() {
                     setPais(nuevoPais);
                     const match = PAISES.find((p) => p.nombre === nuevoPais);
                     if (match) setWhatsappCodigo(match.codigo);
+                    if (nuevoPais !== 'Argentina') {
+                      setProvincia('');
+                      setLocalidad('');
+                    }
                   }}
-                  className="w-full bg-white px-3.5 py-2.5 rounded-xl border border-blue-200 focus:outline-none focus:ring-2 focus:ring-roncedo-celeste focus:border-roncedo-celeste text-sm text-slate-900 shadow-sm transition-all"
+                  className={`w-full bg-white px-3.5 py-2.5 rounded-xl border border-blue-200 focus:outline-none focus:ring-2 focus:ring-roncedo-celeste focus:border-roncedo-celeste text-sm shadow-sm transition-all ${
+                    !pais ? 'text-slate-400' : 'text-slate-900'
+                  }`}
                 >
+                  <option value="" disabled className="text-slate-400">
+                    Seleccionar
+                  </option>
                   {PAISES.map((p) => (
-                    <option key={p.nombre} value={p.nombre}>
+                    <option key={p.nombre} value={p.nombre} className="text-slate-900">
                       {p.nombre}
                     </option>
                   ))}
@@ -853,37 +863,38 @@ export default function PerfilPage() {
                 </label>
                 {pais === 'Argentina' ? (
                   <select
+                    id="input-provincia"
                     required
                     value={provincia}
                     onChange={(e) => {
                       const nuevaProv = e.target.value;
                       setProvincia(nuevaProv);
-                      const nuevasLocs = getLocalidadesParaProvincia(nuevaProv);
-                      if (nuevaProv === 'Córdoba') {
-                        setLocalidad('Alcira Gigena');
-                        setCodigoPostal('5811');
-                      } else if (nuevasLocs.length > 0) {
-                        setLocalidad(nuevasLocs[0]);
-                      }
+                      setLocalidad('');
                       setEsOtraLocalidad(false);
                       setLocalidadManual('');
                     }}
-                    className="w-full bg-white px-3.5 py-2.5 rounded-xl border border-blue-200 focus:outline-none focus:ring-2 focus:ring-roncedo-celeste focus:border-roncedo-celeste text-sm text-slate-900 shadow-sm transition-all"
+                    className={`w-full bg-white px-3.5 py-2.5 rounded-xl border border-blue-200 focus:outline-none focus:ring-2 focus:ring-roncedo-celeste focus:border-roncedo-celeste text-sm shadow-sm transition-all ${
+                      !provincia ? 'text-slate-400' : 'text-slate-900'
+                    }`}
                   >
+                    <option value="" disabled className="text-slate-400">
+                      Seleccionar
+                    </option>
                     {PROVINCIAS_ARGENTINA.map((prov) => (
-                      <option key={prov} value={prov}>
+                      <option key={prov} value={prov} className="text-slate-900">
                         {prov}
                       </option>
                     ))}
                   </select>
                 ) : (
                   <input
+                    id="input-provincia"
                     type="text"
                     required
                     value={provinciaManual}
                     onChange={(e) => setProvinciaManual(e.target.value)}
-                    placeholder="Estado / Región / Provincia"
-                    className="w-full bg-white px-3.5 py-2.5 rounded-xl border border-blue-200 focus:outline-none focus:ring-2 focus:ring-roncedo-celeste focus:border-roncedo-celeste text-sm text-slate-900 shadow-sm transition-all"
+                    placeholder="Seleccionar o escribir provincia"
+                    className="w-full bg-white px-3.5 py-2.5 rounded-xl border border-blue-200 focus:outline-none focus:ring-2 focus:ring-roncedo-celeste focus:border-roncedo-celeste text-sm text-slate-900 shadow-sm transition-all placeholder:text-slate-400"
                   />
                 )}
               </div>
@@ -898,27 +909,34 @@ export default function PerfilPage() {
                 {pais === 'Argentina' ? (
                   <div className="space-y-2">
                     <select
+                      id="input-localidad"
                       value={esOtraLocalidad ? '__otra__' : localidad}
                       onChange={(e) => {
                         const val = e.target.value;
                         if (val === '__otra__') {
                           setEsOtraLocalidad(true);
+                          setLocalidad('');
                         } else {
                           setEsOtraLocalidad(false);
                           setLocalidad(val);
-                          if (val === 'Alcira Gigena' && provincia === 'Córdoba') {
+                          if (val === 'Alcira Gigena' && provincia === 'Córdoba' && !codigoPostal) {
                             setCodigoPostal('5811');
                           }
                         }
                       }}
-                      className="w-full bg-white px-3.5 py-2.5 rounded-xl border border-blue-200 focus:outline-none focus:ring-2 focus:ring-roncedo-celeste focus:border-roncedo-celeste text-sm text-slate-900 shadow-sm transition-all"
+                      className={`w-full bg-white px-3.5 py-2.5 rounded-xl border border-blue-200 focus:outline-none focus:ring-2 focus:ring-roncedo-celeste focus:border-roncedo-celeste text-sm shadow-sm transition-all ${
+                        !localidad && !esOtraLocalidad ? 'text-slate-400' : 'text-slate-900'
+                      }`}
                     >
+                      <option value="" disabled className="text-slate-400">
+                        Seleccionar
+                      </option>
                       {localidadesDisponibles.map((loc) => (
-                        <option key={loc} value={loc}>
+                        <option key={loc} value={loc} className="text-slate-900">
                           {loc}
                         </option>
                       ))}
-                      <option value="__otra__">
+                      <option value="__otra__" className="text-slate-900 font-semibold">
                         ➕ Otra localidad (escribir manualmente)...
                       </option>
                     </select>
@@ -930,23 +948,26 @@ export default function PerfilPage() {
                         value={localidadManual}
                         onChange={(e) => setLocalidadManual(e.target.value)}
                         placeholder="Escribe tu localidad aquí"
-                        className="w-full bg-white px-3.5 py-2 rounded-xl border border-blue-200 text-sm focus:outline-none focus:ring-2 focus:ring-roncedo-celeste shadow-sm"
+                        className="w-full bg-white px-3.5 py-2 rounded-xl border border-blue-200 text-sm focus:outline-none focus:ring-2 focus:ring-roncedo-celeste shadow-sm placeholder:text-slate-400"
                       />
                     )}
                   </div>
                 ) : (
                   <input
+                    id="input-localidad"
                     type="text"
                     required
                     value={localidad}
                     onChange={(e) => setLocalidad(e.target.value)}
-                    placeholder="Ciudad o Municipio"
-                    className="w-full bg-white px-3.5 py-2.5 rounded-xl border border-blue-200 focus:outline-none focus:ring-2 focus:ring-roncedo-celeste focus:border-roncedo-celeste text-sm text-slate-900 shadow-sm transition-all"
+                    placeholder="Seleccionar o escribir localidad"
+                    className="w-full bg-white px-3.5 py-2.5 rounded-xl border border-blue-200 focus:outline-none focus:ring-2 focus:ring-roncedo-celeste focus:border-roncedo-celeste text-sm text-slate-900 shadow-sm transition-all placeholder:text-slate-400"
                   />
                 )}
                 <p className="text-[11px] text-slate-500 mt-1">
                   {pais === 'Argentina'
-                    ? `Localidades desplegadas de ${provincia} (${localidadesDisponibles.length} en padrón oficial).`
+                    ? provincia
+                      ? `Localidades desplegadas de ${provincia} (${localidadesDisponibles.length} en padrón oficial).`
+                      : 'Selecciona una provincia para desplegar sus localidades.'
                     : 'Ingresa la localidad correspondiente a tu país.'}
                 </p>
               </div>
@@ -956,12 +977,13 @@ export default function PerfilPage() {
                   Código Postal *
                 </label>
                 <input
+                  id="input-codigo-postal"
                   type="text"
                   required
                   value={codigoPostal}
                   onChange={(e) => setCodigoPostal(e.target.value)}
                   placeholder="Ej: 5811"
-                  className="w-full bg-white px-3.5 py-2.5 rounded-xl border border-blue-200 focus:outline-none focus:ring-2 focus:ring-roncedo-celeste focus:border-roncedo-celeste text-sm text-slate-900 shadow-sm transition-all"
+                  className="w-full bg-white px-3.5 py-2.5 rounded-xl border border-blue-200 focus:outline-none focus:ring-2 focus:ring-roncedo-celeste focus:border-roncedo-celeste text-sm text-slate-900 shadow-sm transition-all placeholder:text-slate-400"
                 />
                 <p className="text-[11px] text-slate-500 mt-1">
                   Código postal de tu localidad (ej: 5811 para Alcira Gigena).
@@ -1381,26 +1403,10 @@ export default function PerfilPage() {
                           </p>
                         </div>
 
-                        {/* Píldoras destacadas de resumen */}
-                        <div className="mt-3 flex flex-col gap-1.5 text-left">
-                          <div className="text-[11px] font-bold px-2.5 py-1 rounded-xl bg-purple-50 text-purple-900 border border-purple-200 flex items-center gap-1.5">
-                            <span className="text-xs">📱</span>
-                            <span><strong>Acceso parcial a las secciones de la App</strong></span>
-                          </div>
-                          <div className="text-[11px] font-bold px-2.5 py-1 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 flex items-center gap-1.5">
-                            <span className="text-xs">🏷️</span>
-                            <span><strong>2% OFF</strong> en compras y eventos</span>
-                          </div>
-                          <div className="text-[11px] font-bold px-2.5 py-1 rounded-xl bg-blue-50 text-roncedo-navy border border-blue-200 flex items-center gap-1.5">
-                            <span className="text-xs">📚</span>
-                            <span><strong>Hasta 4 libros al año</strong></span>
-                          </div>
-                        </div>
-
-                        {/* Lista completa de beneficios */}
-                        <div className="pt-3 space-y-1.5">
+                        {/* Lista completa de servicios */}
+                        <div className="pt-4 space-y-2">
                           <p className="text-[10px] uppercase font-bold tracking-wider text-slate-400">
-                            Detalles incluidos:
+                            Servicios Incluidos
                           </p>
                           <ul className="text-xs text-slate-700 space-y-2">
                             <li className="font-bold text-slate-900 flex items-start gap-1.5">
@@ -1475,26 +1481,10 @@ export default function PerfilPage() {
                           </p>
                         </div>
 
-                        {/* Píldoras destacadas de resumen */}
-                        <div className="mt-3 flex flex-col gap-1.5 text-left">
-                          <div className="text-[11px] font-bold px-2.5 py-1 rounded-xl bg-purple-50 text-purple-900 border border-purple-200 flex items-center gap-1.5">
-                            <span className="text-xs">📱</span>
-                            <span><strong>Acceso ampliado a las secciones de la App</strong></span>
-                          </div>
-                          <div className="text-[11px] font-bold px-2.5 py-1 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 flex items-center gap-1.5">
-                            <span className="text-xs">🏷️</span>
-                            <span><strong>5% OFF</strong> en compras y eventos</span>
-                          </div>
-                          <div className="text-[11px] font-bold px-2.5 py-1 rounded-xl bg-blue-50 text-roncedo-navy border border-blue-200 flex items-center gap-1.5">
-                            <span className="text-xs">📚</span>
-                            <span><strong>Hasta 10 libros al año</strong></span>
-                          </div>
-                        </div>
-
-                        {/* Lista completa de beneficios */}
-                        <div className="pt-3 space-y-1.5">
+                        {/* Lista completa de servicios */}
+                        <div className="pt-4 space-y-2">
                           <p className="text-[10px] uppercase font-bold tracking-wider text-slate-400">
-                            Detalles incluidos:
+                            Servicios Incluidos
                           </p>
                           <ul className="text-xs text-slate-700 space-y-2">
                             <li className="font-bold text-slate-900 flex items-start gap-1.5">
@@ -1573,26 +1563,10 @@ export default function PerfilPage() {
                           </p>
                         </div>
 
-                        {/* Píldoras destacadas de resumen */}
-                        <div className="mt-3 flex flex-col gap-1.5 text-left">
-                          <div className="text-[11px] font-bold px-2.5 py-1 rounded-xl bg-purple-50 text-purple-900 border border-purple-200 flex items-center gap-1.5">
-                            <span className="text-xs">📱</span>
-                            <span><strong>Acceso a todas las secciones de la App</strong></span>
-                          </div>
-                          <div className="text-[11px] font-bold px-2.5 py-1 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 flex items-center gap-1.5">
-                            <span className="text-xs">🏷️</span>
-                            <span><strong>10% OFF</strong> en compras y eventos</span>
-                          </div>
-                          <div className="text-[11px] font-bold px-2.5 py-1 rounded-xl bg-blue-50 text-roncedo-navy border border-blue-200 flex items-center gap-1.5">
-                            <span className="text-xs">📚</span>
-                            <span><strong>Préstamos de libros sin límites</strong></span>
-                          </div>
-                        </div>
-
-                        {/* Lista completa de beneficios */}
-                        <div className="pt-3 space-y-1.5">
+                        {/* Lista completa de servicios */}
+                        <div className="pt-4 space-y-2">
                           <p className="text-[10px] uppercase font-bold tracking-wider text-slate-400">
-                            Detalles incluidos:
+                            Servicios Incluidos
                           </p>
                           <ul className="text-xs text-slate-700 space-y-2">
                             <li className="font-bold text-slate-900 flex items-start gap-1.5">

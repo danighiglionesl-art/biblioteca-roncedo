@@ -75,15 +75,19 @@ export function Header() {
               </span>
             </div>
 
-            {/* Acceso a Socio Protector (Estilo Institucional Dorado/Celeste Armónico) */}
-            <Link
-              href="/socio-protector"
-              className="flex items-center gap-1.5 bg-amber-400/15 hover:bg-amber-400/25 text-amber-200 hover:text-white text-xs px-2.5 py-1.5 rounded-lg border border-amber-300/30 transition-colors shadow-sm"
-              title="Socio Protector"
-            >
-              <InsigniaSocioProtector tipo={user?.tipo_socio_protector} size={16} />
-              <span className="hidden sm:inline font-bold">Socio Protector</span>
-            </Link>
+            {/* Distintivo de Socio Protector - Solo visible si eligió y pagó su membresía (activo) */}
+            {Boolean(user.es_socio_protector && user.estado_socio_protector === 'activo') && (
+              <Link
+                href="/socio-protector"
+                className="flex items-center gap-1.5 bg-amber-400/15 hover:bg-amber-400/25 text-amber-200 hover:text-white text-xs px-2.5 py-1.5 rounded-lg border border-amber-300/30 transition-colors shadow-sm"
+                title={`Socio Protector ${user.tipo_socio_protector || ''}`}
+              >
+                <InsigniaSocioProtector tipo={user.tipo_socio_protector} size={16} />
+                <span className="hidden sm:inline font-bold">
+                  Socio Protector {user.tipo_socio_protector || ''}
+                </span>
+              </Link>
+            )}
 
             {/* Acceso a Instalar App */}
             <Link

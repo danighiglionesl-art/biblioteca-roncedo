@@ -75,7 +75,7 @@ export default function SocioProtectorPage() {
     );
   }
 
-  const isProtectorActivo = user.estado_socio_protector === 'activo';
+  const isProtectorActivo = Boolean(user.es_socio_protector && user.estado_socio_protector === 'activo');
 
   return (
     <div className="min-h-screen bg-[#E5F2FE] pb-24 pt-6 px-4">
@@ -250,34 +250,12 @@ export default function SocioProtectorPage() {
                       <p className="text-xs text-slate-500 mt-2 leading-snug">
                         {plan.descripcion}
                       </p>
-
-                      {/* Píldoras destacadas de Descuento, Préstamos y Acceso a la App */}
-                      <div className="mt-3 flex flex-col gap-1.5 text-left">
-                        {plan.accesoApp && (
-                          <div className="text-[11px] font-bold px-2.5 py-1 rounded-xl bg-purple-50 text-purple-900 border border-purple-200 flex items-center gap-1.5">
-                            <span className="text-xs">📱</span>
-                            <span><strong>{plan.accesoApp}</strong></span>
-                          </div>
-                        )}
-                        {plan.descuentoComprasEventos && (
-                          <div className="text-[11px] font-bold px-2.5 py-1 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 flex items-center gap-1.5">
-                            <span className="text-xs">🏷️</span>
-                            <span><strong>{plan.descuentoComprasEventos} OFF</strong> en compras y eventos</span>
-                          </div>
-                        )}
-                        {plan.limitePrestamos && (
-                          <div className="text-[11px] font-bold px-2.5 py-1 rounded-xl bg-blue-50 text-roncedo-navy border border-blue-200 flex items-center gap-1.5">
-                            <span className="text-xs">📚</span>
-                            <span><strong>{plan.limitePrestamos}</strong></span>
-                          </div>
-                        )}
-                      </div>
                     </div>
 
-                    {/* Beneficios */}
+                    {/* Servicios Incluidos */}
                     <div className="py-5 space-y-2.5">
                       <p className="text-[10px] uppercase font-bold tracking-wider text-slate-400">
-                        Beneficios incluidos:
+                        Servicios Incluidos
                       </p>
                       <ul className="space-y-2 text-xs text-slate-600">
                         {plan.beneficios.map((b, idx) => (

@@ -229,7 +229,7 @@ export default function HomePage() {
                 <span className="text-[10px] font-black uppercase tracking-wider bg-white/20 text-blue-100 px-2.5 py-0.5 rounded-full border border-white/20 backdrop-blur-sm">
                   Campaña Permanente
                 </span>
-                {user.es_socio_protector && (
+                {Boolean(user.es_socio_protector && user.estado_socio_protector === 'activo') && (
                   <span className="text-[10px] font-extrabold bg-amber-400 text-slate-900 px-2.5 py-0.5 rounded-full shadow-sm inline-flex items-center gap-1.5">
                     <InsigniaSocioProtector tipo={user.tipo_socio_protector} size={14} />
                     <span>¡Sos Socio Protector {user.tipo_socio_protector}!</span>
@@ -249,7 +249,11 @@ export default function HomePage() {
             className="px-5 py-3 rounded-xl bg-white text-[#0F284B] hover:bg-[#E5F2FE] text-xs sm:text-sm font-black shadow-md transition-all flex items-center gap-2 flex-shrink-0 active:scale-95"
           >
             <InsigniaSocioProtector tipo={user.tipo_socio_protector} size={18} />
-            <span>{user.es_socio_protector ? 'Ver mi Aporte' : 'Quiero Colaborar'}</span>
+            <span>
+              {user.es_socio_protector && user.estado_socio_protector === 'activo'
+                ? 'Ver mi Aporte'
+                : 'Quiero Colaborar'}
+            </span>
             <ArrowRight className="w-4 h-4" />
           </Link>
         </div>

@@ -21,6 +21,13 @@ export const CLUB_IMAGE_MAP: Record<string, string> = {
   "Newell's Old Boys": '/images/clubes/newells-old-boys.png',
   'Huracán': '/images/clubes/huracan.png',
   'Vélez Sarsfield': '/images/clubes/velez-sarsfield.png',
+  'Estudiantes de La Plata': '/images/clubes/estudiantes-la-plata.png',
+  'Gimnasia de la Plata': '/images/clubes/gimnasia-la-plata.png',
+  'Gimnasia de La Plata': '/images/clubes/gimnasia-la-plata.png',
+  'Talleres de Córdoba': '/images/clubes/talleres-cordoba.png',
+  'Belgrano de Córdoba': '/images/clubes/belgrano-cordoba.png',
+  'Instituto de Córdoba': '/images/clubes/instituto-cordoba.png',
+  'Banfield': '/images/clubes/banfield.png',
 };
 
 export function ClubBadge({ nombre, className = 'w-6 h-6' }: ClubBadgeProps) {

@@ -15,14 +15,16 @@ import {
   ArrowLeft,
   UserCheck,
   HelpCircle,
+  AlertCircle,
 } from 'lucide-react';
+import { isPerfilCompleto } from '@/lib/utils';
 
 export default function CarnetPage() {
   const { user } = useAuth();
 
   if (!user) return null;
 
-  const isSocioProtector = user.estado_socio_protector === 'activo';
+  const isSocioProtector = Boolean(user.es_socio_protector && user.estado_socio_protector === 'activo');
   const medallaInfo = isSocioProtector
     ? obtenerMedallaProtector(user.tipo_socio_protector)
     : undefined;
@@ -62,6 +64,30 @@ export default function CarnetPage() {
         </div>
 
         <div>
+          {/* Banner de aviso si los datos obligatorios aún no están completos */}
+          {!isPerfilCompleto(user) && (
+            <div className="bg-gradient-to-r from-amber-50 via-orange-50 to-amber-50 border-2 border-amber-300 rounded-3xl p-5 text-amber-950 shadow-md flex items-start gap-3.5 mb-6 animate-fade-in">
+              <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+              <div className="space-y-1">
+                <h3 className="text-sm font-black text-amber-950">
+                  Ficha Obligatoria Incompleta • Credencial Provisional
+                </h3>
+                <p className="text-xs text-amber-900 leading-relaxed">
+                  Tu carnet se encuentra en estado provisorio porque aún no completaste todos tus datos personales obligatorios marcados con asterisco (*). Para habilitar tu código QR definitivo y todos los servicios de la biblioteca, por favor completa tu ficha.
+                </p>
+                <div className="pt-1.5">
+                  <Link
+                    href="/perfil"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-roncedo-navy hover:bg-[#1A457D] text-white rounded-xl text-xs font-bold transition-all shadow-xs"
+                  >
+                    <span>Completar mis datos obligatorios en Mi Perfil</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Componente del Carnet */}
           <CarnetDigital user={user} className="mb-6" />
 
