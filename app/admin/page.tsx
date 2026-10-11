@@ -310,6 +310,8 @@ export default function AdminPage() {
       'Teléfono': u.telefono || u.whatsapp || '-',
       'Localidad': u.localidad || 'Alcira Gigena',
       'Domicilio': u.domicilio || '-',
+      'Edificio': u.edificio || '-',
+      'Torre': u.torre || '-',
       'Piso': u.piso || '-',
       'Dpto': u.dpto || '-',
       'Condición Institucional': u.es_socio_protector

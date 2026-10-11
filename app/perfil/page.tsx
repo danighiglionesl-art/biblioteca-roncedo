@@ -33,6 +33,7 @@ import {
   Check,
   ChevronRight,
   Info,
+  X,
 } from 'lucide-react';
 import { formatFechaArgentina, isPerfilCompleto } from '@/lib/utils';
 import { obtenerMedallaProtector } from '@/lib/payments/plans';
@@ -150,6 +151,8 @@ export default function PerfilPage() {
   const [barrio, setBarrio] = useState(user?.barrio || '');
   const [calle, setCalle] = useState(user?.calle || '');
   const [numero, setNumero] = useState(user?.numero || '');
+  const [edificio, setEdificio] = useState(user?.edificio || '');
+  const [torre, setTorre] = useState(user?.torre || '');
   const [piso, setPiso] = useState(user?.piso || '');
   const [dpto, setDpto] = useState(user?.dpto || '');
 
@@ -167,6 +170,109 @@ export default function PerfilPage() {
   const [guardadoExito, setGuardadoExito] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [guardando, setGuardando] = useState(false);
+
+  // Referencia al formulario para scroll automático
+  const formRef = useRef<HTMLDivElement>(null);
+  const [modalAvisoIncompleto, setModalAvisoIncompleto] = useState<{
+    abierto: boolean;
+    destino: 'carnet' | 'socio-protector';
+    planNombre?: string;
+  }>({ abierto: false, destino: 'carnet' });
+
+  // Lista en tiempo real de campos obligatorios que faltan completar
+  const camposObligatoriosFaltantes = useMemo(() => {
+    const faltantes: string[] = [];
+    if (!nombre.trim()) faltantes.push('Nombre');
+    if (!apellido.trim()) faltantes.push('Apellido');
+    if (!dni.trim()) faltantes.push('DNI / Documento');
+    if (!fechaNacimiento.trim()) faltantes.push('Fecha de Nacimiento');
+    if (!whatsapp.trim()) faltantes.push('WhatsApp / Teléfono');
+    if (!pais.trim()) faltantes.push('País');
+    if (pais === 'Argentina' && !provincia.trim()) faltantes.push('Provincia');
+    const locFinal = esOtraLocalidad ? localidadManual.trim() : localidad.trim();
+    if (!locFinal) faltantes.push('Localidad');
+    if (!codigoPostal.trim()) faltantes.push('Código postal');
+    if (!barrio.trim()) faltantes.push('Barrio');
+    if (!calle.trim()) faltantes.push('Calle');
+    if (!numero.trim()) faltantes.push('Número');
+    return faltantes;
+  }, [
+    nombre,
+    apellido,
+    dni,
+    fechaNacimiento,
+    whatsapp,
+    pais,
+    provincia,
+    localidad,
+    esOtraLocalidad,
+    localidadManual,
+    codigoPostal,
+    barrio,
+    calle,
+    numero,
+  ]);
+
+  const perfilEstaCompleto =
+    camposObligatoriosFaltantes.length === 0 && isPerfilCompleto(user);
+
+  const handleVerCarnetClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!perfilEstaCompleto) {
+      setModalAvisoIncompleto({
+        abierto: true,
+        destino: 'carnet',
+      });
+      return;
+    }
+    router.push('/carnet');
+  };
+
+  const handleAdherirmeClick = (e: React.MouseEvent, plan: string) => {
+    e.preventDefault();
+    if (!perfilEstaCompleto) {
+      setModalAvisoIncompleto({
+        abierto: true,
+        destino: 'socio-protector',
+        planNombre: plan,
+      });
+      return;
+    }
+    router.push('/socio-protector');
+  };
+
+  const irACompletarDatos = () => {
+    setModalAvisoIncompleto({ abierto: false, destino: 'carnet' });
+    const primer = camposObligatoriosFaltantes[0];
+    const elemId =
+      primer === 'Nombre'
+        ? 'input-nombre'
+        : primer === 'Apellido'
+        ? 'input-apellido'
+        : primer === 'DNI / Documento'
+        ? 'input-dni'
+        : primer === 'Fecha de Nacimiento'
+        ? 'input-fecha-nacimiento'
+        : primer === 'WhatsApp / Teléfono'
+        ? 'input-whatsapp'
+        : primer === 'Barrio'
+        ? 'input-barrio'
+        : primer === 'Calle'
+        ? 'input-calle'
+        : primer === 'Número'
+        ? 'input-numero'
+        : 'formulario-datos-personales';
+
+    setTimeout(() => {
+      const elem = document.getElementById(elemId);
+      if (elem) {
+        elem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        elem.focus();
+      } else if (formRef.current) {
+        formRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
+  };
 
   // Localidades disponibles para la provincia seleccionada
   const localidadesDisponibles = useMemo(() => {
@@ -204,6 +310,8 @@ export default function PerfilPage() {
       setBarrio(user.barrio || '');
       setCalle(user.calle || '');
       setNumero(user.numero || '');
+      setEdificio(user.edificio || '');
+      setTorre(user.torre || '');
       setPiso(user.piso || '');
       setDpto(user.dpto || '');
 
@@ -325,6 +433,8 @@ export default function PerfilPage() {
       const domicilioCompleto = [
         calle.trim(),
         numero.trim(),
+        edificio.trim() ? `Edif. ${edificio.trim()}` : '',
+        torre.trim() ? `Torre ${torre.trim()}` : '',
         piso.trim() ? `Piso ${piso.trim()}` : '',
         dpto.trim() ? `Dpto ${dpto.trim()}` : '',
         barrio.trim() ? `B° ${barrio.trim()}` : '',
@@ -349,6 +459,8 @@ export default function PerfilPage() {
         barrio: barrio.trim(),
         calle: calle.trim(),
         numero: numero.trim(),
+        edificio: edificio.trim(),
+        torre: torre.trim(),
         piso: piso.trim(),
         dpto: dpto.trim(),
         domicilio: domicilioCompleto,
@@ -526,19 +638,25 @@ export default function PerfilPage() {
             </div>
           </div>
 
-          <Link
-            href="/carnet"
-            className="bg-roncedo-navy hover:bg-[#1A457D] text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm transition-colors flex items-center gap-1.5 flex-shrink-0"
+          <button
+            type="button"
+            onClick={handleVerCarnetClick}
+            className="bg-roncedo-navy hover:bg-[#1A457D] text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm transition-colors flex items-center gap-1.5 flex-shrink-0 cursor-pointer"
+            title="Ver Carnet Digital"
           >
             <CreditCard className="w-4 h-4 text-roncedo-gold" />
             <span>Ver Carnet</span>
-          </Link>
+          </button>
         </div>
 
         {/* =================================================================== */}
         {/* FORMULARIO DE DATOS PERSONALES                                      */}
         {/* =================================================================== */}
-        <div className="bg-[#EAF3FD] rounded-3xl p-6 sm:p-8 shadow-card border border-[#BFDBFE]">
+        <div
+          ref={formRef}
+          id="formulario-datos-personales"
+          className="bg-[#EAF3FD] rounded-3xl p-6 sm:p-8 shadow-card border border-[#BFDBFE]"
+        >
           <div className="flex items-center justify-between mb-6 pb-4 border-b border-blue-200/70">
             <div>
               <h2 className="text-xl font-black text-slate-900">
@@ -576,6 +694,7 @@ export default function PerfilPage() {
                   Nombre *
                 </label>
                 <input
+                  id="input-nombre"
                   type="text"
                   required
                   value={nombre}
@@ -590,6 +709,7 @@ export default function PerfilPage() {
                   Apellido *
                 </label>
                 <input
+                  id="input-apellido"
                   type="text"
                   required
                   value={apellido}
@@ -607,6 +727,7 @@ export default function PerfilPage() {
                   DNI / Documento *
                 </label>
                 <input
+                  id="input-dni"
                   type="text"
                   required
                   value={dni}
@@ -621,6 +742,7 @@ export default function PerfilPage() {
                   Fecha de Nacimiento *
                 </label>
                 <input
+                  id="input-fecha-nacimiento"
                   type="date"
                   required
                   value={fechaNacimiento}
@@ -665,6 +787,7 @@ export default function PerfilPage() {
                     ))}
                   </select>
                   <input
+                    id="input-whatsapp"
                     type="tel"
                     required
                     value={whatsapp}
@@ -853,6 +976,7 @@ export default function PerfilPage() {
                   Barrio *
                 </label>
                 <input
+                  id="input-barrio"
                   type="text"
                   required
                   value={barrio}
@@ -867,6 +991,7 @@ export default function PerfilPage() {
                   Calle *
                 </label>
                 <input
+                  id="input-calle"
                   type="text"
                   required
                   value={calle}
@@ -881,6 +1006,7 @@ export default function PerfilPage() {
                   Número / Altura *
                 </label>
                 <input
+                  id="input-numero"
                   type="text"
                   required
                   value={numero}
@@ -891,8 +1017,34 @@ export default function PerfilPage() {
               </div>
             </div>
 
-            {/* Piso y Dpto */}
-            <div className="grid grid-cols-2 gap-4">
+            {/* Edificio, Torre, Piso y Dpto */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                  Edificio
+                </label>
+                <input
+                  type="text"
+                  value={edificio}
+                  onChange={(e) => setEdificio(e.target.value)}
+                  placeholder="Ej: Alborada..."
+                  className="w-full bg-white px-3.5 py-2.5 rounded-xl border border-blue-200 focus:outline-none focus:ring-2 focus:ring-roncedo-celeste focus:border-roncedo-celeste text-sm text-slate-900 shadow-sm transition-all"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                  Torre
+                </label>
+                <input
+                  type="text"
+                  value={torre}
+                  onChange={(e) => setTorre(e.target.value)}
+                  placeholder="Ej: 1, A..."
+                  className="w-full bg-white px-3.5 py-2.5 rounded-xl border border-blue-200 focus:outline-none focus:ring-2 focus:ring-roncedo-celeste focus:border-roncedo-celeste text-sm text-slate-900 shadow-sm transition-all"
+                />
+              </div>
+
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1.5">
                   Piso
@@ -1178,194 +1330,312 @@ export default function PerfilPage() {
                     </p>
                   </div>
 
-                  {/* Título de categorías centrado con separación respecto de los recuadros */}
-                  <div className="text-center py-2">
-                    <div className="inline-flex items-center justify-center gap-2 text-xs sm:text-sm font-black uppercase tracking-wider text-slate-800">
+                  {/* Título de categorías en dos líneas con destaque institucional */}
+                  <div className="text-center py-2 space-y-1">
+                    <div className="text-sm sm:text-base font-extrabold text-slate-800 tracking-normal flex items-center justify-center gap-2">
                       <Award className="w-5 h-5 text-amber-500 flex-shrink-0" />
-                      <span>Conocé las 3 categorías de Socio Protector para acceder a todos los beneficios:</span>
+                      <span>
+                        Conocé las 3 categorías de{' '}
+                        <strong className="text-roncedo-navy font-black underline decoration-amber-400 decoration-2 underline-offset-4">
+                          Socio Protector
+                        </strong>
+                      </span>
                     </div>
+                    <p className="text-xs sm:text-sm font-semibold text-slate-600">
+                      para acceder a todos los beneficios
+                    </p>
                   </div>
 
-                  {/* Las 3 tarjetas de categorías: Bronce, Plata, Oro */}
+                  {/* Las 3 tarjetas de categorías: Bronce, Plata, Oro (los 3 rectángulos en el mismo estilo) */}
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    {/* BRONCE */}
-                    <div className="rounded-3xl border border-amber-700/20 bg-gradient-to-b from-amber-50/60 via-white to-white p-5 flex flex-col justify-between shadow-xs hover:shadow-md transition-all">
+                    {/* SOCIO PROTECTOR BRONCE */}
+                    <div className="rounded-3xl border border-blue-200/90 bg-white p-5 flex flex-col justify-between shadow-card hover:shadow-lg transition-all relative">
                       <div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-black uppercase tracking-wider text-amber-900">
-                            Bronce
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-xs font-black uppercase tracking-wider text-slate-900">
+                            Socio Protector Bronce
                           </span>
-                          <span className="text-[10px] font-bold text-amber-800 bg-amber-100/80 px-2 py-0.5 rounded-full border border-amber-300">
+                          <span className="text-[10px] font-bold text-amber-800 bg-amber-100/80 px-2.5 py-0.5 rounded-full border border-amber-300">
                             Aporte Base
                           </span>
                         </div>
 
-                        {/* Insignia grande conservando la cinta original */}
+                        {/* Insignia grande conservando la cinta oficial */}
                         <div className="flex justify-center my-3">
                           <div className="relative w-24 h-32 drop-shadow-md transition-transform hover:scale-105">
                             <Image
                               src="/images/socio-protector/medalla-bronce.png"
-                              alt="Medalla Bronce con cinta oficial"
+                              alt="Medalla Socio Protector Bronce oficial"
                               fill
                               className="object-contain"
                             />
                           </div>
                         </div>
 
-                        <div className="text-center pb-3 border-b border-amber-200/50">
+                        <div className="text-center pb-3 border-b border-slate-100">
                           <div className="text-2xl font-black text-slate-900">
                             $2.000 <span className="text-xs font-normal text-slate-500">/ mes</span>
                           </div>
+                          <p className="text-[11px] text-slate-500 mt-1 leading-snug">
+                            Aporte base para apoyar las compras regulares de nuevos libros y material infantil.
+                          </p>
                         </div>
 
-                        <ul className="text-xs text-slate-700 space-y-2 pt-3">
-                          <li className="font-bold text-amber-950 flex items-start gap-1.5">
-                            <span className="text-amber-600 font-bold">•</span>
-                            <span>Acceso parcial a las secciones de la App</span>
-                          </li>
-                          <li className="flex items-start gap-1.5">
-                            <span className="text-slate-400 font-bold">•</span>
-                            <span>2% de descuento en tienda y talleres</span>
-                          </li>
-                          <li className="flex items-start gap-1.5">
-                            <span className="text-slate-400 font-bold">•</span>
-                            <span>Hasta 4 libros prestados al año</span>
-                          </li>
-                          <li className="flex items-start gap-1.5">
-                            <span className="text-slate-400 font-bold">•</span>
-                            <span>Carnet Digital con insignia Bronce</span>
-                          </li>
-                        </ul>
+                        {/* Píldoras destacadas de resumen */}
+                        <div className="mt-3 flex flex-col gap-1.5 text-left">
+                          <div className="text-[11px] font-bold px-2.5 py-1 rounded-xl bg-purple-50 text-purple-900 border border-purple-200 flex items-center gap-1.5">
+                            <span className="text-xs">📱</span>
+                            <span><strong>Acceso parcial a las secciones de la App</strong></span>
+                          </div>
+                          <div className="text-[11px] font-bold px-2.5 py-1 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 flex items-center gap-1.5">
+                            <span className="text-xs">🏷️</span>
+                            <span><strong>2% OFF</strong> en compras y eventos</span>
+                          </div>
+                          <div className="text-[11px] font-bold px-2.5 py-1 rounded-xl bg-blue-50 text-roncedo-navy border border-blue-200 flex items-center gap-1.5">
+                            <span className="text-xs">📚</span>
+                            <span><strong>Hasta 4 libros al año</strong></span>
+                          </div>
+                        </div>
+
+                        {/* Lista completa de beneficios */}
+                        <div className="pt-3 space-y-1.5">
+                          <p className="text-[10px] uppercase font-bold tracking-wider text-slate-400">
+                            Detalles incluidos:
+                          </p>
+                          <ul className="text-xs text-slate-700 space-y-2">
+                            <li className="font-bold text-slate-900 flex items-start gap-1.5">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0 mt-0.5" />
+                              <span>Acceso parcial a las secciones de la App</span>
+                            </li>
+                            <li className="flex items-start gap-1.5">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0 mt-0.5" />
+                              <span>2% de descuento en compras y eventos publicados</span>
+                            </li>
+                            <li className="flex items-start gap-1.5">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0 mt-0.5" />
+                              <span>Préstamos de hasta 4 libros al año</span>
+                            </li>
+                            <li className="flex items-start gap-1.5">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0 mt-0.5" />
+                              <span>Carnet Digital con insignia Bronce</span>
+                            </li>
+                            <li className="flex items-start gap-1.5">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0 mt-0.5" />
+                              <span>Acceso al boletín digital y rendiciones semestrales</span>
+                            </li>
+                            <li className="flex items-start gap-1.5">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0 mt-0.5" />
+                              <span>Débito automático mensual simple y seguro vía Mercado Pago</span>
+                            </li>
+                          </ul>
+                        </div>
                       </div>
 
-                      {/* Botón individual para Bronce */}
-                      <Link
-                        href="/socio-protector"
-                        className="mt-5 w-full py-2.5 px-3 rounded-2xl text-xs font-black text-center flex items-center justify-center gap-1.5 bg-gradient-to-r from-amber-800 to-amber-950 hover:from-amber-900 hover:to-black text-white shadow-sm transition-transform active:scale-98"
+                      {/* Botón rectangular en el mismo color institucional para las tres */}
+                      <button
+                        type="button"
+                        onClick={(e) => handleAdherirmeClick(e, 'Bronce')}
+                        className="mt-5 w-full py-3 px-3.5 rounded-2xl text-xs font-black text-center flex items-center justify-center gap-2 bg-gradient-to-r from-[#0F284B] to-[#1E5699] hover:from-[#153f75] hover:to-[#2563EB] text-white shadow-md transition-all active:scale-98 cursor-pointer"
                       >
                         <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-                        <span>Adherirme como Socio Protector</span>
-                      </Link>
+                        <span>Adherirme como Socio Protector Bronce</span>
+                      </button>
                     </div>
 
-                    {/* PLATA */}
-                    <div className="rounded-3xl border border-slate-300 bg-gradient-to-b from-slate-50/70 via-white to-white p-5 flex flex-col justify-between shadow-xs hover:shadow-md transition-all">
+                    {/* SOCIO PROTECTOR PLATA */}
+                    <div className="rounded-3xl border border-blue-200/90 bg-white p-5 flex flex-col justify-between shadow-card hover:shadow-lg transition-all relative">
                       <div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-black uppercase tracking-wider text-slate-800">
-                            Plata
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-xs font-black uppercase tracking-wider text-slate-900">
+                            Socio Protector Plata
                           </span>
-                          <span className="text-[10px] font-bold text-blue-900 bg-blue-100/80 px-2 py-0.5 rounded-full border border-blue-300">
+                          <span className="text-[10px] font-bold text-blue-900 bg-blue-100/80 px-2.5 py-0.5 rounded-full border border-blue-300">
                             Más Elegido
                           </span>
                         </div>
 
-                        {/* Insignia grande conservando la cinta original */}
+                        {/* Insignia grande conservando la cinta oficial */}
                         <div className="flex justify-center my-3">
                           <div className="relative w-24 h-32 drop-shadow-md transition-transform hover:scale-105">
                             <Image
                               src="/images/socio-protector/medalla-plata.png"
-                              alt="Medalla Plata con cinta oficial"
+                              alt="Medalla Socio Protector Plata oficial"
                               fill
                               className="object-contain"
                             />
                           </div>
                         </div>
 
-                        <div className="text-center pb-3 border-b border-slate-200">
+                        <div className="text-center pb-3 border-b border-slate-100">
                           <div className="text-2xl font-black text-slate-900">
                             $5.000 <span className="text-xs font-normal text-slate-500">/ mes</span>
                           </div>
+                          <p className="text-[11px] text-slate-500 mt-1 leading-snug">
+                            Aporte intermedio que impulsa talleres, eventos culturales y conservación histórica.
+                          </p>
                         </div>
 
-                        <ul className="text-xs text-slate-700 space-y-2 pt-3">
-                          <li className="font-bold text-slate-900 flex items-start gap-1.5">
-                            <span className="text-blue-600 font-bold">•</span>
-                            <span>Acceso ampliado a las secciones de la App</span>
-                          </li>
-                          <li className="flex items-start gap-1.5">
-                            <span className="text-slate-400 font-bold">•</span>
-                            <span>5% de descuento en tienda y talleres</span>
-                          </li>
-                          <li className="flex items-start gap-1.5">
-                            <span className="text-slate-400 font-bold">•</span>
-                            <span>Hasta 10 libros prestados al año</span>
-                          </li>
-                          <li className="flex items-start gap-1.5">
-                            <span className="text-slate-400 font-bold">•</span>
-                            <span>Carnet Digital con insignia Plata</span>
-                          </li>
-                        </ul>
+                        {/* Píldoras destacadas de resumen */}
+                        <div className="mt-3 flex flex-col gap-1.5 text-left">
+                          <div className="text-[11px] font-bold px-2.5 py-1 rounded-xl bg-purple-50 text-purple-900 border border-purple-200 flex items-center gap-1.5">
+                            <span className="text-xs">📱</span>
+                            <span><strong>Acceso ampliado a las secciones de la App</strong></span>
+                          </div>
+                          <div className="text-[11px] font-bold px-2.5 py-1 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 flex items-center gap-1.5">
+                            <span className="text-xs">🏷️</span>
+                            <span><strong>5% OFF</strong> en compras y eventos</span>
+                          </div>
+                          <div className="text-[11px] font-bold px-2.5 py-1 rounded-xl bg-blue-50 text-roncedo-navy border border-blue-200 flex items-center gap-1.5">
+                            <span className="text-xs">📚</span>
+                            <span><strong>Hasta 10 libros al año</strong></span>
+                          </div>
+                        </div>
+
+                        {/* Lista completa de beneficios */}
+                        <div className="pt-3 space-y-1.5">
+                          <p className="text-[10px] uppercase font-bold tracking-wider text-slate-400">
+                            Detalles incluidos:
+                          </p>
+                          <ul className="text-xs text-slate-700 space-y-2">
+                            <li className="font-bold text-slate-900 flex items-start gap-1.5">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0 mt-0.5" />
+                              <span>Acceso ampliado a las secciones de la App</span>
+                            </li>
+                            <li className="flex items-start gap-1.5">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0 mt-0.5" />
+                              <span>5% de descuento en compras y eventos publicados</span>
+                            </li>
+                            <li className="flex items-start gap-1.5">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0 mt-0.5" />
+                              <span>Préstamos de hasta 10 libros al año</span>
+                            </li>
+                            <li className="flex items-start gap-1.5">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0 mt-0.5" />
+                              <span>Carnet Digital con insignia Plata</span>
+                            </li>
+                            <li className="flex items-start gap-1.5">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0 mt-0.5" />
+                              <span>Prioridad de reserva en talleres literarios y actividades del club</span>
+                            </li>
+                            <li className="flex items-start gap-1.5">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0 mt-0.5" />
+                              <span>Aporte al fondo de digitalización de actas y fotos antiguas</span>
+                            </li>
+                            <li className="flex items-start gap-1.5">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0 mt-0.5" />
+                              <span>Débito automático mensual simple y seguro vía Mercado Pago</span>
+                            </li>
+                          </ul>
+                        </div>
                       </div>
 
-                      {/* Botón individual para Plata */}
-                      <Link
-                        href="/socio-protector"
-                        className="mt-5 w-full py-2.5 px-3 rounded-2xl text-xs font-black text-center flex items-center justify-center gap-1.5 bg-gradient-to-r from-[#1B5296] to-[#0F2D54] hover:brightness-110 text-white shadow-sm transition-transform active:scale-98"
+                      {/* Botón rectangular en el mismo color institucional para las tres */}
+                      <button
+                        type="button"
+                        onClick={(e) => handleAdherirmeClick(e, 'Plata')}
+                        className="mt-5 w-full py-3 px-3.5 rounded-2xl text-xs font-black text-center flex items-center justify-center gap-2 bg-gradient-to-r from-[#0F284B] to-[#1E5699] hover:from-[#153f75] hover:to-[#2563EB] text-white shadow-md transition-all active:scale-98 cursor-pointer"
                       >
-                        <Sparkles className="w-3.5 h-3.5 text-blue-200" />
-                        <span>Adherirme como Socio Protector</span>
-                      </Link>
+                        <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                        <span>Adherirme como Socio Protector Plata</span>
+                      </button>
                     </div>
 
-                    {/* ORO */}
-                    <div className="rounded-3xl border-2 border-yellow-400 bg-gradient-to-b from-amber-50/80 via-yellow-50/30 to-white p-5 flex flex-col justify-between shadow-md hover:shadow-lg transition-all relative">
+                    {/* SOCIO PROTECTOR ORO */}
+                    <div className="rounded-3xl border border-blue-200/90 bg-white p-5 flex flex-col justify-between shadow-card hover:shadow-lg transition-all relative">
                       <div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-black uppercase tracking-wider text-amber-900">
-                            Oro
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-xs font-black uppercase tracking-wider text-slate-900">
+                            Socio Protector Oro
                           </span>
-                          <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-amber-400 text-amber-950 shadow-xs">
+                          <span className="text-[10px] font-black uppercase text-amber-950 bg-amber-400 px-2.5 py-0.5 rounded-full shadow-xs">
                             Máxima Distinción
                           </span>
                         </div>
 
-                        {/* Insignia grande conservando la cinta original */}
+                        {/* Insignia grande conservando la cinta oficial */}
                         <div className="flex justify-center my-3">
                           <div className="relative w-24 h-32 drop-shadow-md transition-transform hover:scale-105">
                             <Image
                               src="/images/socio-protector/medalla-oro.png"
-                              alt="Medalla Oro con cinta oficial"
+                              alt="Medalla Socio Protector Oro oficial"
                               fill
                               className="object-contain"
                             />
                           </div>
                         </div>
 
-                        <div className="text-center pb-3 border-b border-amber-200">
+                        <div className="text-center pb-3 border-b border-slate-100">
                           <div className="text-2xl font-black text-slate-900">
                             $10.000 <span className="text-xs font-normal text-slate-500">/ mes</span>
                           </div>
+                          <p className="text-[11px] text-slate-500 mt-1 leading-snug">
+                            Máximo aporte solidario para obras de infraestructura, equipamiento y patrimonio de Alcira Gigena.
+                          </p>
                         </div>
 
-                        <ul className="text-xs text-slate-700 space-y-2 pt-3">
-                          <li className="font-bold text-amber-950 flex items-start gap-1.5">
-                            <span className="text-amber-600 font-bold">•</span>
-                            <span>Acceso a todas las secciones de la App</span>
-                          </li>
-                          <li className="flex items-start gap-1.5">
-                            <span className="text-slate-400 font-bold">•</span>
-                            <span>10% de descuento en tienda y talleres</span>
-                          </li>
-                          <li className="flex items-start gap-1.5">
-                            <span className="text-slate-400 font-bold">•</span>
-                            <span>Préstamo ilimitado de libros</span>
-                          </li>
-                          <li className="flex items-start gap-1.5">
-                            <span className="text-slate-400 font-bold">•</span>
-                            <span>Carnet Digital con insignia Oro</span>
-                          </li>
-                        </ul>
+                        {/* Píldoras destacadas de resumen */}
+                        <div className="mt-3 flex flex-col gap-1.5 text-left">
+                          <div className="text-[11px] font-bold px-2.5 py-1 rounded-xl bg-purple-50 text-purple-900 border border-purple-200 flex items-center gap-1.5">
+                            <span className="text-xs">📱</span>
+                            <span><strong>Acceso a todas las secciones de la App</strong></span>
+                          </div>
+                          <div className="text-[11px] font-bold px-2.5 py-1 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 flex items-center gap-1.5">
+                            <span className="text-xs">🏷️</span>
+                            <span><strong>10% OFF</strong> en compras y eventos</span>
+                          </div>
+                          <div className="text-[11px] font-bold px-2.5 py-1 rounded-xl bg-blue-50 text-roncedo-navy border border-blue-200 flex items-center gap-1.5">
+                            <span className="text-xs">📚</span>
+                            <span><strong>Préstamos de libros sin límites</strong></span>
+                          </div>
+                        </div>
+
+                        {/* Lista completa de beneficios */}
+                        <div className="pt-3 space-y-1.5">
+                          <p className="text-[10px] uppercase font-bold tracking-wider text-slate-400">
+                            Detalles incluidos:
+                          </p>
+                          <ul className="text-xs text-slate-700 space-y-2">
+                            <li className="font-bold text-slate-900 flex items-start gap-1.5">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0 mt-0.5" />
+                              <span>Acceso a todas las secciones de la App</span>
+                            </li>
+                            <li className="flex items-start gap-1.5">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0 mt-0.5" />
+                              <span>10% de descuento en compras y eventos publicados</span>
+                            </li>
+                            <li className="flex items-start gap-1.5">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0 mt-0.5" />
+                              <span>Préstamo ilimitado de libros</span>
+                            </li>
+                            <li className="flex items-start gap-1.5">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0 mt-0.5" />
+                              <span>Carnet Digital con insignia Oro</span>
+                            </li>
+                            <li className="flex items-start gap-1.5">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0 mt-0.5" />
+                              <span>Mención de honor en la memoria institucional anual</span>
+                            </li>
+                            <li className="flex items-start gap-1.5">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0 mt-0.5" />
+                              <span>Acceso preferencial a presentaciones de libros y galas culturales</span>
+                            </li>
+                            <li className="flex items-start gap-1.5">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0 mt-0.5" />
+                              <span>Débito automático mensual simple y seguro vía Mercado Pago</span>
+                            </li>
+                          </ul>
+                        </div>
                       </div>
 
-                      {/* Botón individual para Oro */}
-                      <Link
-                        href="/socio-protector"
-                        className="mt-5 w-full py-2.5 px-3 rounded-2xl text-xs font-black text-center flex items-center justify-center gap-1.5 bg-gradient-to-r from-amber-600 via-yellow-600 to-amber-700 hover:brightness-110 text-white shadow-md transition-transform active:scale-98"
+                      {/* Botón rectangular en el mismo color institucional para las tres */}
+                      <button
+                        type="button"
+                        onClick={(e) => handleAdherirmeClick(e, 'Oro')}
+                        className="mt-5 w-full py-3 px-3.5 rounded-2xl text-xs font-black text-center flex items-center justify-center gap-2 bg-gradient-to-r from-[#0F284B] to-[#1E5699] hover:from-[#153f75] hover:to-[#2563EB] text-white shadow-md transition-all active:scale-98 cursor-pointer"
                       >
-                        <Sparkles className="w-3.5 h-3.5 text-yellow-200" />
-                        <span>Adherirme como Socio Protector</span>
-                      </Link>
+                        <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                        <span>Adherirme como Socio Protector Oro</span>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -1388,6 +1658,89 @@ export default function PerfilPage() {
             </div>
           </form>
         </div>
+
+        {/* =================================================================== */}
+        {/* MODAL DE AVISO: CAMPOS OBLIGATORIOS PENDIENTES                      */}
+        {/* =================================================================== */}
+        {modalAvisoIncompleto.abierto && (
+          <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in">
+            <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl border border-blue-200 relative overflow-hidden animate-scale-in">
+              {/* Botón cerrar */}
+              <button
+                type="button"
+                onClick={() => setModalAvisoIncompleto({ abierto: false, destino: 'carnet' })}
+                className="absolute top-4 right-4 text-slate-400 hover:text-slate-700 p-1.5 rounded-full hover:bg-slate-100 transition-colors"
+                title="Cerrar aviso"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              <div className="text-center">
+                {/* Icono de advertencia institucional */}
+                <div className="w-14 h-14 mx-auto mb-3.5 rounded-2xl bg-amber-100 border border-amber-300 flex items-center justify-center text-amber-700 shadow-sm">
+                  <AlertCircle className="w-8 h-8" />
+                </div>
+
+                <span className="text-[10px] font-black uppercase tracking-wider text-amber-900 bg-amber-100/80 px-3 py-1 rounded-full border border-amber-300">
+                  Ficha Obligatoria Incompleta
+                </span>
+
+                <h3 className="text-lg sm:text-xl font-black text-slate-900 mt-2.5">
+                  {modalAvisoIncompleto.destino === 'carnet'
+                    ? 'Completá tus datos para ver tu Carnet'
+                    : `Completá tus datos para ser Socio Protector ${
+                        modalAvisoIncompleto.planNombre || ''
+                      }`}
+                </h3>
+
+                <p className="text-xs text-slate-600 mt-2 leading-relaxed">
+                  Para emitir tu credencial digital con código QR oficial y acceder a todos los beneficios institucionales, la Biblioteca Roncedo requiere que completes y guardes los campos marcados con asterisco (*).
+                </p>
+
+                {camposObligatoriosFaltantes.length > 0 && (
+                  <div className="mt-4 p-3 rounded-2xl bg-slate-50 border border-slate-200 text-left">
+                    <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1.5">
+                      Campos requeridos pendientes:
+                    </span>
+                    <div className="flex flex-wrap gap-1.5">
+                      {camposObligatoriosFaltantes.slice(0, 6).map((c, i) => (
+                        <span
+                          key={i}
+                          className="text-[11px] font-bold px-2 py-0.5 rounded-lg bg-amber-100/90 text-amber-900 border border-amber-200"
+                        >
+                          {c}
+                        </span>
+                      ))}
+                      {camposObligatoriosFaltantes.length > 6 && (
+                        <span className="text-[11px] font-bold px-2 py-0.5 rounded-lg bg-slate-200 text-slate-700">
+                          +{camposObligatoriosFaltantes.length - 6} más
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                <div className="mt-6 flex flex-col sm:flex-row gap-2.5">
+                  <button
+                    type="button"
+                    onClick={irACompletarDatos}
+                    className="w-full py-3 px-4 bg-roncedo-navy hover:bg-[#1A457D] text-white rounded-xl text-xs font-bold transition-all shadow-md flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    <Save className="w-4 h-4 text-roncedo-gold" />
+                    <span>Completar mis datos ahora</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setModalAvisoIncompleto({ abierto: false, destino: 'carnet' })}
+                    className="w-full sm:w-auto py-2.5 px-4 text-slate-600 hover:text-slate-800 text-xs font-semibold rounded-xl hover:bg-slate-100 transition-colors cursor-pointer"
+                  >
+                    Cerrar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

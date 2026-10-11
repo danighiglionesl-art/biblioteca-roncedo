@@ -26,6 +26,8 @@ export interface UserProfile {
   barrio?: string;
   calle?: string;
   numero?: string;
+  edificio?: string;
+  torre?: string;
   piso?: string;
   dpto?: string;
   domicilio?: string;

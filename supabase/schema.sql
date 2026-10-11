@@ -34,6 +34,8 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   barrio TEXT,
   calle TEXT,
   numero TEXT,
+  edificio TEXT,
+  torre TEXT,
   piso TEXT,
   dpto TEXT,
   domicilio TEXT,
