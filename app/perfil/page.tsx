@@ -91,21 +91,21 @@ const CLUBES_LOCALES = [
 ];
 
 const CLUBES_ARGENTINA = [
-  'Boca Juniors',
-  'River Plate',
-  'Independiente',
-  'Racing Club',
-  'San Lorenzo',
-  'Rosario Central',
-  "Newell's Old Boys",
-  'Huracán',
-  'Vélez Sarsfield',
-  'Estudiantes de La Plata',
-  'Gimnasia de la Plata',
-  'Talleres de Córdoba',
-  'Belgrano de Córdoba',
-  'Instituto de Córdoba',
-  'Banfield',
+  { id: 'Boca Juniors', label: 'Boca Juniors', sublabel: 'Los Xeneizes' },
+  { id: 'River Plate', label: 'River Plate', sublabel: 'Los Millonarios' },
+  { id: 'Independiente', label: 'Independiente', sublabel: 'El Rey de Copas' },
+  { id: 'Racing Club', label: 'Racing Club', sublabel: 'La Academia' },
+  { id: 'San Lorenzo', label: 'San Lorenzo', sublabel: 'El Cuervo' },
+  { id: 'Rosario Central', label: 'Rosario Central', sublabel: 'El Canalla' },
+  { id: "Newell's Old Boys", label: "Newell's Old Boys", sublabel: 'Los Leprosos' },
+  { id: 'Huracán', label: 'Huracán', sublabel: 'El Globito' },
+  { id: 'Vélez Sarsfield', label: 'Vélez Sarsfield', sublabel: 'El Fortín' },
+  { id: 'Estudiantes de La Plata', label: 'Estudiantes de La Plata', sublabel: 'El Pincharrata' },
+  { id: 'Gimnasia de la Plata', label: 'Gimnasia de La Plata', sublabel: 'El Lobo' },
+  { id: 'Talleres de Córdoba', label: 'Talleres de Córdoba', sublabel: 'La T' },
+  { id: 'Belgrano de Córdoba', label: 'Belgrano de Córdoba', sublabel: 'El Pirata' },
+  { id: 'Instituto de Córdoba', label: 'Instituto de Córdoba', sublabel: 'El Glorioso' },
+  { id: 'Banfield', label: 'Banfield', sublabel: 'El Taladro' },
 ];
 
 function getLocalidadesParaProvincia(provincia: string): string[] {
