@@ -16,6 +16,11 @@ export const CLUB_IMAGE_MAP: Record<string, string> = {
   'River Plate': '/images/clubes/river-plate.png',
   'Independiente': '/images/clubes/independiente.png',
   'Racing Club': '/images/clubes/racing-club.png',
+  'San Lorenzo': '/images/clubes/san-lorenzo.png',
+  'Rosario Central': '/images/clubes/rosario-central.png',
+  "Newell's Old Boys": '/images/clubes/newells-old-boys.png',
+  'Huracán': '/images/clubes/huracan.png',
+  'Vélez Sarsfield': '/images/clubes/velez-sarsfield.png',
 };
 
 export function ClubBadge({ nombre, className = 'w-6 h-6' }: ClubBadgeProps) {
