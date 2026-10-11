@@ -62,32 +62,33 @@ export function CarnetDigital({ user, className = '' }: CarnetDigitalProps) {
         </div>
 
         {/* Cabecera del Carnet */}
-        <div className="px-5 pt-5 pb-3 border-b border-white/10 relative z-10 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="relative w-12 h-12 flex-shrink-0 drop-shadow-md">
+        <div className="px-5 pt-4 pb-3 border-b border-white/10 relative z-10 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3.5 min-w-0">
+            <div className="relative w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0 drop-shadow-lg">
               <Image
                 src="/images/logo-biblioteca.png"
                 alt="Emblema Biblioteca Roncedo"
                 fill
                 className="object-contain"
+                priority
               />
             </div>
-            <div>
-              <p className="text-[10px] tracking-widest uppercase font-bold text-roncedo-celesteLight">
+            <div className="min-w-0">
+              <p className="text-[10px] sm:text-[11px] tracking-widest uppercase font-bold text-roncedo-celesteLight truncate">
                 {isSocioProtectorActivo ? 'CARNET DE SOCIO PROTECTOR' : 'CREDENCIAL DIGITAL DE APP'}
               </p>
-              <h2 className="text-sm font-extrabold text-white leading-tight">
+              <h2 className="text-base sm:text-lg font-black text-white leading-tight">
                 Biblioteca Roncedo
               </h2>
-              <p className="text-[11px] text-blue-200">
+              <p className="text-xs text-blue-200 truncate">
                 Club Sp. y B. Dr. Lautaro Roncedo
               </p>
             </div>
           </div>
-          <div className="text-right flex items-center gap-2.5">
+          <div className="text-right flex items-center gap-2.5 flex-shrink-0">
             {isSocioProtectorActivo && medallaInfo && (
               <div
-                className="relative w-11 h-11 flex-shrink-0 drop-shadow-md hover:scale-105 transition-transform"
+                className="relative w-12 h-12 flex-shrink-0 drop-shadow-md hover:scale-105 transition-transform"
                 title={`Socio Protector ${medallaInfo.label}`}
               >
                 <Image
@@ -102,7 +103,7 @@ export function CarnetDigital({ user, className = '' }: CarnetDigitalProps) {
               <span className="text-[9px] uppercase tracking-wider text-slate-400 block font-semibold">
                 {isSocioProtectorActivo ? 'N° PROTECTOR' : 'ID USUARIO'}
               </span>
-              <span className="text-lg font-black text-amber-300 tracking-wider">
+              <span className="text-lg sm:text-xl font-black text-amber-300 tracking-wider">
                 {isSocioProtectorActivo ? `#PROT-${user.tipo_socio_protector ? user.tipo_socio_protector.slice(0, 3).toUpperCase() : 'ORO'}` : `#USR-${user.id.slice(-4).toUpperCase()}`}
               </span>
             </div>
