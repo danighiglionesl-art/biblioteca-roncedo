@@ -137,17 +137,17 @@ export default function PerfilPage() {
   const [apellido, setApellido] = useState(user?.apellido || '');
   const [dni, setDni] = useState(user?.dni || '');
   const [fechaNacimiento, setFechaNacimiento] = useState(user?.fecha_nacimiento || '');
-  const [sexo, setSexo] = useState<string>(user?.sexo || 'Prefiero no decirlo');
+  const [sexo, setSexo] = useState<string>(user?.sexo || '');
   const [whatsappCodigo, setWhatsappCodigo] = useState(user?.whatsapp_codigo || '+54');
   const [whatsapp, setWhatsapp] = useState(user?.whatsapp || '');
   const [email, setEmail] = useState(user?.email || '');
-  const [pais, setPais] = useState(user?.pais || 'Argentina');
-  const [provincia, setProvincia] = useState(user?.provincia || 'Córdoba');
+  const [pais, setPais] = useState(user?.pais || '');
+  const [provincia, setProvincia] = useState(user?.provincia || '');
   const [provinciaManual, setProvinciaManual] = useState(user?.provincia || '');
-  const [localidad, setLocalidad] = useState(user?.localidad || 'Alcira Gigena');
+  const [localidad, setLocalidad] = useState(user?.localidad || '');
   const [esOtraLocalidad, setEsOtraLocalidad] = useState(false);
   const [localidadManual, setLocalidadManual] = useState('');
-  const [codigoPostal, setCodigoPostal] = useState(user?.codigo_postal || '5811');
+  const [codigoPostal, setCodigoPostal] = useState(user?.codigo_postal || '');
   const [barrio, setBarrio] = useState(user?.barrio || '');
   const [calle, setCalle] = useState(user?.calle || '');
   const [numero, setNumero] = useState(user?.numero || '');
@@ -186,6 +186,7 @@ export default function PerfilPage() {
     if (!apellido.trim()) faltantes.push('Apellido');
     if (!dni.trim()) faltantes.push('DNI / Documento');
     if (!fechaNacimiento.trim()) faltantes.push('Fecha de Nacimiento');
+    if (!sexo.trim()) faltantes.push('Género');
     if (!whatsapp.trim()) faltantes.push('WhatsApp / Teléfono');
     if (!pais.trim()) faltantes.push('País');
     if (pais === 'Argentina' && !provincia.trim()) faltantes.push('Provincia');
@@ -201,6 +202,7 @@ export default function PerfilPage() {
     apellido,
     dni,
     fechaNacimiento,
+    sexo,
     whatsapp,
     pais,
     provincia,
@@ -253,6 +255,8 @@ export default function PerfilPage() {
         ? 'input-dni'
         : primer === 'Fecha de Nacimiento'
         ? 'input-fecha-nacimiento'
+        : primer === 'Género'
+        ? 'input-sexo'
         : primer === 'WhatsApp / Teléfono'
         ? 'input-whatsapp'
         : primer === 'Barrio'
@@ -286,16 +290,16 @@ export default function PerfilPage() {
       setApellido(user.apellido || '');
       setDni(user.dni || '');
       setFechaNacimiento(user.fecha_nacimiento || '');
-      setSexo(user.sexo || 'Prefiero no decirlo');
+      setSexo(user.sexo || '');
       setWhatsappCodigo(user.whatsapp_codigo || '+54');
       setWhatsapp(user.whatsapp || '');
-      const paisInicial = user.pais || 'Argentina';
+      const paisInicial = user.pais || '';
       setPais(paisInicial);
-      const provInicial = user.provincia || 'Córdoba';
+      const provInicial = user.provincia || '';
       setProvincia(provInicial);
-      const locInicial = user.localidad || 'Alcira Gigena';
+      const locInicial = user.localidad || '';
       setLocalidad(locInicial);
-      const lista = getLocalidadesParaProvincia(provInicial);
+      const lista = provInicial ? getLocalidadesParaProvincia(provInicial) : [];
       if (locInicial && lista.length > 0 && !lista.includes(locInicial)) {
         setEsOtraLocalidad(true);
         setLocalidadManual(locInicial);
@@ -303,10 +307,7 @@ export default function PerfilPage() {
         setEsOtraLocalidad(false);
         setLocalidadManual('');
       }
-      setCodigoPostal(
-        user.codigo_postal ||
-          (provInicial === 'Córdoba' && locInicial === 'Alcira Gigena' ? '5811' : '')
-      );
+      setCodigoPostal(user.codigo_postal || '');
       setBarrio(user.barrio || '');
       setCalle(user.calle || '');
       setNumero(user.numero || '');
@@ -753,17 +754,29 @@ export default function PerfilPage() {
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                  Sexo / Género *
+                  Género *
                 </label>
                 <select
+                  id="input-sexo"
                   required
                   value={sexo}
                   onChange={(e) => setSexo(e.target.value)}
-                  className="w-full bg-white px-3.5 py-2.5 rounded-xl border border-blue-200 focus:outline-none focus:ring-2 focus:ring-roncedo-celeste focus:border-roncedo-celeste text-sm text-slate-900 shadow-sm transition-all"
+                  className={`w-full bg-white px-3.5 py-2.5 rounded-xl border border-blue-200 focus:outline-none focus:ring-2 focus:ring-roncedo-celeste focus:border-roncedo-celeste text-sm shadow-sm transition-all ${
+                    !sexo ? 'text-slate-400' : 'text-slate-900'
+                  }`}
                 >
-                  <option value="Mujer">Mujer</option>
-                  <option value="Hombre">Hombre</option>
-                  <option value="Prefiero no decirlo">Prefiero no decirlo</option>
+                  <option value="" disabled className="text-slate-400">
+                    Seleccionar
+                  </option>
+                  <option value="Mujer" className="text-slate-900">
+                    Mujer
+                  </option>
+                  <option value="Hombre" className="text-slate-900">
+                    Hombre
+                  </option>
+                  <option value="Prefiero no decirlo" className="text-slate-900">
+                    Prefiero no decirlo
+                  </option>
                 </select>
               </div>
             </div>
@@ -1374,20 +1387,18 @@ export default function PerfilPage() {
                     </p>
                   </div>
 
-                  {/* Título de categorías en dos líneas con destaque institucional */}
-                  <div className="text-center py-3 sm:py-4 space-y-1">
-                    <div className="text-lg sm:text-xl md:text-2xl font-black text-slate-900 tracking-tight flex items-center justify-center gap-2.5">
-                      <Award className="w-6 h-6 sm:w-8 sm:h-8 text-amber-500 flex-shrink-0" />
+                  {/* Título de categorías con destaque institucional y espaciado armónico */}
+                  <div className="text-center py-2 sm:py-3">
+                    <h3 className="text-base sm:text-lg md:text-xl font-black text-slate-900 tracking-tight flex items-center justify-center gap-2 leading-tight">
+                      <Award className="w-5 h-5 sm:w-6 sm:h-6 text-amber-500 flex-shrink-0" />
                       <span>
                         Conocé las 3 categorías de{' '}
                         <strong className="text-roncedo-navy font-black underline decoration-amber-400 decoration-[3px] underline-offset-4">
                           Socio Protector
-                        </strong>
+                        </strong>{' '}
+                        para acceder a los beneficios
                       </span>
-                    </div>
-                    <p className="text-lg sm:text-xl md:text-2xl font-black text-slate-900 tracking-tight">
-                      para acceder a los beneficios
-                    </p>
+                    </h3>
                   </div>
 
                   {/* Las 3 tarjetas de categorías: Bronce, Plata, Oro (los 3 rectángulos en el mismo estilo) */}
@@ -1405,7 +1416,7 @@ export default function PerfilPage() {
                         </div>
 
                         {/* Insignia grande conservando la cinta oficial */}
-                        <div className="flex justify-center my-3">
+                        <div className="flex justify-center my-2.5">
                           <div className="relative w-24 h-32 drop-shadow-md transition-transform hover:scale-105">
                             <Image
                               src="/images/socio-protector/medalla-bronce.png"
@@ -1416,21 +1427,21 @@ export default function PerfilPage() {
                           </div>
                         </div>
 
-                        <div className="text-center pb-3 border-b border-slate-100">
+                        <div className="text-center pb-2.5 border-b border-slate-100">
                           <div className="text-2xl font-black text-slate-900">
                             $2.000 <span className="text-xs font-normal text-slate-500">/ mes</span>
                           </div>
-                          <p className="text-[11px] text-slate-500 mt-1 leading-snug">
+                          <p className="text-[11px] text-slate-500 mt-1 leading-tight">
                             Aporte base para apoyar las compras regulares de nuevos libros y material infantil.
                           </p>
                         </div>
 
                         {/* Lista completa de servicios */}
-                        <div className="pt-4 space-y-2">
+                        <div className="pt-3 space-y-1.5">
                           <p className="text-[10px] uppercase font-bold tracking-wider text-slate-400">
                             Servicios Incluidos
                           </p>
-                          <ul className="text-xs text-slate-700 space-y-2">
+                          <ul className="text-xs text-slate-700 space-y-1.5 leading-snug">
                             <li className="font-bold text-slate-900 flex items-start gap-1.5">
                               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0 mt-0.5" />
                               <span>Acceso parcial a las secciones de la App</span>
@@ -1463,10 +1474,12 @@ export default function PerfilPage() {
                       <button
                         type="button"
                         onClick={(e) => handleAdherirmeClick(e, 'Bronce')}
-                        className="mt-5 w-full py-3 px-3.5 rounded-2xl text-xs font-black text-center flex items-center justify-center gap-2 bg-gradient-to-r from-[#0F284B] to-[#1E5699] hover:from-[#153f75] hover:to-[#2563EB] text-white shadow-md transition-all active:scale-98 cursor-pointer"
+                        className="mt-4 w-full min-h-[60px] py-2.5 px-3 rounded-2xl text-xs font-black text-center flex items-center justify-center gap-1.5 bg-gradient-to-r from-[#0F284B] to-[#1E5699] hover:from-[#153f75] hover:to-[#2563EB] text-white shadow-md transition-all active:scale-98 cursor-pointer leading-tight"
                       >
                         <Sparkles className="w-3.5 h-3.5 text-amber-300 flex-shrink-0" />
-                        <span>Adherirme como Socio Protector Bronce</span>
+                        <span>
+                          Adherirme como<br />Socio Protector<br />Bronce
+                        </span>
                       </button>
                     </div>
 
@@ -1483,7 +1496,7 @@ export default function PerfilPage() {
                         </div>
 
                         {/* Insignia grande conservando la cinta oficial */}
-                        <div className="flex justify-center my-3">
+                        <div className="flex justify-center my-2.5">
                           <div className="relative w-24 h-32 drop-shadow-md transition-transform hover:scale-105">
                             <Image
                               src="/images/socio-protector/medalla-plata.png"
@@ -1494,21 +1507,21 @@ export default function PerfilPage() {
                           </div>
                         </div>
 
-                        <div className="text-center pb-3 border-b border-slate-100">
+                        <div className="text-center pb-2.5 border-b border-slate-100">
                           <div className="text-2xl font-black text-slate-900">
                             $5.000 <span className="text-xs font-normal text-slate-500">/ mes</span>
                           </div>
-                          <p className="text-[11px] text-slate-500 mt-1 leading-snug">
+                          <p className="text-[11px] text-slate-500 mt-1 leading-tight">
                             Aporte intermedio que impulsa talleres, eventos culturales y conservación histórica.
                           </p>
                         </div>
 
                         {/* Lista completa de servicios */}
-                        <div className="pt-4 space-y-2">
+                        <div className="pt-3 space-y-1.5">
                           <p className="text-[10px] uppercase font-bold tracking-wider text-slate-400">
                             Servicios Incluidos
                           </p>
-                          <ul className="text-xs text-slate-700 space-y-2">
+                          <ul className="text-xs text-slate-700 space-y-1.5 leading-snug">
                             <li className="font-bold text-slate-900 flex items-start gap-1.5">
                               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0 mt-0.5" />
                               <span>Acceso ampliado a las secciones de la App</span>
@@ -1545,7 +1558,7 @@ export default function PerfilPage() {
                       <button
                         type="button"
                         onClick={(e) => handleAdherirmeClick(e, 'Plata')}
-                        className="mt-5 w-full min-h-[68px] py-3 px-3.5 rounded-2xl text-xs font-black text-center flex items-center justify-center gap-2 bg-gradient-to-r from-[#0F284B] to-[#1E5699] hover:from-[#153f75] hover:to-[#2563EB] text-white shadow-md transition-all active:scale-98 cursor-pointer leading-tight"
+                        className="mt-4 w-full min-h-[60px] py-2.5 px-3 rounded-2xl text-xs font-black text-center flex items-center justify-center gap-1.5 bg-gradient-to-r from-[#0F284B] to-[#1E5699] hover:from-[#153f75] hover:to-[#2563EB] text-white shadow-md transition-all active:scale-98 cursor-pointer leading-tight"
                       >
                         <Sparkles className="w-3.5 h-3.5 text-amber-300 flex-shrink-0" />
                         <span>
@@ -1567,7 +1580,7 @@ export default function PerfilPage() {
                         </div>
 
                         {/* Insignia grande conservando la cinta oficial */}
-                        <div className="flex justify-center my-3">
+                        <div className="flex justify-center my-2.5">
                           <div className="relative w-24 h-32 drop-shadow-md transition-transform hover:scale-105">
                             <Image
                               src="/images/socio-protector/medalla-oro.png"
@@ -1578,21 +1591,21 @@ export default function PerfilPage() {
                           </div>
                         </div>
 
-                        <div className="text-center pb-3 border-b border-slate-100">
+                        <div className="text-center pb-2.5 border-b border-slate-100">
                           <div className="text-2xl font-black text-slate-900">
                             $10.000 <span className="text-xs font-normal text-slate-500">/ mes</span>
                           </div>
-                          <p className="text-[11px] text-slate-500 mt-1 leading-snug">
-                            Máximo aporte solidario para obras de infraestructura, equipamiento y patrimonio de Alcira Gigena.
+                          <p className="text-[11px] text-slate-500 mt-1 leading-tight">
+                            Máximo aporte solidario para obras de infraestructura, equipamiento y patrimonio de la Biblioteca Roncedo.
                           </p>
                         </div>
 
                         {/* Lista completa de servicios */}
-                        <div className="pt-4 space-y-2">
+                        <div className="pt-3 space-y-1.5">
                           <p className="text-[10px] uppercase font-bold tracking-wider text-slate-400">
                             Servicios Incluidos
                           </p>
-                          <ul className="text-xs text-slate-700 space-y-2">
+                          <ul className="text-xs text-slate-700 space-y-1.5 leading-snug">
                             <li className="font-bold text-slate-900 flex items-start gap-1.5">
                               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0 mt-0.5" />
                               <span>Acceso a todas las secciones de la App</span>
@@ -1629,10 +1642,12 @@ export default function PerfilPage() {
                       <button
                         type="button"
                         onClick={(e) => handleAdherirmeClick(e, 'Oro')}
-                        className="mt-5 w-full py-3 px-3.5 rounded-2xl text-xs font-black text-center flex items-center justify-center gap-2 bg-gradient-to-r from-[#0F284B] to-[#1E5699] hover:from-[#153f75] hover:to-[#2563EB] text-white shadow-md transition-all active:scale-98 cursor-pointer"
+                        className="mt-4 w-full min-h-[60px] py-2.5 px-3 rounded-2xl text-xs font-black text-center flex items-center justify-center gap-1.5 bg-gradient-to-r from-[#0F284B] to-[#1E5699] hover:from-[#153f75] hover:to-[#2563EB] text-white shadow-md transition-all active:scale-98 cursor-pointer leading-tight"
                       >
-                        <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-                        <span>Adherirme como Socio Protector Oro</span>
+                        <Sparkles className="w-3.5 h-3.5 text-amber-300 flex-shrink-0" />
+                        <span>
+                          Adherirme como<br />Socio Protector<br />Oro
+                        </span>
                       </button>
                     </div>
                   </div>

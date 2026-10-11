@@ -247,17 +247,17 @@ export default function SocioProtectorPage() {
                         </span>
                       </div>
 
-                      <p className="text-xs text-slate-500 mt-2 leading-snug">
+                      <p className="text-xs text-slate-500 mt-2 leading-tight">
                         {plan.descripcion}
                       </p>
                     </div>
 
                     {/* Servicios Incluidos */}
-                    <div className="py-5 space-y-2.5">
+                    <div className="py-4 space-y-2">
                       <p className="text-[10px] uppercase font-bold tracking-wider text-slate-400">
                         Servicios Incluidos
                       </p>
-                      <ul className="space-y-2 text-xs text-slate-600">
+                      <ul className="space-y-1.5 text-xs text-slate-600 leading-snug">
                         {plan.beneficios.map((b, idx) => (
                           <li key={idx} className="flex items-start gap-2">
                             <CheckCircle2 className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" />

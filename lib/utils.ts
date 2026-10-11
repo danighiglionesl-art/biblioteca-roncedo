@@ -49,6 +49,7 @@ export function isPerfilCompleto(user: UserProfile | null | undefined): boolean 
     valid(user.apellido) &&
     valid(user.dni) &&
     valid(user.fecha_nacimiento) &&
+    valid(user.sexo) &&
     valid(user.whatsapp) &&
     valid(user.pais) &&
     valid(user.provincia) &&

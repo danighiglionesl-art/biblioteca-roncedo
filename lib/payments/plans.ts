@@ -100,7 +100,7 @@ export const PLANES_SOCIO_PROTECTOR: PlanSocioProtector[] = [
     nombre: 'SOCIO PROTECTOR ORO',
     monto: 10000,
     periodo: 'por mes',
-    descripcion: 'Máximo aporte solidario para obras de infraestructura, equipamiento y patrimonio de Alcira Gigena.',
+    descripcion: 'Máximo aporte solidario para obras de infraestructura, equipamiento y patrimonio de la Biblioteca Roncedo.',
     mercadoPagoUrl: 'https://mpago.la/2VSZx8G',
     destacado: false,
     imagenMedalla: '/images/socio-protector/medalla-oro.png',
