@@ -150,6 +150,8 @@ export default function PerfilPage() {
   const [barrio, setBarrio] = useState(user?.barrio || '');
   const [calle, setCalle] = useState(user?.calle || '');
   const [numero, setNumero] = useState(user?.numero || '');
+  const [piso, setPiso] = useState(user?.piso || '');
+  const [dpto, setDpto] = useState(user?.dpto || '');
 
   // Nuevos campos: Preferencias deportivas
   const [hinchaClub, setHinchaClub] = useState<string>(user?.hincha_club || 'Lautaro Roncedo');
@@ -202,6 +204,8 @@ export default function PerfilPage() {
       setBarrio(user.barrio || '');
       setCalle(user.calle || '');
       setNumero(user.numero || '');
+      setPiso(user.piso || '');
+      setDpto(user.dpto || '');
 
       setHinchaClub(user.hincha_club || 'Lautaro Roncedo');
       setHinchaNacional(user.hincha_nacional || []);
@@ -318,7 +322,15 @@ export default function PerfilPage() {
             ? localidadManual.trim()
             : localidad.trim()
           : localidad.trim()) || 'Alcira Gigena';
-      const domicilioCompleto = `${calle} ${numero}${barrio ? `, B° ${barrio}` : ''}`.trim();
+      const domicilioCompleto = [
+        calle.trim(),
+        numero.trim(),
+        piso.trim() ? `Piso ${piso.trim()}` : '',
+        dpto.trim() ? `Dpto ${dpto.trim()}` : '',
+        barrio.trim() ? `B° ${barrio.trim()}` : '',
+      ]
+        .filter(Boolean)
+        .join(', ');
 
       const yaEstabaCompleto = isPerfilCompleto(user);
 
@@ -337,6 +349,8 @@ export default function PerfilPage() {
         barrio: barrio.trim(),
         calle: calle.trim(),
         numero: numero.trim(),
+        piso: piso.trim(),
+        dpto: dpto.trim(),
         domicilio: domicilioCompleto,
         hincha_club: hinchaClub,
         hincha_nacional: hinchaNacional,
@@ -519,187 +533,6 @@ export default function PerfilPage() {
             <CreditCard className="w-4 h-4 text-roncedo-gold" />
             <span>Ver Carnet</span>
           </Link>
-        </div>
-
-        {/* =================================================================== */}
-        {/* CUADRO INSTITUCIONAL: USUARIO DE LA APP vs. SOCIO PROTECTOR         */}
-        {/* (Reemplaza definitivamente las antiguas solicitudes de socio)       */}
-        {/* =================================================================== */}
-        <div className="bg-white rounded-3xl p-6 sm:p-7 shadow-card border border-blue-200/90 relative overflow-hidden">
-          {esProtectorActivo ? (
-            /* USUARIO ADHERIDO COMO SOCIO PROTECTOR */
-            <div className="space-y-5">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
-                <div className="flex items-center gap-3.5">
-                  <div className="relative w-12 h-12 flex-shrink-0 drop-shadow-md">
-                    <Image
-                      src={
-                        user.tipo_socio_protector
-                          ? `/images/socio-protector/insignia-${user.tipo_socio_protector.toLowerCase()}.png`
-                          : '/images/socio-protector/insignia-oro.png'
-                      }
-                      alt="Insignia Socio Protector"
-                      width={48}
-                      height={48}
-                      className="object-contain"
-                    />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <h3 className="text-base font-extrabold text-slate-900">
-                        Socio Protector {user.tipo_socio_protector}
-                      </h3>
-                      <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-300">
-                        Activo • Membresía Plena
-                      </span>
-                    </div>
-                    <p className="text-xs text-slate-500 mt-0.5">
-                      Tu colaboración mensual sostiene activamente la Biblioteca y el Club Roncedo. Tenés acceso total a todos los servicios, préstamos de libros, actas históricas y descuentos exclusivos.
-                    </p>
-                  </div>
-                </div>
-
-                <Link
-                  href="/socio-protector"
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#0F284B] to-[#1E6091] hover:brightness-110 text-white text-xs font-bold rounded-xl shadow-sm transition-all flex-shrink-0"
-                >
-                  <span>Ver o Cambiar Plan</span>
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </Link>
-              </div>
-
-              {/* Grilla de Datos de la Suscripción */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-                <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
-                  <span className="text-[10px] uppercase font-bold text-slate-400 block">
-                    Categoría Activa
-                  </span>
-                  <span className="font-extrabold text-slate-900 mt-0.5 block text-sm">
-                    {user.tipo_socio_protector}
-                  </span>
-                </div>
-
-                <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
-                  <span className="text-[10px] uppercase font-bold text-slate-400 block">
-                    Aporte Mensual
-                  </span>
-                  <span className="font-extrabold text-emerald-700 mt-0.5 block text-sm">
-                    ${user.importe_mensual?.toLocaleString('es-AR') || '2.000'} / mes
-                  </span>
-                </div>
-
-                <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
-                  <span className="text-[10px] uppercase font-bold text-slate-400 block">
-                    Beneficio en Tienda
-                  </span>
-                  <span className="font-extrabold text-amber-700 mt-0.5 block text-sm">
-                    {user.tipo_socio_protector === 'Bronce' && '2% Descuento'}
-                    {user.tipo_socio_protector === 'Plata' && '5% Descuento'}
-                    {user.tipo_socio_protector === 'Oro' && '10% Descuento'}
-                  </span>
-                </div>
-
-                <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
-                  <span className="text-[10px] uppercase font-bold text-slate-400 block">
-                    Préstamo de Libros
-                  </span>
-                  <span className="font-semibold text-slate-800 mt-0.5 block text-sm">
-                    {user.tipo_socio_protector === 'Oro' ? 'Sin límites' : user.tipo_socio_protector === 'Plata' ? 'Hasta 10 / año' : 'Hasta 4 / año'}
-                  </span>
-                </div>
-              </div>
-            </div>
-          ) : (
-            /* CONDICIÓN: USUARIO DE LA APP (SERVICIOS RESTRINGIDOS) */
-            <div className="space-y-5">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
-                <div className="flex items-center gap-3.5">
-                  <div className="w-12 h-12 rounded-2xl bg-blue-50 text-roncedo-navy flex items-center justify-center border border-blue-200 flex-shrink-0">
-                    <User className="w-6 h-6 text-roncedo-celeste" />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <h3 className="text-base font-extrabold text-slate-900">
-                        Condición actual: Usuario de la App
-                      </h3>
-                      <span className="text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
-                        Servicios restringidos
-                      </span>
-                    </div>
-                    <p className="text-xs text-slate-600 mt-1 leading-relaxed">
-                      Tu cuenta se encuentra registrada como <strong>Usuario de la App</strong>. En la Biblioteca Roncedo no existen cuotas de socios activos, cadetes o familiares; el sostenimiento institucional y acceso pleno a todos los servicios se canaliza a través del programa voluntario de <strong>Socios Protectores</strong>.
-                    </p>
-                  </div>
-                </div>
-
-                <Link
-                  href="/socio-protector"
-                  className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-roncedo-navy to-[#1E6091] hover:brightness-110 text-white text-xs font-extrabold rounded-xl shadow-md transition-all flex-shrink-0"
-                >
-                  <Sparkles className="w-3.5 h-3.5 text-roncedo-gold" />
-                  <span>Adherirme como Socio Protector</span>
-                </Link>
-              </div>
-
-              {/* Presentación de las 3 Categorías de Socio Protector */}
-              <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-700 block mb-2.5 flex items-center gap-1.5">
-                  <Award className="w-4 h-4 text-amber-500" />
-                  <span>Conocé las 3 categorías de Socio Protector para acceder a todos los beneficios:</span>
-                </span>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  {/* Categoría Bronce */}
-                  <div className="p-4 rounded-2xl border border-amber-700/20 bg-gradient-to-b from-amber-50/50 to-white space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-black uppercase text-amber-900">Bronce</span>
-                      <div className="relative w-6 h-6">
-                        <Image src="/images/socio-protector/insignia-bronce.png" alt="Bronce" fill className="object-contain" />
-                      </div>
-                    </div>
-                    <div className="text-lg font-black text-slate-900">$2.000 <span className="text-[11px] font-normal text-slate-500">/ mes</span></div>
-                    <ul className="text-[11px] text-slate-600 space-y-1 pt-1 border-t border-amber-200/40">
-                      <li>• 2% de descuento en tienda y talleres</li>
-                      <li>• Hasta 4 libros prestados al año</li>
-                      <li>• Carnet Digital con insignia Bronce</li>
-                    </ul>
-                  </div>
-
-                  {/* Categoría Plata */}
-                  <div className="p-4 rounded-2xl border border-slate-300 bg-gradient-to-b from-slate-50 to-white space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-black uppercase text-slate-800">Plata</span>
-                      <div className="relative w-6 h-6">
-                        <Image src="/images/socio-protector/insignia-plata.png" alt="Plata" fill className="object-contain" />
-                      </div>
-                    </div>
-                    <div className="text-lg font-black text-slate-900">$5.000 <span className="text-[11px] font-normal text-slate-500">/ mes</span></div>
-                    <ul className="text-[11px] text-slate-600 space-y-1 pt-1 border-t border-slate-200">
-                      <li>• 5% de descuento en tienda y talleres</li>
-                      <li>• Hasta 10 libros prestados al año</li>
-                      <li>• Carnet Digital con insignia Plata</li>
-                    </ul>
-                  </div>
-
-                  {/* Categoría Oro */}
-                  <div className="p-4 rounded-2xl border border-yellow-400 bg-gradient-to-b from-amber-50 to-white space-y-2 relative shadow-xs">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-black uppercase text-amber-900">Oro</span>
-                      <div className="relative w-6 h-6">
-                        <Image src="/images/socio-protector/insignia-oro.png" alt="Oro" fill className="object-contain" />
-                      </div>
-                    </div>
-                    <div className="text-lg font-black text-slate-900">$10.000 <span className="text-[11px] font-normal text-slate-500">/ mes</span></div>
-                    <ul className="text-[11px] text-slate-600 space-y-1 pt-1 border-t border-amber-200">
-                      <li>• 10% de descuento en tienda y talleres</li>
-                      <li>• Préstamo ilimitado de libros</li>
-                      <li>• Carnet Digital con insignia Oro</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* =================================================================== */}
@@ -1058,6 +891,35 @@ export default function PerfilPage() {
               </div>
             </div>
 
+            {/* Piso y Dpto */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                  Piso
+                </label>
+                <input
+                  type="text"
+                  value={piso}
+                  onChange={(e) => setPiso(e.target.value)}
+                  placeholder="Ej: 3, PB..."
+                  className="w-full bg-white px-3.5 py-2.5 rounded-xl border border-blue-200 focus:outline-none focus:ring-2 focus:ring-roncedo-celeste focus:border-roncedo-celeste text-sm text-slate-900 shadow-sm transition-all"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                  Dpto
+                </label>
+                <input
+                  type="text"
+                  value={dpto}
+                  onChange={(e) => setDpto(e.target.value)}
+                  placeholder="Ej: B, 4..."
+                  className="w-full bg-white px-3.5 py-2.5 rounded-xl border border-blue-200 focus:outline-none focus:ring-2 focus:ring-roncedo-celeste focus:border-roncedo-celeste text-sm text-slate-900 shadow-sm transition-all"
+                />
+              </div>
+            </div>
+
             {/* ================================================================= */}
             {/* NUEVA SECCIÓN: PREFERENCIAS DEPORTIVAS E IDENTIDAD (ANTES DE OBS) */}
             {/* ================================================================= */}
@@ -1084,7 +946,7 @@ export default function PerfilPage() {
                             ? cl.id === 'Lautaro Roncedo'
                               ? 'bg-blue-50 border-[#1B5699] ring-2 ring-[#1B5699] shadow-sm'
                               : cl.id === 'Lutgardis Riveros'
-                              ? 'bg-amber-50 border-blue-900 ring-2 ring-blue-900 shadow-sm'
+                              ? 'bg-slate-50 border-slate-900 ring-2 ring-slate-900 shadow-sm'
                               : 'bg-slate-100 border-slate-500 ring-2 ring-slate-500 shadow-sm'
                             : 'bg-white border-blue-200 hover:border-slate-300'
                         }`}
@@ -1191,16 +1053,11 @@ export default function PerfilPage() {
               </div>
             </div>
 
-            {/* Observaciones (Opcional) */}
+            {/* Observaciones */}
             <div className="pt-2 border-t border-blue-200/80">
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="block text-xs font-bold text-slate-700">
-                  Observaciones
-                </label>
-                <span className="text-[10px] font-semibold text-slate-500 bg-slate-200/70 px-2 py-0.5 rounded-md">
-                  Opcional
-                </span>
-              </div>
+              <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                Observaciones
+              </label>
               <textarea
                 rows={3}
                 value={observaciones}
@@ -1208,6 +1065,311 @@ export default function PerfilPage() {
                 placeholder="Aclaraciones de domicilio, referencias, horarios de preferencia para retiro de libros, etc."
                 className="w-full bg-white px-3.5 py-2.5 rounded-xl border border-blue-200 focus:outline-none focus:ring-2 focus:ring-roncedo-celeste focus:border-roncedo-celeste text-sm text-slate-900 shadow-sm transition-all"
               />
+            </div>
+
+            {/* =================================================================== */}
+            {/* CONDICIÓN INSTITUCIONAL Y CATEGORÍAS DE SOCIO PROTECTOR            */}
+            {/* (Debajo de Observaciones y antes de Guardar Cambios)               */}
+            {/* =================================================================== */}
+            <div className="pt-6 border-t border-blue-200/80 space-y-4">
+              {esProtectorActivo ? (
+                /* USUARIO YA ADHERIDO COMO SOCIO PROTECTOR */
+                <div className="bg-white rounded-3xl p-6 sm:p-7 shadow-sm border border-blue-200 relative overflow-hidden">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+                    <div className="flex items-center gap-4">
+                      <div className="relative w-16 h-20 flex-shrink-0 drop-shadow-md">
+                        <Image
+                          src={
+                            user.tipo_socio_protector
+                              ? `/images/socio-protector/medalla-${user.tipo_socio_protector.toLowerCase()}.png`
+                              : '/images/socio-protector/medalla-oro.png'
+                          }
+                          alt="Medalla Socio Protector"
+                          fill
+                          className="object-contain"
+                        />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h3 className="text-base font-extrabold text-slate-900">
+                            Socio Protector {user.tipo_socio_protector}
+                          </h3>
+                          <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-300">
+                            Activo • Membresía Plena
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                          Tu colaboración mensual sostiene activamente la Biblioteca y el Club Roncedo. Tenés acceso total a todos los servicios, préstamos de libros, actas históricas y descuentos exclusivos.
+                        </p>
+                      </div>
+                    </div>
+
+                    <Link
+                      href="/socio-protector"
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#0F284B] to-[#1E6091] hover:brightness-110 text-white text-xs font-bold rounded-xl shadow-sm transition-all flex-shrink-0"
+                    >
+                      <span>Ver o Cambiar Plan</span>
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </Link>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs mt-4">
+                    <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                      <span className="text-[10px] uppercase font-bold text-slate-400 block">
+                        Categoría Activa
+                      </span>
+                      <span className="font-extrabold text-slate-900 mt-0.5 block text-sm">
+                        {user.tipo_socio_protector}
+                      </span>
+                    </div>
+
+                    <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                      <span className="text-[10px] uppercase font-bold text-slate-400 block">
+                        Aporte Mensual
+                      </span>
+                      <span className="font-extrabold text-emerald-700 mt-0.5 block text-sm">
+                        ${user.importe_mensual?.toLocaleString('es-AR') || '2.000'} / mes
+                      </span>
+                    </div>
+
+                    <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                      <span className="text-[10px] uppercase font-bold text-slate-400 block">
+                        Beneficio en Tienda
+                      </span>
+                      <span className="font-extrabold text-amber-700 mt-0.5 block text-sm">
+                        {user.tipo_socio_protector === 'Bronce' && '2% Descuento'}
+                        {user.tipo_socio_protector === 'Plata' && '5% Descuento'}
+                        {user.tipo_socio_protector === 'Oro' && '10% Descuento'}
+                      </span>
+                    </div>
+
+                    <div className="bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                      <span className="text-[10px] uppercase font-bold text-slate-400 block">
+                        Acceso a la App
+                      </span>
+                      <span className="font-semibold text-slate-800 mt-0.5 block text-sm">
+                        {user.tipo_socio_protector === 'Oro'
+                          ? 'Todas las secciones'
+                          : user.tipo_socio_protector === 'Plata'
+                          ? 'Acceso ampliado'
+                          : 'Acceso parcial'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                /* CONDICIÓN ACTUAL: USUARIO DE LA APP (NO PROTECTOR) */
+                <div className="space-y-6">
+                  {/* Rectángulo grande que ocupa el tamaño de ancho de los otros tres que están debajo */}
+                  <div className="bg-white rounded-3xl p-6 sm:p-7 shadow-sm border border-blue-200/90 space-y-3">
+                    <div className="flex flex-wrap items-center gap-2.5">
+                      <div className="w-9 h-9 rounded-xl bg-blue-50 text-roncedo-navy flex items-center justify-center border border-blue-200 flex-shrink-0">
+                        <User className="w-5 h-5 text-roncedo-celeste" />
+                      </div>
+                      <h3 className="text-base font-extrabold text-slate-900">
+                        Registrado como usuario
+                      </h3>
+                      <span className="text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
+                        Servicios restringidos
+                      </span>
+                    </div>
+                    <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                      Tu cuenta puede acceder a determinados sectores de la App de manera restringida. El sostenimiento de la Biblioteca Roncedo y el acceso a todos los servicios se canaliza a través del programa voluntario de <strong>Socios Protectores</strong>.
+                    </p>
+                  </div>
+
+                  {/* Título de categorías centrado con separación respecto de los recuadros */}
+                  <div className="text-center py-2">
+                    <div className="inline-flex items-center justify-center gap-2 text-xs sm:text-sm font-black uppercase tracking-wider text-slate-800">
+                      <Award className="w-5 h-5 text-amber-500 flex-shrink-0" />
+                      <span>Conocé las 3 categorías de Socio Protector para acceder a todos los beneficios:</span>
+                    </div>
+                  </div>
+
+                  {/* Las 3 tarjetas de categorías: Bronce, Plata, Oro */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    {/* BRONCE */}
+                    <div className="rounded-3xl border border-amber-700/20 bg-gradient-to-b from-amber-50/60 via-white to-white p-5 flex flex-col justify-between shadow-xs hover:shadow-md transition-all">
+                      <div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-black uppercase tracking-wider text-amber-900">
+                            Bronce
+                          </span>
+                          <span className="text-[10px] font-bold text-amber-800 bg-amber-100/80 px-2 py-0.5 rounded-full border border-amber-300">
+                            Aporte Base
+                          </span>
+                        </div>
+
+                        {/* Insignia grande conservando la cinta original */}
+                        <div className="flex justify-center my-3">
+                          <div className="relative w-24 h-32 drop-shadow-md transition-transform hover:scale-105">
+                            <Image
+                              src="/images/socio-protector/medalla-bronce.png"
+                              alt="Medalla Bronce con cinta oficial"
+                              fill
+                              className="object-contain"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="text-center pb-3 border-b border-amber-200/50">
+                          <div className="text-2xl font-black text-slate-900">
+                            $2.000 <span className="text-xs font-normal text-slate-500">/ mes</span>
+                          </div>
+                        </div>
+
+                        <ul className="text-xs text-slate-700 space-y-2 pt-3">
+                          <li className="font-bold text-amber-950 flex items-start gap-1.5">
+                            <span className="text-amber-600 font-bold">•</span>
+                            <span>Acceso parcial a las secciones de la App</span>
+                          </li>
+                          <li className="flex items-start gap-1.5">
+                            <span className="text-slate-400 font-bold">•</span>
+                            <span>2% de descuento en tienda y talleres</span>
+                          </li>
+                          <li className="flex items-start gap-1.5">
+                            <span className="text-slate-400 font-bold">•</span>
+                            <span>Hasta 4 libros prestados al año</span>
+                          </li>
+                          <li className="flex items-start gap-1.5">
+                            <span className="text-slate-400 font-bold">•</span>
+                            <span>Carnet Digital con insignia Bronce</span>
+                          </li>
+                        </ul>
+                      </div>
+
+                      {/* Botón individual para Bronce */}
+                      <Link
+                        href="/socio-protector"
+                        className="mt-5 w-full py-2.5 px-3 rounded-2xl text-xs font-black text-center flex items-center justify-center gap-1.5 bg-gradient-to-r from-amber-800 to-amber-950 hover:from-amber-900 hover:to-black text-white shadow-sm transition-transform active:scale-98"
+                      >
+                        <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                        <span>Adherirme como Socio Protector</span>
+                      </Link>
+                    </div>
+
+                    {/* PLATA */}
+                    <div className="rounded-3xl border border-slate-300 bg-gradient-to-b from-slate-50/70 via-white to-white p-5 flex flex-col justify-between shadow-xs hover:shadow-md transition-all">
+                      <div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-black uppercase tracking-wider text-slate-800">
+                            Plata
+                          </span>
+                          <span className="text-[10px] font-bold text-blue-900 bg-blue-100/80 px-2 py-0.5 rounded-full border border-blue-300">
+                            Más Elegido
+                          </span>
+                        </div>
+
+                        {/* Insignia grande conservando la cinta original */}
+                        <div className="flex justify-center my-3">
+                          <div className="relative w-24 h-32 drop-shadow-md transition-transform hover:scale-105">
+                            <Image
+                              src="/images/socio-protector/medalla-plata.png"
+                              alt="Medalla Plata con cinta oficial"
+                              fill
+                              className="object-contain"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="text-center pb-3 border-b border-slate-200">
+                          <div className="text-2xl font-black text-slate-900">
+                            $5.000 <span className="text-xs font-normal text-slate-500">/ mes</span>
+                          </div>
+                        </div>
+
+                        <ul className="text-xs text-slate-700 space-y-2 pt-3">
+                          <li className="font-bold text-slate-900 flex items-start gap-1.5">
+                            <span className="text-blue-600 font-bold">•</span>
+                            <span>Acceso ampliado a las secciones de la App</span>
+                          </li>
+                          <li className="flex items-start gap-1.5">
+                            <span className="text-slate-400 font-bold">•</span>
+                            <span>5% de descuento en tienda y talleres</span>
+                          </li>
+                          <li className="flex items-start gap-1.5">
+                            <span className="text-slate-400 font-bold">•</span>
+                            <span>Hasta 10 libros prestados al año</span>
+                          </li>
+                          <li className="flex items-start gap-1.5">
+                            <span className="text-slate-400 font-bold">•</span>
+                            <span>Carnet Digital con insignia Plata</span>
+                          </li>
+                        </ul>
+                      </div>
+
+                      {/* Botón individual para Plata */}
+                      <Link
+                        href="/socio-protector"
+                        className="mt-5 w-full py-2.5 px-3 rounded-2xl text-xs font-black text-center flex items-center justify-center gap-1.5 bg-gradient-to-r from-[#1B5296] to-[#0F2D54] hover:brightness-110 text-white shadow-sm transition-transform active:scale-98"
+                      >
+                        <Sparkles className="w-3.5 h-3.5 text-blue-200" />
+                        <span>Adherirme como Socio Protector</span>
+                      </Link>
+                    </div>
+
+                    {/* ORO */}
+                    <div className="rounded-3xl border-2 border-yellow-400 bg-gradient-to-b from-amber-50/80 via-yellow-50/30 to-white p-5 flex flex-col justify-between shadow-md hover:shadow-lg transition-all relative">
+                      <div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-black uppercase tracking-wider text-amber-900">
+                            Oro
+                          </span>
+                          <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-amber-400 text-amber-950 shadow-xs">
+                            Máxima Distinción
+                          </span>
+                        </div>
+
+                        {/* Insignia grande conservando la cinta original */}
+                        <div className="flex justify-center my-3">
+                          <div className="relative w-24 h-32 drop-shadow-md transition-transform hover:scale-105">
+                            <Image
+                              src="/images/socio-protector/medalla-oro.png"
+                              alt="Medalla Oro con cinta oficial"
+                              fill
+                              className="object-contain"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="text-center pb-3 border-b border-amber-200">
+                          <div className="text-2xl font-black text-slate-900">
+                            $10.000 <span className="text-xs font-normal text-slate-500">/ mes</span>
+                          </div>
+                        </div>
+
+                        <ul className="text-xs text-slate-700 space-y-2 pt-3">
+                          <li className="font-bold text-amber-950 flex items-start gap-1.5">
+                            <span className="text-amber-600 font-bold">•</span>
+                            <span>Acceso a todas las secciones de la App</span>
+                          </li>
+                          <li className="flex items-start gap-1.5">
+                            <span className="text-slate-400 font-bold">•</span>
+                            <span>10% de descuento en tienda y talleres</span>
+                          </li>
+                          <li className="flex items-start gap-1.5">
+                            <span className="text-slate-400 font-bold">•</span>
+                            <span>Préstamo ilimitado de libros</span>
+                          </li>
+                          <li className="flex items-start gap-1.5">
+                            <span className="text-slate-400 font-bold">•</span>
+                            <span>Carnet Digital con insignia Oro</span>
+                          </li>
+                        </ul>
+                      </div>
+
+                      {/* Botón individual para Oro */}
+                      <Link
+                        href="/socio-protector"
+                        className="mt-5 w-full py-2.5 px-3 rounded-2xl text-xs font-black text-center flex items-center justify-center gap-1.5 bg-gradient-to-r from-amber-600 via-yellow-600 to-amber-700 hover:brightness-110 text-white shadow-md transition-transform active:scale-98"
+                      >
+                        <Sparkles className="w-3.5 h-3.5 text-yellow-200" />
+                        <span>Adherirme como Socio Protector</span>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Botón Guardar Cambios */}

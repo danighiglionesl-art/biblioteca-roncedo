@@ -26,6 +26,8 @@ export interface UserProfile {
   barrio?: string;
   calle?: string;
   numero?: string;
+  piso?: string;
+  dpto?: string;
   domicilio?: string;
   // Preferencias deportivas y pertenencia
   hincha_club?: 'Lautaro Roncedo' | 'Lutgardis Riveros' | 'Me da lo mismo' | string;

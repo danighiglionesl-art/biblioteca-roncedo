@@ -20,13 +20,18 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (isLoading) return;
 
-    // Si la URL contiene un token de OAuth o retorno de Supabase en el hash, esperar a que se procese
+    // Si la URL contiene un token de OAuth o retorno de Supabase en el hash, dar margen para procesarlo
     if (typeof window !== 'undefined' && (
       window.location.hash.includes('access_token') ||
       window.location.hash.includes('refresh_token') ||
       window.location.hash.includes('error=')
     )) {
-      return;
+      const guardTimer = setTimeout(() => {
+        if (!user && !isPublicRoute) {
+          router.replace('/login');
+        }
+      }, 4000);
+      return () => clearTimeout(guardTimer);
     }
 
     // Caso 1: Ruta raíz '/' -> redirigir inmediatamente según estado de sesión y completitud de datos

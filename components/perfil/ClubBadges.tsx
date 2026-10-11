@@ -10,7 +10,12 @@ interface ClubBadgeProps {
 
 // Mapa para vincular escudos en formato imagen oficial (PNG/SVG/JPG)
 export const CLUB_IMAGE_MAP: Record<string, string> = {
-  'Lautaro Roncedo': '/images/escudo-roncedo.png',
+  'Lautaro Roncedo': '/images/clubes/lautaro-roncedo.png',
+  'Lutgardis Riveros': '/images/clubes/lutgardis-riveros.png',
+  'Boca Juniors': '/images/clubes/boca-juniors.png',
+  'River Plate': '/images/clubes/river-plate.png',
+  'Independiente': '/images/clubes/independiente.png',
+  'Racing Club': '/images/clubes/racing-club.png',
 };
 
 export function ClubBadge({ nombre, className = 'w-6 h-6' }: ClubBadgeProps) {

@@ -60,7 +60,9 @@ export const PLANES_SOCIO_PROTECTOR: PlanSocioProtector[] = [
     imagenInsignia: '/images/socio-protector/insignia-bronce.png',
     descuentoComprasEventos: '2%',
     limitePrestamos: 'Hasta 4 libros al año',
+    accesoApp: 'Acceso parcial a las secciones de la App',
     beneficios: [
+      'Acceso parcial a las secciones de la App',
       '2% de descuento en compras y eventos publicados',
       'Préstamos de hasta 4 libros al año',
       'Medalla Bronce e insignia oficial como Socio Protector',
@@ -81,7 +83,9 @@ export const PLANES_SOCIO_PROTECTOR: PlanSocioProtector[] = [
     imagenInsignia: '/images/socio-protector/insignia-plata.png',
     descuentoComprasEventos: '5%',
     limitePrestamos: 'Hasta 10 libros al año',
+    accesoApp: 'Acceso ampliado a las secciones de la App',
     beneficios: [
+      'Acceso ampliado a las secciones de la App',
       '5% de descuento en compras y eventos publicados',
       'Préstamos de hasta 10 libros al año',
       'Medalla Plata y distinción destacada en carnet digital',
@@ -103,7 +107,9 @@ export const PLANES_SOCIO_PROTECTOR: PlanSocioProtector[] = [
     imagenInsignia: '/images/socio-protector/insignia-oro.png',
     descuentoComprasEventos: '10%',
     limitePrestamos: 'Préstamos de libros sin límites',
+    accesoApp: 'Acceso a todas las secciones de la App',
     beneficios: [
+      'Acceso a todas las secciones de la App',
       '10% de descuento en compras y eventos publicados',
       'Préstamos de libros sin límites',
       'Medalla Oro y máxima distinción de honor institucional',

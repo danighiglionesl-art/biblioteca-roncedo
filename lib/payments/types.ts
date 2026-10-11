@@ -19,6 +19,7 @@ export interface PlanSocioProtector {
   imagenInsignia?: string;
   descuentoComprasEventos?: string;
   limitePrestamos?: string;
+  accesoApp?: string;
   beneficios: string[];
 }
 

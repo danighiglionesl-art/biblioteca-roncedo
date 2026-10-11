@@ -40,6 +40,29 @@ const STORAGE_KEY_USER = 'roncedo_current_user_v4';
 const STORAGE_KEY_USERS = 'roncedo_all_users_v4';
 const STORAGE_KEY_SOLICITUDES = 'roncedo_solicitudes_v4';
 
+// Función para obtener la URL canónica de retorno hacia la web oficial
+export function getAuthRedirectUrl(subpath: string = ''): string {
+  // 1. Si estamos en el navegador en un dominio real (no localhost), usar ese origen de la web
+  if (typeof window !== 'undefined' && window.location.origin) {
+    if (!window.location.origin.includes('localhost') && !window.location.origin.includes('127.0.0.1')) {
+      const cleanSub = subpath ? (subpath.startsWith('/') ? subpath : `/${subpath}`) : '/';
+      return `${window.location.origin}${cleanSub}`;
+    }
+  }
+
+  // 2. Si está definida la variable de entorno y no es localhost, usarla
+  const envUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  if (envUrl && !envUrl.includes('localhost')) {
+    const cleanBase = envUrl.replace(/\/+$/, '');
+    const cleanSub = subpath ? (subpath.startsWith('/') ? subpath : `/${subpath}`) : '/';
+    return `${cleanBase}${cleanSub}`;
+  }
+
+  // 3. Dominio web oficial de producción
+  const cleanSub = subpath ? (subpath.startsWith('/') ? subpath : `/${subpath}`) : '/';
+  return `https://www.bibliotecaroncedo.ar${cleanSub}`;
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [allUsers, setAllUsers] = useState<UserProfile[]>(INITIAL_USERS);
@@ -361,11 +384,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(true);
     try {
       if (isSupabaseConfigured && supabase) {
-        const origin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000';
+        const redirectUrl = getAuthRedirectUrl('/');
         const { error } = await supabase.auth.signInWithOAuth({
           provider: 'google',
           options: {
-            redirectTo: `${origin}/`,
+            redirectTo: redirectUrl,
             queryParams: {
               access_type: 'offline',
               prompt: 'select_account',
@@ -416,14 +439,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         created_at: new Date().toISOString(),
       };
 
-      // Si Supabase está configurado, intentar registrarlo en Supabase Auth también
+      // Si Supabase está configurado, registrar en Supabase Auth con retorno a la web oficial
       if (isSupabaseConfigured && supabase) {
         try {
+          const redirectUrl = getAuthRedirectUrl('/');
           const fullName = `${nombre.trim()} ${apellido.trim()}`.trim();
           const { data, error } = await supabase.auth.signUp({
             email: cleanEmail,
             password: pass,
             options: {
+              emailRedirectTo: redirectUrl,
               data: {
                 full_name: fullName,
                 name: nombre.trim(),
@@ -457,11 +482,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const resetPassword = async (email: string) => {
     try {
       if (isSupabaseConfigured && supabase) {
-        await supabase.auth.resetPasswordForEmail(email);
+        const redirectUrl = getAuthRedirectUrl('/recuperar');
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: redirectUrl,
+        });
+        if (error) throw error;
       }
       return { success: true };
     } catch (err: any) {
-      return { success: false, error: err.message };
+      return { success: false, error: err.message || 'Error al enviar enlace de recuperación' };
     }
   };
 

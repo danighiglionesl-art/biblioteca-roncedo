@@ -10,13 +10,22 @@ export default function RootPage() {
   const { user, isLoading } = useAuth();
 
   useEffect(() => {
-    // Si la URL contiene un token de OAuth o retorno de Supabase en el hash, esperar a que AuthContext lo procese
+    // Si la URL contiene un token de OAuth o retorno de Supabase en el hash, dar margen para procesarlo
     if (typeof window !== 'undefined' && (
       window.location.hash.includes('access_token') ||
       window.location.hash.includes('refresh_token') ||
       window.location.hash.includes('error=')
     )) {
-      return;
+      const hashTimer = setTimeout(() => {
+        if (!isLoading) {
+          if (user) {
+            router.replace(isPerfilCompleto(user) ? '/home' : '/perfil');
+          } else {
+            router.replace('/login');
+          }
+        }
+      }, 4000);
+      return () => clearTimeout(hashTimer);
     }
 
     if (!isLoading) {

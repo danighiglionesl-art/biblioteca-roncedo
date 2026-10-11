@@ -251,8 +251,14 @@ export default function SocioProtectorPage() {
                         {plan.descripcion}
                       </p>
 
-                      {/* Píldoras destacadas de Descuento y Préstamos */}
+                      {/* Píldoras destacadas de Descuento, Préstamos y Acceso a la App */}
                       <div className="mt-3 flex flex-col gap-1.5 text-left">
+                        {plan.accesoApp && (
+                          <div className="text-[11px] font-bold px-2.5 py-1 rounded-xl bg-purple-50 text-purple-900 border border-purple-200 flex items-center gap-1.5">
+                            <span className="text-xs">📱</span>
+                            <span><strong>{plan.accesoApp}</strong></span>
+                          </div>
+                        )}
                         {plan.descuentoComprasEventos && (
                           <div className="text-[11px] font-bold px-2.5 py-1 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 flex items-center gap-1.5">
                             <span className="text-xs">🏷️</span>

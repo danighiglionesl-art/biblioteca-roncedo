@@ -34,6 +34,8 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   barrio TEXT,
   calle TEXT,
   numero TEXT,
+  piso TEXT,
+  dpto TEXT,
   domicilio TEXT,
   -- Preferencias deportivas
   hincha_club TEXT, -- 'Lautaro Roncedo', 'Lutgardis Riveros', 'Me da lo mismo'
