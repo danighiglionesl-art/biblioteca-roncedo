@@ -24,6 +24,10 @@ import {
   Settings,
   Image as ImageIcon,
   Star,
+  Newspaper,
+  Video,
+  UtensilsCrossed,
+  Trophy,
 } from 'lucide-react';
 import { InsigniaSocioProtector } from '@/components/common/InsigniaSocioProtector';
 import { CONTACTO_BIBLIOTECA } from '@/lib/constants/contacto';
@@ -60,7 +64,7 @@ export default function HomePage() {
 
   const isSocio = user.role === 'socio' || user.role === 'admin';
 
-  // Los 8 accesos clave definidos por la Biblioteca
+  // Los 12 accesos institucionales definidos por la Biblioteca y el Club
   const accesosPrincipales = [
     {
       titulo: 'Mi Carnet',
@@ -70,6 +74,7 @@ export default function HomePage() {
       color: 'from-blue-600 to-indigo-700',
       badge: isSocio ? 'Activo' : 'Solicitar',
       badgeColor: isSocio ? 'bg-emerald-500/20 text-emerald-800' : 'bg-blue-500/20 text-blue-800',
+      isProximamente: false,
     },
     {
       titulo: 'Mi Biblioteca',
@@ -79,6 +84,7 @@ export default function HomePage() {
       color: 'from-sky-600 to-blue-700',
       badge: '1.283 Libros',
       badgeColor: 'bg-emerald-500/20 text-emerald-800',
+      isProximamente: false,
     },
     {
       titulo: 'Biblioteca Digital',
@@ -88,6 +94,7 @@ export default function HomePage() {
       color: 'from-blue-700 to-indigo-900',
       badge: 'Colección Digital',
       badgeColor: 'bg-blue-500/20 text-blue-800',
+      isProximamente: false,
     },
     {
       titulo: 'Archivo Fotográfico',
@@ -97,6 +104,7 @@ export default function HomePage() {
       color: 'from-emerald-600 to-teal-800',
       badge: 'Fototeca Activa',
       badgeColor: 'bg-emerald-500/20 text-emerald-800 border-emerald-300',
+      isProximamente: false,
     },
     {
       titulo: 'Archivo de Actas',
@@ -106,6 +114,7 @@ export default function HomePage() {
       color: 'from-slate-700 to-slate-900',
       badge: '102 Folios HD',
       badgeColor: 'bg-emerald-500/20 text-emerald-800 border-emerald-300',
+      isProximamente: false,
     },
     {
       titulo: 'Eventos y Talleres',
@@ -115,6 +124,7 @@ export default function HomePage() {
       color: 'from-violet-600 to-purple-800',
       badge: 'Inscripciones Abiertas',
       badgeColor: 'bg-purple-100 text-purple-800 border-purple-200',
+      isProximamente: false,
     },
     {
       titulo: 'Dr. Lautaro Roncedo',
@@ -124,6 +134,7 @@ export default function HomePage() {
       color: 'from-yellow-700 to-amber-900',
       badge: 'Marchas Oficiales',
       badgeColor: 'bg-amber-100 text-amber-900 border-amber-300',
+      isProximamente: false,
     },
     {
       titulo: 'Tienda Institucional',
@@ -133,6 +144,47 @@ export default function HomePage() {
       color: 'from-rose-600 to-pink-800',
       badge: 'Tienda Activa',
       badgeColor: 'bg-rose-500/20 text-rose-800 border-rose-300',
+      isProximamente: false,
+    },
+    {
+      titulo: 'Folletos y Publicaciones',
+      descripcion: 'Folletos históricos de eventos, publicaciones en diarios y revistas.',
+      href: '/folletos',
+      icon: Newspaper,
+      color: 'from-amber-600 to-yellow-800',
+      badge: 'Próximamente',
+      badgeColor: 'bg-amber-100 text-amber-900 border-amber-300 font-bold',
+      isProximamente: true,
+    },
+    {
+      titulo: 'Archivo Videográfico',
+      descripcion: 'Videos históricos de eventos de Roncedo (Videoteca)',
+      href: '/videoteca',
+      icon: Video,
+      color: 'from-purple-600 to-indigo-800',
+      badge: 'Próximamente',
+      badgeColor: 'bg-purple-100 text-purple-900 border-purple-300 font-bold',
+      isProximamente: true,
+    },
+    {
+      titulo: 'Sabores del Club',
+      descripcion: 'Reserva de porciones, comidas típicas y eventos gastronómicos',
+      href: '/sabores',
+      icon: UtensilsCrossed,
+      color: 'from-orange-600 to-amber-800',
+      badge: 'Próximamente',
+      badgeColor: 'bg-orange-100 text-orange-900 border-orange-300 font-bold',
+      isProximamente: true,
+    },
+    {
+      titulo: 'Divisiones Inferiores',
+      descripcion: 'Toda la información, tablas de posiciones y goleadores',
+      href: '/inferiores',
+      icon: Trophy,
+      color: 'from-sky-600 to-blue-800',
+      badge: 'Próximamente',
+      badgeColor: 'bg-sky-100 text-sky-900 border-sky-300 font-bold',
+      isProximamente: true,
     },
   ];
 
@@ -310,7 +362,7 @@ export default function HomePage() {
                   </div>
 
                   <div className="mt-3 pt-3 border-t border-blue-100/80 flex items-center justify-between text-xs font-semibold text-roncedo-celesteDark group-hover:translate-x-0.5 transition-transform">
-                    <span>Ingresar</span>
+                    <span>{item.isProximamente ? 'Ver adelanto' : 'Ingresar'}</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </div>
                 </Link>
