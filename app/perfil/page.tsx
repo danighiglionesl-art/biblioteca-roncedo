@@ -1385,7 +1385,7 @@ export default function PerfilPage() {
                         </strong>
                       </span>
                     </div>
-                    <p className="text-lg sm:text-xl md:text-2xl font-bold text-slate-700 tracking-tight">
+                    <p className="text-lg sm:text-xl md:text-2xl font-black text-slate-900 tracking-tight">
                       para acceder a los beneficios
                     </p>
                   </div>
