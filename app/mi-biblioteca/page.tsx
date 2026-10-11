@@ -35,8 +35,10 @@ export default function MiBibliotecaPage() {
 
   if (!user) return null;
 
-  const isSocio = user.role === 'socio' || user.role === 'admin';
-  const miSolicitud = solicitudes.find((s) => s.user_id === user.id);
+  const isProtectorActivo = Boolean(
+    (user.es_socio_protector && user.estado_socio_protector === 'activo') ||
+    user.role === 'admin'
+  );
 
   // Filtrar préstamos y reservas del usuario actual
   const misPrestamos = prestamos.filter((p) => p.user_id === user.id);
@@ -110,57 +112,55 @@ export default function MiBibliotecaPage() {
                 <span>Actualizar Vista</span>
               </button>
 
-              {isSocio ? (
+              {isProtectorActivo ? (
                 <Link
                   href="/carnet"
                   className="bg-roncedo-navy hover:bg-blue-900 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm transition-colors flex items-center gap-2"
                 >
                   <CreditCard className="w-4 h-4 text-roncedo-gold" />
-                  <span>Ver Mi Carnet</span>
+                  <span>Ver Carnet Protector</span>
                 </Link>
               ) : (
                 <Link
-                  href="/perfil"
-                  className="bg-roncedo-blue hover:bg-blue-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm transition-colors flex items-center gap-1.5"
+                  href="/socio-protector"
+                  className="bg-gradient-to-r from-roncedo-navy to-[#1E6091] hover:brightness-110 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm transition-all flex items-center gap-1.5"
                 >
-                  <span>Hacerme Socio</span>
+                  <span>Ser Socio Protector</span>
                   <ChevronRight className="w-3.5 h-3.5" />
                 </Link>
               )}
             </div>
           </div>
 
-          {/* Estado de Socio Banner */}
+          {/* Estado Institucional Banner */}
           <div className="mt-5 pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs">
             <div className="flex items-center gap-2">
-              <span className="text-slate-500 font-medium">Estado Social:</span>
-              {isSocio ? (
+              <span className="text-slate-500 font-medium">Condición:</span>
+              {isProtectorActivo ? (
                 <span className="bg-emerald-100 text-emerald-800 font-bold px-2.5 py-0.5 rounded-full border border-emerald-300">
-                  Socio #{user.numero_socio || '1042'} ({user.categoria_socio || 'Activo'})
-                </span>
-              ) : miSolicitud ? (
-                <span className="bg-amber-100 text-amber-800 font-bold px-2.5 py-0.5 rounded-full border border-amber-300 flex items-center gap-1">
-                  <Clock className="w-3 h-3" />
-                  Solicitud en Revisión ({miSolicitud.categoria_solicitada})
+                  Socio Protector {user.tipo_socio_protector || 'Bronce'} (Membresía Plena)
                 </span>
               ) : (
                 <span className="bg-slate-100 text-slate-700 font-bold px-2.5 py-0.5 rounded-full border border-slate-300">
-                  Usuario Registrado (No socio)
+                  Usuario de la App (Servicios restringidos)
                 </span>
               )}
             </div>
 
             <div className="flex items-center gap-2 text-slate-500">
-              <span>Cuota Social:</span>
-              <span
-                className={`font-bold px-2 py-0.5 rounded-md ${
-                  user.estado_cuota === 'al_dia'
-                    ? 'text-emerald-700 bg-emerald-50'
-                    : 'text-amber-700 bg-amber-50'
-                }`}
-              >
-                {user.estado_cuota === 'al_dia' ? 'Al Día' : 'Pendiente'}
-              </span>
+              <span>Sostenimiento:</span>
+              {isProtectorActivo ? (
+                <span className="font-bold px-2.5 py-0.5 rounded-md text-emerald-700 bg-emerald-50 border border-emerald-200">
+                  Aporte Activo (${user.importe_mensual?.toLocaleString('es-AR') || '2.000'}/m)
+                </span>
+              ) : (
+                <Link
+                  href="/socio-protector"
+                  className="font-bold text-roncedo-blue hover:underline bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200"
+                >
+                  Adherirme como Socio Protector
+                </Link>
+              )}
             </div>
           </div>
         </div>

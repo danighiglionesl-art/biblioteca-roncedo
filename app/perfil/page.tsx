@@ -1069,9 +1069,6 @@ export default function PerfilPage() {
                     <span className="w-2.5 h-2.5 rounded-full bg-roncedo-celeste" />
                     <span>Soy hincha del Club:</span>
                   </label>
-                  <span className="text-[10px] font-bold text-slate-500 bg-white/90 px-2.5 py-0.5 rounded-full border border-blue-200">
-                    Se puede marcar solo una opción
-                  </span>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -1125,9 +1122,6 @@ export default function PerfilPage() {
                     <span className="w-2.5 h-2.5 rounded-full bg-emerald-600" />
                     <span>En el país soy hincha del Club:</span>
                   </label>
-                  <span className="text-[10px] font-bold text-slate-500 bg-white/90 px-2.5 py-0.5 rounded-full border border-blue-200">
-                    Se puede marcar más de una opción
-                  </span>
                 </div>
 
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">

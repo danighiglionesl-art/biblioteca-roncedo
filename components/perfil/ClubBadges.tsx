@@ -1,13 +1,32 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 
 interface ClubBadgeProps {
   nombre: string;
   className?: string;
 }
 
+// Mapa para vincular escudos en formato imagen oficial (PNG/SVG/JPG)
+export const CLUB_IMAGE_MAP: Record<string, string> = {
+  'Lautaro Roncedo': '/images/escudo-roncedo.png',
+};
+
 export function ClubBadge({ nombre, className = 'w-6 h-6' }: ClubBadgeProps) {
+  if (CLUB_IMAGE_MAP[nombre]) {
+    return (
+      <div className={`relative ${className} flex-shrink-0 drop-shadow-xs`}>
+        <Image
+          src={CLUB_IMAGE_MAP[nombre]}
+          alt={`Escudo ${nombre}`}
+          fill
+          className="object-contain"
+        />
+      </div>
+    );
+  }
+
   switch (nombre) {
     case 'Lautaro Roncedo':
       return (

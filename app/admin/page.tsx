@@ -36,6 +36,7 @@ import {
   Sparkles,
   Newspaper,
   ShoppingBag,
+  Award,
 } from 'lucide-react';
 import { GestionPortadas } from '@/components/admin/GestionPortadas';
 import { GestionNovedades } from '@/components/admin/GestionNovedades';
@@ -133,12 +134,37 @@ export default function AdminPage() {
 
   // Métricas
   const solicitudesPendientes = solicitudes.filter((s) => s.estado === 'pendiente');
-  const totalSocios = allUsers.filter((u) => u.role === 'socio' || u.role === 'admin');
-  const sociosAlDia = totalSocios.filter((u) => u.estado_cuota === 'al_dia');
+  const protectoresTodos = allUsers.filter((u) => u.es_socio_protector);
+  const protectoresActivos = protectoresTodos.filter((u) => u.estado_socio_protector === 'activo');
+  const protectoresPendientes = protectoresTodos.filter((u) => u.estado_socio_protector === 'pendiente');
+  const protectoresInactivos = protectoresTodos.filter((u) => u.estado_socio_protector === 'inactivo');
+  const usuariosApp = allUsers.filter((u) => !u.es_socio_protector);
+  const aporteMensualEstimado = protectoresActivos.reduce((sum, p) => sum + (p.importe_mensual || 0), 0);
+  const pagosPendientesORechazados = protectoresPendientes.length + protectoresInactivos.length;
+
+  const [filtroPadronCondicion, setFiltroPadronCondicion] = useState<'todos' | 'protectores' | 'usuarios'>('todos');
+
+  const filteredPadron = allUsers.filter((u) => {
+    const term = searchTerm.toLowerCase().trim();
+    const matchesSearch =
+      !term ||
+      u.nombre.toLowerCase().includes(term) ||
+      u.apellido.toLowerCase().includes(term) ||
+      u.email.toLowerCase().includes(term) ||
+      (u.dni && u.dni.includes(term)) ||
+      (u.hincha_club && u.hincha_club.toLowerCase().includes(term)) ||
+      (u.hincha_nacional && u.hincha_nacional.some((h) => h.toLowerCase().includes(term)));
+
+    const matchesCondicion =
+      filtroPadronCondicion === 'todos' ||
+      (filtroPadronCondicion === 'protectores' && u.es_socio_protector) ||
+      (filtroPadronCondicion === 'usuarios' && !u.es_socio_protector);
+
+    return matchesSearch && matchesCondicion;
+  });
 
   const handleOpenAprobar = (solId: string, catSugerida: CategoriaSocio) => {
-    // Sugerir el siguiente número correlativo
-    const nextNum = (totalSocios.length + 1040).toString();
+    const nextNum = (allUsers.length + 1040).toString();
     setNumeroSocioAsignar(nextNum);
     setCategoriaAsignar(catSugerida);
     setModalSolId(solId);
@@ -149,22 +175,6 @@ export default function AdminPage() {
     await aprobarSolicitud(modalSolId, numeroSocioAsignar.trim(), categoriaAsignar);
     setModalSolId(null);
   };
-
-  const filteredSocios = totalSocios.filter(
-    (s) =>
-      s.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      s.apellido.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (s.dni && s.dni.includes(searchTerm)) ||
-      (s.numero_socio && s.numero_socio.includes(searchTerm))
-  );
-
-  // Métricas específicas de Socios Protectores
-  const protectoresTodos = allUsers.filter((u) => u.es_socio_protector);
-  const protectoresActivos = protectoresTodos.filter((u) => u.estado_socio_protector === 'activo');
-  const protectoresPendientes = protectoresTodos.filter((u) => u.estado_socio_protector === 'pendiente');
-  const protectoresInactivos = protectoresTodos.filter((u) => u.estado_socio_protector === 'inactivo');
-  const aporteMensualEstimado = protectoresActivos.reduce((sum, p) => sum + (p.importe_mensual || 0), 0);
-  const pagosPendientesORechazados = protectoresPendientes.length + protectoresInactivos.length;
 
   const filteredProtectores = protectoresTodos.filter((p) => {
     const term = searchProtector.toLowerCase().trim();
@@ -290,6 +300,32 @@ export default function AdminPage() {
     document.body.removeChild(link);
   };
 
+  const exportarPadronExcel = () => {
+    const data = filteredPadron.map((u) => ({
+      'ID Usuario': u.id,
+      'Nombre': u.nombre,
+      'Apellido': u.apellido,
+      'Email': u.email,
+      'DNI': u.dni || '-',
+      'Teléfono': u.telefono || u.whatsapp || '-',
+      'Localidad': u.localidad || 'Alcira Gigena',
+      'Domicilio': u.domicilio || '-',
+      'Condición Institucional': u.es_socio_protector
+        ? `Socio Protector ${u.tipo_socio_protector || 'Bronce'}`
+        : 'Usuario de la App (Restringido)',
+      'Estado Protector': u.es_socio_protector ? (u.estado_socio_protector || 'activo') : 'No aplica',
+      'Aporte Mensual ($)': u.es_socio_protector ? (u.importe_mensual || 0) : 0,
+      'Hincha Club Local': u.hincha_club || '-',
+      'Hincha en el País': (u.hincha_nacional || []).join(', ') || (u.hincha_nacional_otro ? `Otro: ${u.hincha_nacional_otro}` : '-'),
+      'Fecha Registro': formatFechaArgentina(u.fecha_alta_socio || u.fecha_adhesion),
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Padrón Institucional');
+    XLSX.writeFile(workbook, `padron_comunidad_roncedo_${new Date().toISOString().split('T')[0]}.xlsx`);
+  };
+
   return (
     <div className="min-h-screen bg-[#E5F2FE] pb-28 pt-6 px-4">
       <div className="max-w-5xl mx-auto space-y-6">
@@ -320,10 +356,10 @@ export default function AdminPage() {
               </span>
             </div>
             <h1 className="text-2xl font-black text-white leading-tight">
-              Gestión de Socios y Administración
+              Gestión Institucional y Administración
             </h1>
             <p className="text-xs text-blue-100">
-              Control de solicitudes de ingreso, padrón de socios activos y estado de cuotas
+              Control de Socios Protectores, padrón general de la comunidad, tienda y actividades
             </p>
           </div>
 
@@ -341,43 +377,52 @@ export default function AdminPage() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <div className="bg-white p-4 rounded-2xl shadow-card border border-slate-200">
             <span className="text-[10px] uppercase font-bold text-slate-400">
-              Solicitudes Pendientes
+              Socios Protectores
             </span>
             <div className="flex items-center justify-between mt-1">
               <span className="text-2xl font-black text-amber-600">
-                {solicitudesPendientes.length}
+                {protectoresActivos.length}
               </span>
-              <Clock className="w-5 h-5 text-amber-500" />
+              <Award className="w-5 h-5 text-amber-500" />
             </div>
+            <span className="text-[10px] text-slate-400 mt-1 block">
+              Membresía plena y aportes activos
+            </span>
           </div>
 
           <div className="bg-white p-4 rounded-2xl shadow-card border border-slate-200">
             <span className="text-[10px] uppercase font-bold text-slate-400">
-              Socios Activos
+              Usuarios de la App
             </span>
             <div className="flex items-center justify-between mt-1">
               <span className="text-2xl font-black text-roncedo-navy">
-                {totalSocios.length}
+                {usuariosApp.length}
               </span>
               <Users className="w-5 h-5 text-roncedo-blue" />
             </div>
+            <span className="text-[10px] text-slate-400 mt-1 block">
+              Servicios restringidos
+            </span>
           </div>
 
           <div className="bg-white p-4 rounded-2xl shadow-card border border-slate-200">
             <span className="text-[10px] uppercase font-bold text-slate-400">
-              Cuotas al Día
+              Aporte Proyectado
             </span>
             <div className="flex items-center justify-between mt-1">
               <span className="text-2xl font-black text-emerald-600">
-                {sociosAlDia.length}
+                ${aporteMensualEstimado.toLocaleString('es-AR')}
               </span>
               <CheckCircle2 className="w-5 h-5 text-emerald-500" />
             </div>
+            <span className="text-[10px] text-slate-400 mt-1 block">
+              Recaudación mensual
+            </span>
           </div>
 
           <div className="bg-white p-4 rounded-2xl shadow-card border border-slate-200">
             <span className="text-[10px] uppercase font-bold text-slate-400">
-              Total Registrados
+              Total Comunidad
             </span>
             <div className="flex items-center justify-between mt-1">
               <span className="text-2xl font-black text-slate-800">
@@ -385,11 +430,14 @@ export default function AdminPage() {
               </span>
               <CreditCard className="w-5 h-5 text-slate-400" />
             </div>
+            <span className="text-[10px] text-slate-400 mt-1 block">
+              Cuentas registradas
+            </span>
           </div>
         </div>
 
         {/* Pestañas de Gestión */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm gap-1 text-xs font-bold">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm gap-1 text-xs font-bold">
           <button
             onClick={() => setActiveTab('portadas')}
             className={`py-2.5 rounded-xl transition-colors flex items-center justify-center gap-1.5 ${
@@ -459,18 +507,6 @@ export default function AdminPage() {
           </button>
 
           <button
-            onClick={() => setActiveTab('solicitudes')}
-            className={`py-2.5 rounded-xl transition-colors flex items-center justify-center gap-2 ${
-              activeTab === 'solicitudes'
-                ? 'bg-roncedo-navy text-white shadow-sm'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <Clock className="w-4 h-4" />
-            <span>Solicitudes ({solicitudesPendientes.length})</span>
-          </button>
-
-          <button
             onClick={() => setActiveTab('padron')}
             className={`py-2.5 rounded-xl transition-colors flex items-center justify-center gap-2 ${
               activeTab === 'padron'
@@ -479,19 +515,7 @@ export default function AdminPage() {
             }`}
           >
             <Users className="w-4 h-4" />
-            <span>Padrón ({totalSocios.length})</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('usuarios')}
-            className={`py-2.5 rounded-xl transition-colors flex items-center justify-center gap-2 ${
-              activeTab === 'usuarios'
-                ? 'bg-roncedo-navy text-white shadow-sm'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            <UserCheck className="w-4 h-4" />
-            <span>Usuarios ({allUsers.length})</span>
+            <span>Padrón ({allUsers.length})</span>
           </button>
         </div>
 
@@ -922,87 +946,242 @@ export default function AdminPage() {
           </div>
         )}
 
-        {/* Pestaña: Padrón de Socios */}
+        {/* Pestaña: Padrón Institucional de la Comunidad */}
         {activeTab === 'padron' && (
-          <div className="bg-white rounded-3xl p-6 shadow-card border border-slate-200">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-5">
-              <h2 className="text-base font-extrabold text-slate-900">
-                Padrón de Socios Oficiales
-              </h2>
-              <div className="relative w-full sm:w-64">
-                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+          <div className="bg-white rounded-3xl p-6 shadow-card border border-slate-200 space-y-5">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+              <div>
+                <h2 className="text-base font-extrabold text-slate-900">
+                  Padrón Institucional de la Comunidad
+                </h2>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Registro general de Socios Protectores (Membresía Plena) y Usuarios de la App (Servicios restringidos)
+                </p>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+                <button
+                  onClick={exportarPadronExcel}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold shadow-sm transition-colors"
+                  title="Exportar padrón a Excel con datos de clubes y contacto"
+                >
+                  <FileSpreadsheet className="w-3.5 h-3.5" />
+                  <span>Exportar Padrón (Excel)</span>
+                </button>
+
+                <button
+                  onClick={() => setModalNuevoProtector(true)}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-roncedo-navy hover:bg-blue-900 text-white text-xs font-bold shadow-sm transition-colors"
+                >
+                  <PlusCircle className="w-3.5 h-3.5 text-roncedo-gold" />
+                  <span>Nuevo Protector</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Filtros del Padrón */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-slate-50 p-3 rounded-2xl border border-slate-200">
+              {/* Filtro de Condición */}
+              <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-slate-200 text-xs font-bold">
+                <button
+                  onClick={() => setFiltroPadronCondicion('todos')}
+                  className={`px-3 py-1.5 rounded-lg transition-colors ${
+                    filtroPadronCondicion === 'todos'
+                      ? 'bg-roncedo-navy text-white shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  Todos ({allUsers.length})
+                </button>
+                <button
+                  onClick={() => setFiltroPadronCondicion('protectores')}
+                  className={`px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 ${
+                    filtroPadronCondicion === 'protectores'
+                      ? 'bg-amber-500 text-slate-950 shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  <Award className="w-3.5 h-3.5" />
+                  <span>Protectores ({protectoresTodos.length})</span>
+                </button>
+                <button
+                  onClick={() => setFiltroPadronCondicion('usuarios')}
+                  className={`px-3 py-1.5 rounded-lg transition-colors ${
+                    filtroPadronCondicion === 'usuarios'
+                      ? 'bg-blue-600 text-white shadow-xs'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  Usuarios App ({usuariosApp.length})
+                </button>
+              </div>
+
+              {/* Buscador */}
+              <div className="relative flex-1 sm:max-w-xs">
+                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
                 <input
                   type="text"
-                  placeholder="Buscar por nombre, DNI o N°..."
+                  placeholder="Buscar por nombre, DNI, email o hincha..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-roncedo-blue"
+                  className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-roncedo-blue"
                 />
               </div>
             </div>
 
+            {/* Tabla del Padrón */}
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs text-slate-700">
                 <thead className="bg-slate-100 text-slate-800 uppercase font-bold text-[10px] tracking-wider rounded-xl">
                   <tr>
-                    <th className="p-3">N° Socio</th>
-                    <th className="p-3">Socio</th>
-                    <th className="p-3">DNI</th>
-                    <th className="p-3">Categoría</th>
-                    <th className="p-3">Alta</th>
-                    <th className="p-3">Estado Cuota</th>
-                    <th className="p-3 text-right">Acción</th>
+                    <th className="p-3">Miembro</th>
+                    <th className="p-3">DNI / Localidad</th>
+                    <th className="p-3">Condición Institucional</th>
+                    <th className="p-3">Hincha Local</th>
+                    <th className="p-3">Club Nacional</th>
+                    <th className="p-3">Aporte</th>
+                    <th className="p-3 text-right">Acciones</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {filteredSocios.map((socio) => (
-                    <tr key={socio.id} className="hover:bg-slate-50 transition-colors">
-                      <td className="p-3 font-bold text-roncedo-navy">
-                        #{socio.numero_socio || '1042'}
-                      </td>
-                      <td className="p-3 font-semibold text-slate-900">
-                        {socio.nombre} {socio.apellido}
-                      </td>
-                      <td className="p-3">{socio.dni || '-'}</td>
-                      <td className="p-3">
-                        <span className="bg-slate-100 text-slate-800 px-2 py-0.5 rounded font-medium text-[11px]">
-                          {socio.categoria_socio || 'Activo'}
-                        </span>
-                      </td>
-                      <td className="p-3 text-slate-500">
-                        {socio.fecha_alta_socio || '2021-04-10'}
-                      </td>
-                      <td className="p-3">
-                        <button
-                          onClick={() =>
-                            actualizarEstadoCuota(
-                              socio.id,
-                              socio.estado_cuota === 'al_dia' ? 'pendiente' : 'al_dia'
-                            )
-                          }
-                          className={`px-2.5 py-1 rounded-full text-[10px] font-bold border transition-colors ${
-                            socio.estado_cuota === 'al_dia'
-                              ? 'bg-emerald-50 text-emerald-700 border-emerald-300 hover:bg-emerald-100'
-                              : 'bg-amber-50 text-amber-700 border-amber-300 hover:bg-amber-100'
-                          }`}
-                          title="Haga clic para alternar el estado de la cuota"
-                        >
-                          {socio.estado_cuota === 'al_dia' ? 'AL DÍA' : 'PENDIENTE'}
-                        </button>
-                      </td>
-                      <td className="p-3 text-right">
-                        <Link
-                          href="/carnet"
-                          className="text-roncedo-blue hover:underline font-bold"
-                        >
-                          Ver Carnet
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
+                  {filteredPadron.map((u) => {
+                    const esProtector = u.es_socio_protector;
+                    return (
+                      <tr key={u.id} className="hover:bg-slate-50/80 transition-colors">
+                        {/* Miembro */}
+                        <td className="p-3">
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-8 h-8 rounded-full bg-slate-200 text-slate-700 font-bold flex items-center justify-center flex-shrink-0 text-xs uppercase border border-slate-300">
+                              {u.nombre.charAt(0)}{u.apellido.charAt(0) || 'R'}
+                            </div>
+                            <div>
+                              <p className="font-bold text-slate-900">
+                                {u.nombre} {u.apellido}
+                              </p>
+                              <p className="text-[11px] text-slate-500 font-normal">
+                                {u.email}
+                              </p>
+                            </div>
+                          </div>
+                        </td>
+
+                        {/* DNI / Localidad */}
+                        <td className="p-3">
+                          <p className="font-semibold text-slate-800">{u.dni || '-'}</p>
+                          <p className="text-[10px] text-slate-500">{u.localidad || 'Alcira Gigena'}</p>
+                        </td>
+
+                        {/* Condición Institucional */}
+                        <td className="p-3">
+                          {esProtector ? (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-bold text-[10px] bg-amber-100 text-amber-900 border border-amber-300">
+                              <Award className="w-3 h-3 text-amber-600" />
+                              <span>Socio Protector {u.tipo_socio_protector || 'Bronce'}</span>
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-bold text-[10px] bg-slate-100 text-slate-700 border border-slate-300">
+                              <Users className="w-3 h-3 text-slate-500" />
+                              <span>Usuario de la App</span>
+                            </span>
+                          )}
+                        </td>
+
+                        {/* Hincha Club Local */}
+                        <td className="p-3">
+                          {u.hincha_club === 'Lautaro Roncedo' ? (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-md font-bold text-[10px] bg-blue-100 text-blue-900 border border-blue-200">
+                              Lautaro Roncedo
+                            </span>
+                          ) : u.hincha_club === 'Lutgardis Riveros' ? (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-md font-bold text-[10px] bg-red-100 text-red-900 border border-red-200">
+                              Lutgardis Riveros
+                            </span>
+                          ) : u.hincha_club === 'Me da lo mismo' ? (
+                            <span className="text-[10px] text-slate-500 font-medium">
+                              Me da lo mismo
+                            </span>
+                          ) : (
+                            <span className="text-[10px] text-slate-400 font-normal">-</span>
+                          )}
+                        </td>
+
+                        {/* Hincha Club Nacional */}
+                        <td className="p-3">
+                          {u.hincha_nacional && u.hincha_nacional.length > 0 ? (
+                            <div className="flex flex-wrap gap-1 max-w-[180px]">
+                              {u.hincha_nacional.map((c) => (
+                                <span
+                                  key={c}
+                                  className="text-[9px] font-bold px-1.5 py-0.5 bg-slate-100 text-slate-700 rounded border border-slate-200"
+                                >
+                                  {c}
+                                </span>
+                              ))}
+                              {u.hincha_nacional_otro && (
+                                <span className="text-[9px] font-bold px-1.5 py-0.5 bg-purple-50 text-purple-700 rounded border border-purple-200">
+                                  {u.hincha_nacional_otro}
+                                </span>
+                              )}
+                            </div>
+                          ) : u.hincha_nacional_otro ? (
+                            <span className="text-[10px] text-slate-700 font-bold">
+                              {u.hincha_nacional_otro}
+                            </span>
+                          ) : (
+                            <span className="text-[10px] text-slate-400 font-normal">-</span>
+                          )}
+                        </td>
+
+                        {/* Aporte */}
+                        <td className="p-3">
+                          {esProtector ? (
+                            <div>
+                              <p className="font-extrabold text-emerald-700">
+                                ${u.importe_mensual?.toLocaleString('es-AR') || '2.000'}
+                              </p>
+                              <span className="text-[9px] uppercase font-bold text-slate-400 block">
+                                {u.estado_socio_protector || 'activo'}
+                              </span>
+                            </div>
+                          ) : (
+                            <span className="text-[10px] text-slate-400 font-medium">
+                              Sin aporte
+                            </span>
+                          )}
+                        </td>
+
+                        {/* Acciones */}
+                        <td className="p-3 text-right">
+                          <div className="inline-flex items-center gap-2 justify-end">
+                            <Link
+                              href="/carnet"
+                              className="text-roncedo-blue hover:underline font-bold text-[11px]"
+                              title="Ver credencial digital"
+                            >
+                              Carnet
+                            </Link>
+
+                            <button
+                              onClick={() => handleOpenEditProtector(u)}
+                              className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[10px] transition-colors"
+                              title="Gestionar condición de Socio Protector"
+                            >
+                              {esProtector ? 'Editar' : 'Hacer Protector'}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
+
+            {filteredPadron.length === 0 && (
+              <div className="text-center py-8 text-slate-500 text-xs">
+                No se encontraron miembros en el padrón con los filtros seleccionados.
+              </div>
+            )}
           </div>
         )}
 
