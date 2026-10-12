@@ -19,22 +19,26 @@ export function InsigniaSocioProtector({
   priority = false,
 }: InsigniaSocioProtectorProps) {
   const medallaInfo = tipo ? obtenerMedallaProtector(tipo) : undefined;
-  const src = medallaInfo?.insignia || '/images/socio-protector/insignia-oficial.png';
+  const src = medallaInfo?.medalla || '/images/socio-protector/medalla-oro.png';
   const label = medallaInfo?.label
-    ? `Insignia Socio Protector ${medallaInfo.label}`
-    : 'Insignia Oficial Socio Protector';
+    ? `Medalla Oficial con Cinta Socio Protector ${medallaInfo.label}`
+    : 'Medalla Oficial con Cinta Socio Protector';
+
+  const hasCustomSize = className.includes('w-') || className.includes('h-');
+  const ancho = Math.round(size * 0.8);
+  const alto = size;
 
   return (
     <div
       className={`relative inline-flex items-center justify-center flex-shrink-0 drop-shadow-sm ${className}`}
-      style={{ width: `${size}px`, height: `${size}px` }}
+      style={hasCustomSize ? undefined : { width: `${ancho}px`, height: `${alto}px` }}
       title={label}
     >
       <Image
         src={src}
         alt={label}
         fill
-        sizes={`${size}px`}
+        sizes={`${alto}px`}
         className="object-contain"
         priority={priority}
       />

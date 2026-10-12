@@ -96,7 +96,7 @@ export default function CarnetPage() {
             <div className="bg-gradient-to-r from-amber-50/70 via-white to-blue-50/50 border border-amber-200/80 rounded-2xl p-4 mb-4 shadow-sm flex items-center justify-between gap-3">
               <div className="flex items-center gap-3">
                 {medallaInfo ? (
-                  <div className="relative w-12 h-12 flex-shrink-0 drop-shadow-md">
+                  <div className="relative w-12 h-15 flex-shrink-0 drop-shadow-md">
                     <Image
                       src={medallaInfo.medalla}
                       alt={`Medalla ${medallaInfo.label}`}
@@ -105,10 +105,10 @@ export default function CarnetPage() {
                     />
                   </div>
                 ) : (
-                  <div className="relative w-12 h-12 flex-shrink-0 drop-shadow-md">
+                  <div className="relative w-12 h-15 flex-shrink-0 drop-shadow-md">
                     <Image
-                      src="/images/socio-protector/insignia-oro.png"
-                      alt="Insignia Socio Protector"
+                      src="/images/socio-protector/medalla-oro.png"
+                      alt="Medalla Oficial Socio Protector"
                       fill
                       className="object-contain"
                     />
@@ -162,12 +162,11 @@ export default function CarnetPage() {
                   href="/socio-protector"
                   className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-roncedo-navy to-[#1E6091] hover:brightness-110 text-white font-bold px-4 py-2.5 rounded-xl shadow-md text-xs transition-all flex-shrink-0"
                 >
-                  <div className="relative w-4 h-4 flex-shrink-0">
+                  <div className="relative w-4 h-5 flex-shrink-0">
                     <Image
-                      src="/images/socio-protector/insignia-oro.png"
-                      alt="Insignia"
-                      width={16}
-                      height={16}
+                      src="/images/socio-protector/medalla-oro.png"
+                      alt="Medalla"
+                      fill
                       className="object-contain"
                     />
                   </div>

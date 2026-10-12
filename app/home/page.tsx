@@ -268,11 +268,17 @@ export default function HomePage() {
         {/* Banner Destacado: Socio Protector (Armonía Azul Marino y Celeste Institucional) */}
         <div className="bg-gradient-to-r from-[#0F284B] via-[#1A457D] to-[#1E6091] text-white rounded-3xl p-5 sm:p-6 shadow-xl border border-white/20 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <div className="relative w-14 h-14 sm:w-16 sm:h-16 flex-shrink-0 drop-shadow-md">
-              <InsigniaSocioProtector
-                tipo={user.tipo_socio_protector}
-                size={64}
-                className="w-full h-full"
+            {/* Medalla Oficial con Cinta (Nunca separada) */}
+            <div className="relative w-16 h-20 sm:w-20 sm:h-24 flex-shrink-0 drop-shadow-md">
+              <Image
+                src={
+                  user.tipo_socio_protector
+                    ? `/images/socio-protector/medalla-${user.tipo_socio_protector.toLowerCase()}.png`
+                    : '/images/socio-protector/medalla-oro.png'
+                }
+                alt="Medalla Oficial con Cinta de Socio Protector"
+                fill
+                className="object-contain"
                 priority
               />
             </div>

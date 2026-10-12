@@ -13,6 +13,7 @@ export const CONTACTO_BIBLIOTECA = {
   // Número telefónico institucional
   telefono: '+54 9 3585 62-1547',
   telefonoVisual: '+54 9 3585 62-1547',
+  telefonoRaw: '5493585621547',
   
   codigoPais: '+54',
   caracteristica: '3585',

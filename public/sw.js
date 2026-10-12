@@ -1,4 +1,4 @@
-const CACHE_NAME = 'roncedo-pwa-v16';
+const CACHE_NAME = 'roncedo-pwa-v17';
 
 const STATIC_ASSETS = [
   '/',
@@ -11,6 +11,10 @@ const STATIC_ASSETS = [
   '/roncedo',
   '/tienda',
   '/instalar',
+  '/folletos',
+  '/videoteca',
+  '/sabores',
+  '/inferiores',
   '/manifest.json',
   '/images/escudo-roncedo.png',
   '/images/logo-biblioteca.png',

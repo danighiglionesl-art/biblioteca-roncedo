@@ -39,10 +39,10 @@ export default function SocioProtectorPage() {
     return (
       <div className="min-h-screen bg-[#E5F2FE] flex items-center justify-center p-4">
         <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-card border border-blue-200/80 text-center">
-          <div className="relative w-16 h-16 mx-auto mb-4 drop-shadow-md">
+          <div className="relative w-16 h-20 mx-auto mb-4 drop-shadow-md">
             <Image
-              src="/images/socio-protector/insignia-oro.png"
-              alt="Insignia Socio Protector"
+              src="/images/socio-protector/medalla-oro.png"
+              alt="Medalla Oficial Socio Protector"
               fill
               className="object-contain"
             />
@@ -98,12 +98,11 @@ export default function SocioProtectorPage() {
         {/* Cabecera Principal Institucional */}
         <div className="text-center max-w-2xl mx-auto">
           <div className="inline-flex items-center gap-2 bg-gradient-to-r from-[#0F2D54] to-[#1B5699] text-white px-3.5 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-wider mb-3 shadow-sm">
-            <div className="relative w-4 h-4 flex-shrink-0">
+            <div className="relative w-4 h-5 flex-shrink-0">
               <Image
-                src="/images/socio-protector/insignia-oro.png"
-                alt="Insignia"
-                width={16}
-                height={16}
+                src="/images/socio-protector/medalla-oro.png"
+                alt="Medalla"
+                fill
                 className="object-contain"
               />
             </div>
@@ -122,14 +121,14 @@ export default function SocioProtectorPage() {
         {/* Estado actual del usuario si ya es Socio Protector */}
         {isProtectorActivo && (
           <div className="bg-gradient-to-br from-[#0F284B] via-[#1A457D] to-[#2563EB] text-white rounded-3xl p-6 shadow-xl relative overflow-hidden border border-white/20">
-            <div className="absolute -right-4 -bottom-4 opacity-15 pointer-events-none w-44 h-44">
+            <div className="absolute -right-4 -bottom-4 opacity-15 pointer-events-none w-44 h-56">
               <Image
                 src={
                   user.tipo_socio_protector
-                    ? `/images/socio-protector/insignia-${user.tipo_socio_protector.toLowerCase()}.png`
-                    : '/images/socio-protector/insignia-oro.png'
+                    ? `/images/socio-protector/medalla-${user.tipo_socio_protector.toLowerCase()}.png`
+                    : '/images/socio-protector/medalla-oro.png'
                 }
-                alt="Insignia"
+                alt="Medalla Oficial"
                 fill
                 className="object-contain"
               />
@@ -278,12 +277,11 @@ export default function SocioProtectorPage() {
                         cardStyles.button
                       }`}
                     >
-                      <div className="relative w-4 h-4 flex-shrink-0">
+                      <div className="relative w-4 h-5 flex-shrink-0">
                         <Image
-                          src={plan.imagenInsignia || '/images/socio-protector/insignia-oro.png'}
-                          alt="Insignia"
-                          width={16}
-                          height={16}
+                          src={plan.imagenMedalla || `/images/socio-protector/medalla-${plan.tipo.toLowerCase()}.png`}
+                          alt="Medalla"
+                          fill
                           className="object-contain"
                         />
                       </div>
@@ -347,12 +345,11 @@ export default function SocioProtectorPage() {
 
             <div className="space-y-2">
               <h4 className="font-bold text-slate-900 flex items-center gap-1.5 text-xs">
-                <div className="relative w-3.5 h-3.5 flex-shrink-0">
+                <div className="relative w-3.5 h-4.5 flex-shrink-0">
                   <Image
-                    src="/images/socio-protector/insignia-oro.png"
-                    alt="Insignia"
-                    width={14}
-                    height={14}
+                    src="/images/socio-protector/medalla-oro.png"
+                    alt="Medalla"
+                    fill
                     className="object-contain"
                   />
                 </div>

@@ -88,7 +88,7 @@ export function CarnetDigital({ user, className = '' }: CarnetDigitalProps) {
           <div className="text-right flex items-center gap-2.5 flex-shrink-0">
             {isSocioProtectorActivo && medallaInfo && (
               <div
-                className="relative w-12 h-12 flex-shrink-0 drop-shadow-md hover:scale-105 transition-transform"
+                className="relative w-12 h-15 flex-shrink-0 drop-shadow-md hover:scale-105 transition-transform"
                 title={`Socio Protector ${medallaInfo.label}`}
               >
                 <Image
@@ -156,10 +156,10 @@ export function CarnetDigital({ user, className = '' }: CarnetDigitalProps) {
                 {isSocioProtectorActivo && (
                   <div className="mt-1.5 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-400/20 border border-amber-300/40 text-amber-200 text-[11px] font-bold shadow-sm backdrop-blur-sm">
                     {medallaInfo && (
-                      <div className="relative w-4 h-4 flex-shrink-0 drop-shadow-sm">
+                      <div className="relative w-4 h-5 flex-shrink-0 drop-shadow-sm">
                         <Image
-                          src={medallaInfo.insignia}
-                          alt={`Insignia ${medallaInfo.label}`}
+                          src={medallaInfo.medalla}
+                          alt={`Medalla ${medallaInfo.label}`}
                           fill
                           className="object-contain"
                         />
