@@ -9,9 +9,9 @@ import { BotonWhatsappFlotante } from '@/components/common/BotonWhatsappFlotante
 import { ServiceWorkerRegister } from '@/components/pwa/ServiceWorkerRegister';
 
 export const metadata: Metadata = {
-  title: 'Biblioteca Roncedo | Plataforma Digital Oficial',
+  title: 'Biblioteca Roncedo | App Oficial',
   description:
-    'Plataforma digital oficial, carnet de socio con QR y archivo de la Biblioteca Roncedo del Club Sportivo y Biblioteca Dr. Lautaro Roncedo.',
+    'Plataforma digital oficial, carnet de socio con QR, catálogo de libros y archivo de la Biblioteca Roncedo.',
   manifest: '/manifest.json',
   icons: {
     icon: '/images/escudo-roncedo.png',
@@ -22,6 +22,29 @@ export const metadata: Metadata = {
     capable: true,
     statusBarStyle: 'black-translucent',
     title: 'Biblioteca Roncedo',
+  },
+  openGraph: {
+    title: 'Biblioteca Roncedo | App Oficial',
+    description:
+      'Plataforma digital oficial, carnet de socio con QR, catálogo de libros y archivo de la Biblioteca Roncedo.',
+    url: 'https://www.bibliotecaroncedo.ar',
+    siteName: 'Biblioteca Roncedo',
+    images: [
+      {
+        url: 'https://www.bibliotecaroncedo.ar/images/logo-biblioteca.png',
+        width: 800,
+        height: 800,
+        alt: 'Biblioteca Roncedo',
+      },
+    ],
+    locale: 'es_AR',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'Biblioteca Roncedo | App Oficial',
+    description:
+      'Plataforma digital oficial, carnet de socio con QR, catálogo de libros y archivo de la Biblioteca Roncedo.',
   },
   formatDetection: {
     telephone: false,

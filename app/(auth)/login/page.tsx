@@ -118,7 +118,7 @@ export default function LoginPage() {
             Biblioteca Roncedo
           </h1>
           <p className="text-xs sm:text-sm text-blue-100 mt-1">
-            Club Sportivo y Biblioteca Dr. Lautaro Roncedo
+            Biblioteca Dr. Lautaro Roncedo
           </p>
         </div>
 
@@ -295,7 +295,7 @@ export default function LoginPage() {
       </div>
 
       <footer className="text-center text-xs text-slate-300/80 py-3 border-t border-white/10 font-medium">
-        Club Sportivo y Biblioteca Dr. Lautaro Roncedo • www.bibliotecaroncedo.ar
+        Biblioteca Dr. Lautaro Roncedo • www.bibliotecaroncedo.ar
       </footer>
     </div>
   );

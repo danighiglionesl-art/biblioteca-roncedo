@@ -55,10 +55,10 @@ export default function InstalarPage() {
   const appUrl =
     typeof window !== 'undefined'
       ? `${window.location.origin}/instalar`
-      : 'https://bibliotecaroncedo.ar/instalar';
+      : 'https://www.bibliotecaroncedo.ar/instalar';
 
   const mensajeWhatsApp = encodeURIComponent(
-    '¡Hola! Te invito a instalar la App oficial del Club Sportivo y Biblioteca Dr. Lautaro Roncedo 🔵⚪🔵📚\n\n' +
+    '¡Hola! Te invito a instalar la App oficial de la Biblioteca Roncedo 📚\n\n' +
       'Accedé a tu carnet digital, catálogo de libros, actas históricas y novedades en:\n' +
       `${appUrl}`
   );
@@ -302,7 +302,7 @@ export default function InstalarPage() {
           <div className="relative w-20 h-20 sm:w-24 sm:h-24 mx-auto mb-2.5 drop-shadow-md transition-transform hover:scale-105">
             <Image
               src="/images/logo-biblioteca.png"
-              alt="Club Sportivo y Biblioteca Dr. Lautaro Roncedo"
+              alt="Biblioteca Roncedo"
               fill
               className="object-contain"
               priority
@@ -707,7 +707,7 @@ export default function InstalarPage() {
 
       {/* Pie institucional */}
       <footer className="text-center text-[11px] text-slate-400 pt-6">
-        Club Sportivo y Biblioteca Dr. Lautaro Roncedo • Alcira Gigena
+        Biblioteca Dr. Lautaro Roncedo • Alcira Gigena
       </footer>
     </div>
   );
