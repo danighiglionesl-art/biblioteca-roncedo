@@ -1,4 +1,4 @@
-const CACHE_NAME = 'roncedo-pwa-v17';
+const CACHE_NAME = 'roncedo-pwa-v18';
 
 const STATIC_ASSETS = [
   '/',

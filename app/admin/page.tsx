@@ -498,12 +498,11 @@ export default function AdminPage() {
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            <div className="relative w-4 h-4 flex-shrink-0">
+            <div className="relative w-4 h-5 flex-shrink-0">
               <Image
-                src="/images/socio-protector/insignia-oro.png"
-                alt="Insignia"
-                width={16}
-                height={16}
+                src="/images/socio-protector/medalla-oro.png"
+                alt="Medalla Oficial"
+                fill
                 className="object-contain"
               />
             </div>
@@ -548,10 +547,10 @@ export default function AdminPage() {
                   <span className="text-2xl font-black text-amber-700">
                     {protectoresActivos.length}
                   </span>
-                  <div className="relative w-8 h-8 flex-shrink-0 drop-shadow-sm">
+                  <div className="relative w-8 h-10 flex-shrink-0 drop-shadow-sm">
                     <Image
-                      src="/images/socio-protector/insignia-oro.png"
-                      alt="Insignia"
+                      src="/images/socio-protector/medalla-oro.png"
+                      alt="Medalla Oficial"
                       fill
                       className="object-contain"
                     />
@@ -620,10 +619,10 @@ export default function AdminPage() {
               <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 pb-4 border-b border-slate-100">
                 <div>
                   <h2 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
-                    <div className="relative w-5 h-5 flex-shrink-0">
+                    <div className="relative w-5 h-6 flex-shrink-0">
                       <Image
-                        src="/images/socio-protector/insignia-oro.png"
-                        alt="Insignia"
+                        src="/images/socio-protector/medalla-oro.png"
+                        alt="Medalla Oficial"
                         fill
                         className="object-contain"
                       />
@@ -1288,10 +1287,10 @@ export default function AdminPage() {
             <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 my-8">
               <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                 <div className="flex items-center gap-2">
-                  <div className="relative w-5 h-5 flex-shrink-0">
+                  <div className="relative w-5 h-6 flex-shrink-0">
                     <Image
-                      src="/images/socio-protector/insignia-oro.png"
-                      alt="Insignia"
+                      src="/images/socio-protector/medalla-oro.png"
+                      alt="Medalla Oficial"
                       fill
                       className="object-contain"
                     />

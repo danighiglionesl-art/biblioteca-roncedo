@@ -130,12 +130,11 @@ export function ActasHeader({
               </div>
             ) : isSocioProtector ? (
               <div className="inline-flex items-center gap-1.5 bg-amber-400/20 text-amber-200 px-3 py-1 rounded-full border border-amber-300/30 font-bold">
-                <div className="relative w-3.5 h-3.5 flex-shrink-0">
+                <div className="relative w-3.5 h-4.5 flex-shrink-0">
                   <Image
-                    src="/images/socio-protector/insignia-oro.png"
-                    alt="Insignia"
-                    width={14}
-                    height={14}
+                    src="/images/socio-protector/medalla-oro.png"
+                    alt="Medalla Oficial"
+                    fill
                     className="object-contain"
                   />
                 </div>

@@ -151,79 +151,199 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    const processSessionUser = (u: any) => {
+    const processSessionUser = async (u: any): Promise<UserProfile> => {
       const meta = u.user_metadata || {};
-      const email = u.email || '';
+      const email = (u.email || '').trim().toLowerCase();
       const fullName = meta.full_name || meta.name || '';
       const nameParts = fullName.split(' ');
-      const nombre = nameParts[0] || meta.nombre || email.split('@')[0] || 'Usuario';
-      const apellido = nameParts.slice(1).join(' ') || meta.apellido || '';
+      const nombreMeta = meta.nombre || nameParts[0] || email.split('@')[0] || 'Usuario';
+      const apellidoMeta = meta.apellido || nameParts.slice(1).join(' ') || '';
 
-      // Si es el correo oficial de administración
-      let role: UserRole = 'usuario';
+      // Determinar rol (admin o usuario común)
+      let role: UserRole = meta.role || 'usuario';
       if (
-        email.toLowerCase() === 'biblioroncedo@bibliotecaroncedo.ar' ||
-        email.toLowerCase() === 'admin@bibliotecaroncedo.ar'
+        email === 'biblioroncedo@bibliotecaroncedo.ar' ||
+        email === 'admin@bibliotecaroncedo.ar'
       ) {
         role = 'admin';
       }
 
-      const oauthUser: UserProfile = {
+      // 1. Obtener datos locales previos si existieran para no perder campos
+      let localCached: Partial<UserProfile> = {};
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY_USER);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (parsed && (parsed.id === u.id || (parsed.email && parsed.email.toLowerCase() === email))) {
+            localCached = parsed;
+          }
+        }
+      } catch {}
+
+      // Si no estaba en STORAGE_KEY_USER, buscar en allUsers de localStorage
+      if (!localCached.id && typeof window !== 'undefined') {
+        try {
+          const storedUsers = localStorage.getItem(STORAGE_KEY_USERS);
+          if (storedUsers) {
+            const parsedList: UserProfile[] = JSON.parse(storedUsers);
+            const found = parsedList.find(
+              (p) => p.id === u.id || (p.email && p.email.toLowerCase() === email)
+            );
+            if (found) {
+              localCached = found;
+            }
+          }
+        } catch {}
+      }
+
+      // 2. Consultar perfil en la tabla de Supabase `profiles`
+      let dbProfile: any = null;
+      if (isSupabaseConfigured && supabase) {
+        try {
+          const { data, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', u.id)
+            .maybeSingle();
+          if (!error && data) {
+            dbProfile = data;
+          }
+        } catch (err) {
+          console.warn('Aviso consultando perfil en Supabase:', err);
+        }
+      }
+
+      // 3. Mergear datos con jerarquía de verdad:
+      // dbProfile > user_metadata > localCached > defaults
+      const finalUser: UserProfile = {
         id: u.id,
-        email,
-        nombre,
-        apellido,
-        role,
-        avatar_url: meta.avatar_url || meta.picture || '',
-        created_at: u.created_at || new Date().toISOString(),
+        email: email || localCached.email || u.email,
+        username: dbProfile?.username || meta.username || localCached.username,
+        role: (dbProfile?.role as UserRole) || (meta.role as UserRole) || role || localCached.role || 'usuario',
+        nombre: dbProfile?.nombre || meta.nombre || localCached.nombre || nombreMeta,
+        apellido: dbProfile?.apellido || meta.apellido || localCached.apellido || apellidoMeta,
+        dni: dbProfile?.dni || meta.dni || localCached.dni || '',
+        fecha_nacimiento: dbProfile?.fecha_nacimiento || meta.fecha_nacimiento || localCached.fecha_nacimiento || '',
+        sexo: dbProfile?.sexo || meta.sexo || localCached.sexo || '',
+        telefono: dbProfile?.telefono || meta.telefono || localCached.telefono || '',
+        whatsapp_codigo: dbProfile?.whatsapp_codigo || meta.whatsapp_codigo || localCached.whatsapp_codigo || '+54',
+        whatsapp: dbProfile?.whatsapp || meta.whatsapp || localCached.whatsapp || '',
+        pais: dbProfile?.pais || meta.pais || localCached.pais || 'Argentina',
+        provincia: dbProfile?.provincia || meta.provincia || localCached.provincia || 'Córdoba',
+        localidad: dbProfile?.localidad || meta.localidad || localCached.localidad || 'Alcira Gigena',
+        codigo_postal: dbProfile?.codigo_postal || meta.codigo_postal || localCached.codigo_postal || '5811',
+        barrio: dbProfile?.barrio || meta.barrio || localCached.barrio || '',
+        calle: dbProfile?.calle || meta.calle || localCached.calle || '',
+        numero: dbProfile?.numero || meta.numero || localCached.numero || '',
+        edificio: dbProfile?.edificio || meta.edificio || localCached.edificio || '',
+        torre: dbProfile?.torre || meta.torre || localCached.torre || '',
+        piso: dbProfile?.piso || meta.piso || localCached.piso || '',
+        dpto: dbProfile?.dpto || meta.dpto || localCached.dpto || '',
+        domicilio: dbProfile?.domicilio || meta.domicilio || localCached.domicilio || '',
+        hincha_club: dbProfile?.hincha_club || meta.hincha_club || localCached.hincha_club || 'Lautaro Roncedo',
+        hincha_nacional: dbProfile?.hincha_nacional || meta.hincha_nacional || localCached.hincha_nacional || [],
+        hincha_nacional_otro: dbProfile?.hincha_nacional_otro || meta.hincha_nacional_otro || localCached.hincha_nacional_otro || '',
+        observaciones: dbProfile?.observaciones || meta.observaciones || localCached.observaciones || '',
+        avatar_url: dbProfile?.avatar_url || meta.avatar_url || meta.picture || localCached.avatar_url || '',
+        datos_completados: Boolean(
+          dbProfile?.datos_completados ||
+          meta.datos_completados ||
+          localCached.datos_completados ||
+          isPerfilCompleto({
+            ...localCached,
+            ...meta,
+            ...dbProfile,
+            nombre: dbProfile?.nombre || meta.nombre || localCached.nombre || nombreMeta,
+            apellido: dbProfile?.apellido || meta.apellido || localCached.apellido || apellidoMeta,
+            dni: dbProfile?.dni || meta.dni || localCached.dni || '',
+            fecha_nacimiento: dbProfile?.fecha_nacimiento || meta.fecha_nacimiento || localCached.fecha_nacimiento || '',
+            sexo: dbProfile?.sexo || meta.sexo || localCached.sexo || '',
+            whatsapp: dbProfile?.whatsapp || meta.whatsapp || localCached.whatsapp || '',
+            pais: dbProfile?.pais || meta.pais || localCached.pais || 'Argentina',
+            provincia: dbProfile?.provincia || meta.provincia || localCached.provincia || 'Córdoba',
+            localidad: dbProfile?.localidad || meta.localidad || localCached.localidad || 'Alcira Gigena',
+            codigo_postal: dbProfile?.codigo_postal || meta.codigo_postal || localCached.codigo_postal || '5811',
+            barrio: dbProfile?.barrio || meta.barrio || localCached.barrio || '',
+            calle: dbProfile?.calle || meta.calle || localCached.calle || '',
+            numero: dbProfile?.numero || meta.numero || localCached.numero || '',
+          } as any)
+        ),
+        created_at: dbProfile?.created_at || u.created_at || localCached.created_at || new Date().toISOString(),
+        numero_socio: dbProfile?.numero_socio || meta.numero_socio || localCached.numero_socio,
+        categoria_socio: dbProfile?.categoria_socio || meta.categoria_socio || localCached.categoria_socio,
+        fecha_alta_socio: dbProfile?.fecha_alta_socio || meta.fecha_alta_socio || localCached.fecha_alta_socio,
+        estado_cuota: dbProfile?.estado_cuota || meta.estado_cuota || localCached.estado_cuota,
+        qr_hash: dbProfile?.qr_hash || meta.qr_hash || localCached.qr_hash,
+        es_socio_protector: dbProfile?.es_socio_protector ?? meta.es_socio_protector ?? localCached.es_socio_protector,
+        tipo_socio_protector: dbProfile?.tipo_socio_protector || meta.tipo_socio_protector || localCached.tipo_socio_protector,
+        estado_socio_protector: dbProfile?.estado_socio_protector || meta.estado_socio_protector || localCached.estado_socio_protector,
+        importe_mensual: dbProfile?.importe_mensual ?? meta.importe_mensual ?? localCached.importe_mensual,
+        proveedor_pago: dbProfile?.proveedor_pago || meta.proveedor_pago || localCached.proveedor_pago,
+        id_suscripcion_externa: dbProfile?.id_suscripcion_externa || meta.id_suscripcion_externa || localCached.id_suscripcion_externa,
+        fecha_adhesion: dbProfile?.fecha_adhesion || meta.fecha_adhesion || localCached.fecha_adhesion,
+        fecha_ultimo_pago: dbProfile?.fecha_ultimo_pago || meta.fecha_ultimo_pago || localCached.fecha_ultimo_pago,
+        proximo_vencimiento: dbProfile?.proximo_vencimiento || meta.proximo_vencimiento || localCached.proximo_vencimiento,
       };
 
-      setUser((prev) => {
-        if (prev && prev.email === email) {
-          const merged = { ...prev, ...oauthUser };
-          localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(merged));
-          return merged;
-        }
-        localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(oauthUser));
-        return oauthUser;
-      });
+      setUser(finalUser);
+      localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(finalUser));
 
       // Asegurar que quede registrado en allUsers
       setAllUsers((prevUsers) => {
         const exists = prevUsers.some(
-          (pu) => pu.id === u.id || pu.email.toLowerCase() === email.toLowerCase()
+          (pu) => pu.id === u.id || (pu.email && pu.email.toLowerCase() === email)
         );
         let updatedList: UserProfile[];
         if (exists) {
           updatedList = prevUsers.map((pu) =>
-            pu.id === u.id || pu.email.toLowerCase() === email.toLowerCase()
-              ? { ...pu, ...oauthUser }
+            pu.id === u.id || (pu.email && pu.email.toLowerCase() === email)
+              ? { ...pu, ...finalUser }
               : pu
           );
         } else {
-          updatedList = [...prevUsers, oauthUser];
+          updatedList = [...prevUsers, finalUser];
         }
         localStorage.setItem(STORAGE_KEY_USERS, JSON.stringify(updatedList));
         return updatedList;
       });
 
+      // Si no existía en `profiles` en la base de datos de Supabase, asegurar el registro
+      if (!dbProfile && isSupabaseConfigured && supabase && !u.id.startsWith('user-')) {
+        try {
+          supabase
+            .from('profiles')
+            .upsert({
+              id: u.id,
+              email: finalUser.email,
+              nombre: finalUser.nombre,
+              apellido: finalUser.apellido,
+              role: finalUser.role,
+              avatar_url: finalUser.avatar_url || null,
+              updated_at: new Date().toISOString(),
+            }, { onConflict: 'id' })
+            .then(() => {});
+        } catch {}
+      }
+
       setIsLoading(false);
 
       // Limpiar hash de access_token y redirigir
       if (typeof window !== 'undefined' && window.location.hash.includes('access_token')) {
-        const destino = isPerfilCompleto(oauthUser) ? '/home' : '/perfil';
+        const destino = isPerfilCompleto(finalUser) ? '/home' : '/perfil';
         window.history.replaceState(null, '', destino);
         window.location.href = destino;
       }
+
+      return finalUser;
     };
 
     // 1. Verificar sesión existente o token en URL inmediatamente
-    supabase.auth.getSession().then(({ data: { session }, error }) => {
+    supabase.auth.getSession().then(async ({ data: { session }, error }) => {
       if (error) {
         console.warn('Aviso verificando sesión de Supabase:', error.message);
         setIsLoading(false);
       } else if (session?.user) {
-        processSessionUser(session.user);
+        await processSessionUser(session.user);
       } else {
         if (typeof window !== 'undefined' && !window.location.hash.includes('access_token')) {
           setIsLoading(false);
@@ -236,7 +356,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (session?.user) {
-        processSessionUser(session.user);
+        await processSessionUser(session.user);
       } else if (event === 'SIGNED_OUT') {
         setIsLoading(false);
       }
@@ -336,22 +456,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             password: pass,
           });
           if (!error && data?.user) {
-            const u = data.user;
-            const meta = u.user_metadata || {};
-            const email = u.email || '';
-            const fullName = meta.full_name || meta.name || '';
-            const nameParts = fullName.split(' ');
-            const authUser: UserProfile = {
-              id: u.id,
-              email,
-              nombre: nameParts[0] || email.split('@')[0] || 'Usuario',
-              apellido: nameParts.slice(1).join(' ') || '',
-              role: (email.toLowerCase().includes('admin') || email.toLowerCase().includes('biblioroncedo')) ? 'admin' : 'socio',
-              avatar_url: meta.avatar_url || meta.picture || '',
-              created_at: u.created_at || new Date().toISOString(),
-            };
-            persistUser(authUser);
-            return { success: true, user: authUser };
+            const loadedUser = await processSessionUser(data.user);
+            return { success: true, user: loadedUser };
           }
         } catch {
           // Continúa a verificar usuarios locales
@@ -454,6 +560,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 name: nombre.trim(),
                 nombre: nombre.trim(),
                 apellido: apellido.trim(),
+                role: 'usuario',
+                datos_completados: false,
               },
             },
           });
@@ -503,19 +611,107 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const updateProfile = async (data: Partial<UserProfile>) => {
     if (!user) return { success: false, error: 'No hay usuario autenticado' };
+    
     // El correo electrónico no es modificable (asociado a la cuenta institucional)
     const { email: _ignorarEmail, ...safeData } = data;
-    const updated = { ...user, ...safeData, email: user.email };
+    const updated: UserProfile = {
+      ...user,
+      ...safeData,
+      email: user.email,
+      datos_completados: true,
+    };
+
+    // 1. Persistencia local inmediata
     persistUser(updated);
 
-    const updatedList = allUsers.map(u => u.id === user.id ? updated : u);
+    const updatedList = allUsers.map(u =>
+      u.id === user.id || (u.email && u.email.toLowerCase() === user.email.toLowerCase())
+        ? updated
+        : u
+    );
     persistAllUsers(updatedList);
 
-    if (isSupabaseConfigured && supabase && user.id && !user.id.startsWith('user-') && !user.id.startsWith('google-')) {
+    // 2. Persistencia en Supabase
+    if (isSupabaseConfigured && supabase && user.id && !user.id.startsWith('user-')) {
+      // 2a. Guardar en Auth user_metadata (100% garantizado en Supabase Auth sin requerir RLS especial)
       try {
-        await supabase.from('profiles').update(safeData).eq('id', user.id);
-      } catch (err) {
-        console.warn('Error sincronizando perfil con Supabase:', err);
+        await supabase.auth.updateUser({
+          data: {
+            ...safeData,
+            nombre: updated.nombre,
+            apellido: updated.apellido,
+            dni: updated.dni,
+            fecha_nacimiento: updated.fecha_nacimiento,
+            sexo: updated.sexo,
+            whatsapp_codigo: updated.whatsapp_codigo,
+            whatsapp: updated.whatsapp,
+            pais: updated.pais,
+            provincia: updated.provincia,
+            localidad: updated.localidad,
+            codigo_postal: updated.codigo_postal,
+            barrio: updated.barrio,
+            calle: updated.calle,
+            numero: updated.numero,
+            edificio: updated.edificio,
+            torre: updated.torre,
+            piso: updated.piso,
+            dpto: updated.dpto,
+            domicilio: updated.domicilio,
+            hincha_club: updated.hincha_club,
+            hincha_nacional: updated.hincha_nacional,
+            hincha_nacional_otro: updated.hincha_nacional_otro,
+            observaciones: updated.observaciones,
+            avatar_url: updated.avatar_url,
+            datos_completados: true,
+          },
+        });
+      } catch (errAuth) {
+        console.warn('Aviso sincronizando user_metadata en Supabase Auth:', errAuth);
+      }
+
+      // 2b. Guardar en tabla PostgreSQL profiles con UPSERT
+      try {
+        const payload: any = {
+          id: user.id,
+          email: user.email,
+          nombre: updated.nombre,
+          apellido: updated.apellido,
+          role: updated.role || 'usuario',
+          dni: updated.dni || null,
+          fecha_nacimiento: updated.fecha_nacimiento ? updated.fecha_nacimiento : null,
+          sexo: updated.sexo || null,
+          telefono: updated.telefono || updated.whatsapp || null,
+          whatsapp_codigo: updated.whatsapp_codigo || '+54',
+          whatsapp: updated.whatsapp || null,
+          pais: updated.pais || 'Argentina',
+          provincia: updated.provincia || 'Córdoba',
+          localidad: updated.localidad || 'Alcira Gigena',
+          codigo_postal: updated.codigo_postal || '5811',
+          barrio: updated.barrio || null,
+          calle: updated.calle || null,
+          numero: updated.numero || null,
+          edificio: updated.edificio || null,
+          torre: updated.torre || null,
+          piso: updated.piso || null,
+          dpto: updated.dpto || null,
+          domicilio: updated.domicilio || null,
+          hincha_club: updated.hincha_club || 'Lautaro Roncedo',
+          hincha_nacional: updated.hincha_nacional || [],
+          hincha_nacional_otro: updated.hincha_nacional_otro || null,
+          observaciones: updated.observaciones || null,
+          avatar_url: updated.avatar_url || null,
+          updated_at: new Date().toISOString(),
+        };
+
+        const { error: dbErr } = await supabase
+          .from('profiles')
+          .upsert(payload, { onConflict: 'id' });
+
+        if (dbErr) {
+          console.warn('Aviso upsert en profiles:', dbErr.message);
+        }
+      } catch (errDb) {
+        console.warn('Error sincronizando perfil con tabla profiles en Supabase:', errDb);
       }
     }
 
