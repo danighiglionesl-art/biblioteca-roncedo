@@ -1,0 +1,16 @@
+{
+  "total_obras_unicas": 5890,
+  "por_fuente": {
+    "wikisource": 1505,
+    "gutenberg": 1098,
+    "cervantes": 901,
+    "openlibrary": 1684,
+    "bnmm": 303,
+    "bne": 399
+  },
+  "disponibles_lectura_online": 5889,
+  "disponibles_descarga": 3479,
+  "enlaces_verificados": 5890,
+  "enlaces_rotos": 0,
+  "ultima_sincronizacion": "2026-10-14T16:26:16.519Z"
+}

@@ -263,6 +263,15 @@ export function LectorDigitalModal({ libro, onClose }: LectorDigitalModalProps) 
                 <span>Leer en sitio oficial de {libro.fuente}</span>
               </a>
             </div>
+          ) : libro.archivo_pdf_url ? (
+            // Visor embebido de PDF para Libros Digitales de Biblioteca Roncedo
+            <div className="w-full h-full min-h-[550px] flex flex-col">
+              <iframe
+                src={`${libro.archivo_pdf_url}#toolbar=1`}
+                className="w-full flex-1 min-h-[600px] rounded-2xl border border-slate-300 shadow-inner"
+                title={`Visor PDF - ${libro.titulo}`}
+              />
+            </div>
           ) : libro.ia_id ? (
             // Visor embebido de Internet Archive / Open Library
             <div className="w-full h-full min-h-[500px]">

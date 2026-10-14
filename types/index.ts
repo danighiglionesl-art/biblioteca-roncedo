@@ -251,10 +251,17 @@ export interface FotoAportada {
 }
 
 // =====================================================================
-// TIPOS DE BIBLIOTECA DIGITAL (INTEGRACIÓN DE LAS 4 PLATAFORMAS)
+// TIPOS DE BIBLIOTECA DIGITAL (INTEGRACIÓN DE LAS 7 PLATAFORMAS)
 // =====================================================================
 
-export type FuenteDigital = 'gutenberg' | 'wikisource' | 'cervantes' | 'openlibrary';
+export type FuenteDigital = 
+  | 'gutenberg' 
+  | 'wikisource' 
+  | 'cervantes' 
+  | 'openlibrary' 
+  | 'bnmm' 
+  | 'bne' 
+  | 'roncedo_digital';
 
 export type DisponibilidadDigital = 'descarga_libre' | 'lectura_directa' | 'prestamo_externo';
 
@@ -276,6 +283,8 @@ export interface LibroDigital {
   fuente: FuenteDigital;
   fuentes_adicionales?: FuenteDigital[];
   enlace_oficial: string;
+  enlace_lectura?: string;
+  enlace_descarga?: string;
   disponibilidad: DisponibilidadDigital;
   formatos: FormatoDescarga[];
   es_argentino_o_latino?: boolean;
@@ -284,6 +293,15 @@ export interface LibroDigital {
   wikisource_page?: string;
   gutenberg_id?: number;
   ia_id?: string;
+  bne_id?: string;
+  bnmm_id?: string;
+  archivo_pdf_url?: string;
+  tipo_licencia?: string;
+  estado_enlace?: 'verificado' | 'roto' | 'pendiente';
+  ultima_verificacion?: string;
+  subido_por?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface DigitalSearchParams {
@@ -292,6 +310,18 @@ export interface DigitalSearchParams {
   fuente?: 'todas' | FuenteDigital;
   disponibilidad?: 'todas' | DisponibilidadDigital;
   solo_argentinos_latinos?: boolean;
+  pagina?: number;
+  limite?: number;
+}
+
+export interface MetricasBibliotecaDigital {
+  total_obras_unicas: number;
+  por_fuente: Record<FuenteDigital, number>;
+  disponibles_lectura_online: number;
+  disponibles_descarga: number;
+  enlaces_verificados: number;
+  enlaces_rotos: number;
+  ultima_sincronizacion: string;
 }
 
 // =====================================================================

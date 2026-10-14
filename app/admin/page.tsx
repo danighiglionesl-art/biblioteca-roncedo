@@ -37,11 +37,13 @@ import {
   Newspaper,
   ShoppingBag,
   Award,
+  Globe2,
 } from 'lucide-react';
 import { GestionPortadas } from '@/components/admin/GestionPortadas';
 import { GestionNovedades } from '@/components/admin/GestionNovedades';
 import { GestionEventos } from '@/components/admin/GestionEventos';
 import { GestionTienda } from '@/components/admin/GestionTienda';
+import { GestionBibliotecaDigital } from '@/components/admin/GestionBibliotecaDigital';
 
 export default function AdminPage() {
   const {
@@ -54,7 +56,7 @@ export default function AdminPage() {
     actualizarSocioProtector,
   } = useAuth();
 
-  const [activeTab, setActiveTab] = useState<'portadas' | 'novedades' | 'eventos' | 'tienda' | 'protectores' | 'solicitudes' | 'padron' | 'usuarios'>('portadas');
+  const [activeTab, setActiveTab] = useState<'portadas' | 'digital' | 'novedades' | 'eventos' | 'tienda' | 'protectores' | 'solicitudes' | 'padron' | 'usuarios'>('portadas');
   const [searchTerm, setSearchTerm] = useState('');
 
   // Leer pestaña desde query param si viene especificada
@@ -63,6 +65,7 @@ export default function AdminPage() {
       const params = new URLSearchParams(window.location.search);
       const tabParam = params.get('tab');
       if (
+        tabParam === 'digital' ||
         tabParam === 'novedades' ||
         tabParam === 'eventos' ||
         tabParam === 'tienda' ||
@@ -441,7 +444,7 @@ export default function AdminPage() {
         </div>
 
         {/* Pestañas de Gestión */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm gap-1 text-xs font-bold">
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm gap-1 text-xs font-bold">
           <button
             onClick={() => setActiveTab('portadas')}
             className={`py-2.5 rounded-xl transition-colors flex items-center justify-center gap-1.5 ${
@@ -452,6 +455,18 @@ export default function AdminPage() {
           >
             <Sparkles className={`w-4 h-4 ${activeTab === 'portadas' ? 'text-roncedo-gold' : 'text-amber-500'}`} />
             <span>Portadas</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('digital')}
+            className={`py-2.5 rounded-xl transition-colors flex items-center justify-center gap-1.5 ${
+              activeTab === 'digital'
+                ? 'bg-gradient-to-r from-emerald-700 to-teal-800 text-white shadow-sm'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <Globe2 className={`w-4 h-4 ${activeTab === 'digital' ? 'text-roncedo-gold' : 'text-emerald-600'}`} />
+            <span>Bib. Digital</span>
           </button>
 
           <button
@@ -524,6 +539,9 @@ export default function AdminPage() {
 
         {/* Pestaña: Gestión de Portadas */}
         {activeTab === 'portadas' && <GestionPortadas />}
+
+        {/* Pestaña: Gestión de Biblioteca Digital (5.800+ obras y PDF Roncedo) */}
+        {activeTab === 'digital' && <GestionBibliotecaDigital />}
 
         {/* Pestaña: Gestión de Novedades (ABM con hasta 5 fotos) */}
         {activeTab === 'novedades' && <GestionNovedades />}

@@ -782,4 +782,118 @@ CREATE POLICY "Admin gestiona pedidos"
     )
   );
 
+-- =====================================================================
+-- 14. TABLA CENTRALIZADA DE BIBLIOTECA DIGITAL (CATÁLOGO DE 5.000+ OBRAS)
+-- =====================================================================
+
+CREATE TABLE IF NOT EXISTS public.libros_digitales (
+  id TEXT PRIMARY KEY, -- Ej: 'guten-1234', 'ol-OL1234M', 'roncedo-pdf-01'
+  titulo TEXT NOT NULL,
+  autor TEXT NOT NULL,
+  editorial TEXT,
+  idioma TEXT DEFAULT 'es' NOT NULL,
+  genero_o_materia TEXT,
+  anio INTEGER,
+  portada_url TEXT,
+  descripcion TEXT,
+  fuente TEXT NOT NULL, -- 'gutenberg', 'wikisource', 'cervantes', 'openlibrary', 'bnmm', 'bne', 'roncedo_digital'
+  fuentes_adicionales TEXT[] DEFAULT '{}',
+  enlace_oficial TEXT NOT NULL,
+  enlace_lectura TEXT,
+  enlace_descarga TEXT,
+  disponibilidad TEXT DEFAULT 'descarga_libre' NOT NULL, -- 'descarga_libre', 'lectura_directa', 'prestamo_externo'
+  formatos JSONB DEFAULT '[]'::jsonb, -- Array de { tipo, label, url }
+  tipo_licencia TEXT DEFAULT 'Dominio Público',
+  es_argentino_o_latino BOOLEAN DEFAULT FALSE,
+  archivo_pdf_url TEXT, -- Para obras propias subidas por Biblioteca Roncedo
+  estado_enlace TEXT DEFAULT 'verificado', -- 'verificado', 'roto', 'pendiente'
+  ultima_verificacion TIMESTAMPTZ DEFAULT NOW(),
+  identificador_externo TEXT,
+  subido_por UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
+  metadata JSONB DEFAULT '{}'::jsonb,
+  created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
+);
+
+-- Índices de aceleración para Biblioteca Digital
+CREATE INDEX IF NOT EXISTS idx_libros_dig_fuente ON public.libros_digitales(fuente);
+CREATE INDEX IF NOT EXISTS idx_libros_dig_disp ON public.libros_digitales(disponibilidad);
+CREATE INDEX IF NOT EXISTS idx_libros_dig_latino ON public.libros_digitales(es_argentino_o_latino);
+CREATE INDEX IF NOT EXISTS idx_libros_dig_anio ON public.libros_digitales(anio);
+CREATE INDEX IF NOT EXISTS idx_libros_dig_trgm_titulo ON public.libros_digitales USING gin (titulo gin_trgm_ops);
+CREATE INDEX IF NOT EXISTS idx_libros_dig_trgm_autor ON public.libros_digitales USING gin (autor gin_trgm_ops);
+
+-- RLS para Libros Digitales
+ALTER TABLE public.libros_digitales ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Lectura pública de libros digitales" 
+  ON public.libros_digitales FOR SELECT 
+  USING (true);
+
+CREATE POLICY "Admin gestiona libros digitales" 
+  ON public.libros_digitales FOR ALL 
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles 
+      WHERE profiles.id = auth.uid() AND profiles.role = 'admin'
+    )
+  );
+
+-- Tabla de Registro de Sincronizaciones y Métricas
+CREATE TABLE IF NOT EXISTS public.sincronizaciones_digitales (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  fuente TEXT NOT NULL,
+  total_obras_procesadas INTEGER DEFAULT 0,
+  nuevas_obras INTEGER DEFAULT 0,
+  duplicados_omitidos INTEGER DEFAULT 0,
+  errores TEXT[] DEFAULT '{}',
+  estado TEXT DEFAULT 'completado', -- 'en_progreso', 'completado', 'fallido'
+  iniciado_en TIMESTAMPTZ DEFAULT NOW(),
+  finalizado_en TIMESTAMPTZ
+);
+
+ALTER TABLE public.sincronizaciones_digitales ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Lectura pública de sincronizaciones" 
+  ON public.sincronizaciones_digitales FOR SELECT 
+  USING (true);
+
+CREATE POLICY "Admin gestiona sincronizaciones" 
+  ON public.sincronizaciones_digitales FOR ALL 
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles 
+      WHERE profiles.id = auth.uid() AND profiles.role = 'admin'
+    )
+  );
+
+-- Configuración de Storage Bucket para PDFs propios de Biblioteca Roncedo
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('libros_digitales_pdf', 'libros_digitales_pdf', true)
+ON CONFLICT (id) DO NOTHING;
+
+CREATE POLICY "Lectura pública de PDFs en storage"
+  ON storage.objects FOR SELECT
+  USING (bucket_id = 'libros_digitales_pdf');
+
+CREATE POLICY "Admin sube PDFs en storage"
+  ON storage.objects FOR INSERT
+  WITH CHECK (
+    bucket_id = 'libros_digitales_pdf' AND
+    EXISTS (
+      SELECT 1 FROM public.profiles 
+      WHERE profiles.id = auth.uid() AND profiles.role = 'admin'
+    )
+  );
+
+CREATE POLICY "Admin elimina PDFs en storage"
+  ON storage.objects FOR DELETE
+  USING (
+    bucket_id = 'libros_digitales_pdf' AND
+    EXISTS (
+      SELECT 1 FROM public.profiles 
+      WHERE profiles.id = auth.uid() AND profiles.role = 'admin'
+    )
+  );
+
 
