@@ -51,6 +51,7 @@ export async function getLibrosFisicos(): Promise<LibroFisico[]> {
       let desde = 0;
       const CHUNK_SIZE = 1000; // Supera el límite estándar de PostgREST
       let masRegistros = true;
+      let huboError = false;
 
       while (masRegistros) {
         const { data, error } = await supabase
@@ -60,6 +61,7 @@ export async function getLibrosFisicos(): Promise<LibroFisico[]> {
           .range(desde, desde + CHUNK_SIZE - 1);
 
         if (error) {
+          huboError = true;
           // Si la tabla aún no existe o hay error de esquema, salimos al fallback
           console.warn('[LibrosFisicos] Error o tabla ausente en Supabase:', error.message);
           break;
@@ -77,32 +79,51 @@ export async function getLibrosFisicos(): Promise<LibroFisico[]> {
         }
       }
 
-      // Si Supabase contiene registros
-      if (librosNube.length > 0) {
-        // Comprobar si en el localStorage del usuario hay libros que falten en la nube (ej: libro 1384)
+      // Si la tabla existe en Supabase y no hubo error de conexión/esquema
+      if (!huboError) {
         if (typeof window !== 'undefined') {
           try {
             const localRaw = localStorage.getItem(LOCAL_STORAGE_LIBROS_KEY);
+            let localList: LibroFisico[] = [];
             if (localRaw) {
-              const localList: LibroFisico[] = JSON.parse(localRaw);
-              const invNubeSet = new Set(librosNube.map((l) => l.numero_inventario));
-              const librosLocalesFaltantesEnNube = localList.filter(
-                (l) => l.numero_inventario && !invNubeSet.has(l.numero_inventario)
-              );
-
-              if (librosLocalesFaltantesEnNube.length > 0) {
-                console.info(
-                  `[Auto-Sync Nube] Se detectaron ${librosLocalesFaltantesEnNube.length} libros locales no presentes en Supabase. Subiendo ahora...`
-                );
-                // Subir a Supabase en segundo plano
-                for (const libroFaltante of librosLocalesFaltantesEnNube) {
-                  await guardarLibroFisicoEnNube(libroFaltante);
-                  librosNube.push(normalizarLibro(libroFaltante));
-                }
-                // Reordenar por inventario
-                librosNube.sort((a, b) => a.numero_inventario - b.numero_inventario);
+              const parsed = JSON.parse(localRaw);
+              if (Array.isArray(parsed) && parsed.length > 0) {
+                localList = parsed.map(normalizarLibro);
               }
             }
+            if (localList.length === 0) {
+              localList = (LIBROS_RAW as any[]).map(normalizarLibro);
+            }
+
+            // Caso A: La tabla en Supabase está recién creada (0 registros).
+            // Sembramos el catálogo completo en la nube de fondo para dejarlo activo.
+            if (librosNube.length === 0) {
+              console.info(
+                `[Auto-Sync Nube] Tabla libros_fisicos vacía detectada. Sincronizando catálogo completo inicial (${localList.length} libros)...`
+              );
+              sincronizarLoteLibrosEnNube(localList).catch((err) =>
+                console.warn('[Auto-Sync Nube] Error sembrando inventario inicial:', err)
+              );
+              return localList;
+            }
+
+            // Caso B: Supabase ya tiene libros. Comprobar si en este navegador hay libros locales faltantes en la nube (ej: 1384)
+            const invNubeSet = new Set(librosNube.map((l) => l.numero_inventario));
+            const librosLocalesFaltantesEnNube = localList.filter(
+              (l) => l.numero_inventario && !invNubeSet.has(l.numero_inventario)
+            );
+
+            if (librosLocalesFaltantesEnNube.length > 0) {
+              console.info(
+                `[Auto-Sync Nube] Se detectaron ${librosLocalesFaltantesEnNube.length} libros locales no presentes en Supabase (ej: libro ${librosLocalesFaltantesEnNube[0].numero_inventario}). Subiendo ahora...`
+              );
+              for (const libroFaltante of librosLocalesFaltantesEnNube) {
+                await guardarLibroFisicoEnNube(libroFaltante);
+                librosNube.push(normalizarLibro(libroFaltante));
+              }
+              librosNube.sort((a, b) => a.numero_inventario - b.numero_inventario);
+            }
+
             // Actualizar la caché de localStorage con el estado de la nube
             localStorage.setItem(LOCAL_STORAGE_LIBROS_KEY, JSON.stringify(librosNube));
           } catch (syncErr) {
@@ -110,7 +131,9 @@ export async function getLibrosFisicos(): Promise<LibroFisico[]> {
           }
         }
 
-        return librosNube;
+        if (librosNube.length > 0) {
+          return librosNube;
+        }
       }
     } catch (err) {
       console.warn('[LibrosFisicos] Fallo al consultar Supabase, usando fallback local:', err);
