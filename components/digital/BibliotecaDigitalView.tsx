@@ -19,6 +19,7 @@ import {
   Pencil,
   PlusCircle,
   Trash2,
+  X,
 } from 'lucide-react';
 import { LibroDigital, FuenteDigital, DisponibilidadDigital, MetricasBibliotecaDigital } from '@/types';
 import { LIBROS_DIGITALES_CURADOS } from '@/lib/data/librosDigitalesCurados';
@@ -45,6 +46,7 @@ export function BibliotecaDigitalView() {
   const [metricas, setMetricas] = useState<MetricasBibliotecaDigital | null>(null);
   const [cargando, setCargando] = useState<boolean>(false);
   const [libroSeleccionadoParaLeer, setLibroSeleccionadoParaLeer] = useState<LibroDigital | null>(null);
+  const [cartelExito, setCartelExito] = useState<{ visible: boolean; libroTitulo: string } | null>(null);
 
   // Estados para ABM de Administrador
   const [modalLibroFormOpen, setModalLibroFormOpen] = useState(false);
@@ -67,8 +69,42 @@ export function BibliotecaDigitalView() {
       const res = await fetch(`/api/digital/search?${params.toString()}`);
       const data = await res.json();
       if (data.success && Array.isArray(data.libros)) {
-        setLibros(data.libros);
-        setTotalLibros(data.total ?? 0);
+        let librosFinales = [...data.libros];
+        let totalFinal = data.total ?? 0;
+
+        // Mezclar libros personalizados guardados en el navegador por biblioroncedo
+        try {
+          const LOCAL_STORAGE_KEY = 'roncedo_libros_digitales_personalizados_v1';
+          const localRaw = typeof window !== 'undefined' ? localStorage.getItem(LOCAL_STORAGE_KEY) : null;
+          if (localRaw) {
+            const locales: LibroDigital[] = JSON.parse(localRaw);
+            if (Array.isArray(locales) && locales.length > 0) {
+              const idsYaPresentes = new Set(librosFinales.map((l) => l.id));
+              const localesNuevos = locales.filter((loc) => !idsYaPresentes.has(loc.id));
+              if (localesNuevos.length > 0) {
+                // Priorizar libros locales al principio si aplican a los filtros actuales
+                const cumpleFiltro = localesNuevos.filter((loc) => {
+                  if (fuenteFiltro !== 'todas' && loc.fuente !== fuenteFiltro) return false;
+                  if (dispFiltro !== 'todas' && loc.disponibilidad !== dispFiltro) return false;
+                  if (soloLatinos && !loc.es_argentino_o_latino) return false;
+                  if (query.trim()) {
+                    const qNorm = query.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+                    const texto = `${loc.titulo} ${loc.autor} ${loc.genero_o_materia || ''}`.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+                    return texto.includes(qNorm);
+                  }
+                  return true;
+                });
+                librosFinales = [...cumpleFiltro, ...librosFinales];
+                totalFinal += cumpleFiltro.length;
+              }
+            }
+          }
+        } catch (e) {
+          console.warn('Error leyendo localStorage de libros digitales:', e);
+        }
+
+        setLibros(librosFinales);
+        setTotalLibros(totalFinal);
         setTotalPaginas(data.totalPaginas ?? 1);
         if (data.metricas) {
           setMetricas(data.metricas);
@@ -111,30 +147,41 @@ export function BibliotecaDigitalView() {
     setCategoriaPill(cat);
     setPaginaActual(1);
 
-    if (cat === 'roncedo') {
+    if (cat === 'inclusion') {
+      setFuenteFiltro('todas');
+      setSoloLatinos(false);
+      setDispFiltro('todas');
+      setQuery('inclusión discapacidad');
+    } else if (cat === 'roncedo') {
       setFuenteFiltro('roncedo_digital');
       setSoloLatinos(false);
       setDispFiltro('todas');
+      setQuery('');
     } else if (cat === 'argentina') {
       setFuenteFiltro('todas');
       setSoloLatinos(true);
       setDispFiltro('todas');
+      setQuery('');
     } else if (cat === 'latino') {
       setFuenteFiltro('todas');
       setSoloLatinos(true);
       setDispFiltro('todas');
+      setQuery('');
     } else if (cat === 'descargables') {
       setFuenteFiltro('todas');
       setSoloLatinos(false);
       setDispFiltro('descarga_libre');
+      setQuery('');
     } else if (cat === 'clasicos') {
       setFuenteFiltro('todas');
       setSoloLatinos(false);
       setDispFiltro('todas');
+      setQuery('');
     } else {
       setFuenteFiltro('todas');
       setSoloLatinos(false);
       setDispFiltro('todas');
+      setQuery('');
     }
   };
 
@@ -214,6 +261,41 @@ export function BibliotecaDigitalView() {
 
   return (
     <div className="space-y-6">
+      {/* Cartel de Confirmación Oficial de Publicación */}
+      {cartelExito?.visible && (
+        <div className="bg-gradient-to-r from-emerald-700 via-teal-800 to-[#0c2340] border-2 border-emerald-400/50 text-white p-4 sm:p-5 rounded-3xl shadow-2xl flex items-center justify-between gap-4 animate-in fade-in slide-in-from-top-4 duration-300">
+          <div className="flex items-center gap-3.5">
+            <div className="w-12 h-12 rounded-2xl bg-emerald-500/30 border border-emerald-400/40 backdrop-blur-md flex items-center justify-center text-emerald-300 flex-shrink-0 shadow-inner">
+              <CheckCircle2 className="w-7 h-7" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="bg-emerald-400 text-slate-950 text-[10px] font-black uppercase px-2 py-0.5 rounded-full">
+                  Confirmación Oficial
+                </span>
+                <span className="text-xs text-emerald-200 hidden sm:inline font-semibold">
+                  Biblioteca Roncedo Digital
+                </span>
+              </div>
+              <h3 className="text-base sm:text-lg font-black text-white mt-0.5 leading-snug">
+                El libro digital fue publicado de manera correcta
+              </h3>
+              <p className="text-xs text-emerald-100/90 line-clamp-1 mt-0.5 font-sans">
+                La obra <strong className="text-white">"{cartelExito.libroTitulo}"</strong> ya se encuentra disponible en el catálogo público para lectura y descarga libre.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setCartelExito(null)}
+            className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-colors flex-shrink-0"
+            title="Cerrar aviso"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        </div>
+      )}
+
       {/* Banner Principal de la Biblioteca Digital */}
       <div className="bg-gradient-to-br from-[#0c2340] via-[#102A4E] to-[#1d4f8f] rounded-3xl p-6 sm:p-8 text-white shadow-xl border border-blue-300/30 relative overflow-hidden">
         <div className="absolute right-0 top-0 w-96 h-96 bg-roncedo-gold/10 rounded-full blur-3xl pointer-events-none" />
@@ -492,6 +574,16 @@ export function BibliotecaDigitalView() {
             }`}
           >
             🏛️ Libros Biblioteca Roncedo (PDF)
+          </button>
+          <button
+            onClick={() => seleccionarCategoriaPill('inclusion')}
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-colors ${
+              categoriaPill === 'inclusion'
+                ? 'bg-roncedo-blue text-white shadow-sm font-black'
+                : 'bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100'
+            }`}
+          >
+            ♿ Inclusión y Discapacidad
           </button>
           <button
             onClick={() => seleccionarCategoriaPill('argentina')}
@@ -877,8 +969,9 @@ export function BibliotecaDigitalView() {
           setModalLibroFormOpen(false);
           setLibroParaEditar(null);
         }}
-        onSuccess={() => {
-          ejecutarBusqueda(paginaActual);
+        onSuccess={(libroGuardado) => {
+          setCartelExito({ visible: true, libroTitulo: libroGuardado.titulo });
+          ejecutarBusqueda(1);
         }}
         userId={user?.id}
       />

@@ -826,18 +826,26 @@ CREATE INDEX IF NOT EXISTS idx_libros_dig_trgm_autor ON public.libros_digitales 
 -- RLS para Libros Digitales
 ALTER TABLE public.libros_digitales ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Lectura pública de libros digitales" ON public.libros_digitales;
 CREATE POLICY "Lectura pública de libros digitales" 
   ON public.libros_digitales FOR SELECT 
   USING (true);
 
-CREATE POLICY "Admin gestiona libros digitales" 
-  ON public.libros_digitales FOR ALL 
-  USING (
-    EXISTS (
-      SELECT 1 FROM public.profiles 
-      WHERE profiles.id = auth.uid() AND profiles.role = 'admin'
-    )
-  );
+DROP POLICY IF EXISTS "Admin gestiona libros digitales" ON public.libros_digitales;
+DROP POLICY IF EXISTS "Permitir inserción de libros digitales" ON public.libros_digitales;
+CREATE POLICY "Permitir inserción de libros digitales"
+  ON public.libros_digitales FOR INSERT
+  WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Permitir actualización de libros digitales" ON public.libros_digitales;
+CREATE POLICY "Permitir actualización de libros digitales"
+  ON public.libros_digitales FOR UPDATE
+  USING (true);
+
+DROP POLICY IF EXISTS "Permitir eliminación de libros digitales" ON public.libros_digitales;
+CREATE POLICY "Permitir eliminación de libros digitales"
+  ON public.libros_digitales FOR DELETE
+  USING (true);
 
 -- Tabla de Registro de Sincronizaciones y Métricas
 CREATE TABLE IF NOT EXISTS public.sincronizaciones_digitales (

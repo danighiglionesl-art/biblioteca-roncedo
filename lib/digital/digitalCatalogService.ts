@@ -1,7 +1,20 @@
 import fs from 'fs';
 import path from 'path';
+import os from 'os';
 import { LibroDigital, FuenteDigital, DisponibilidadDigital, MetricasBibliotecaDigital, DigitalSearchParams } from '@/types';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase/client';
+import { supabaseServer, isSupabaseServerConfigured } from '@/lib/supabase/server';
+
+function getActiveSupabaseClient() {
+  if (isSupabaseServerConfigured && supabaseServer) return supabaseServer;
+  if (isSupabaseConfigured && supabase) return supabase;
+  return null;
+}
+
+function esUUID(id?: string): boolean {
+  if (!id) return false;
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id);
+}
 
 let memoryCatalogCache: LibroDigital[] | null = null;
 let lastCacheLoad = 0;
@@ -37,28 +50,57 @@ export function getCatalogoBaseMaestro(): LibroDigital[] {
  * Carga las obras personalizadas agregadas por el administrador
  */
 export function getCatalogoPersonalizado(): LibroDigital[] {
+  const mapa = new Map<string, LibroDigital>();
+
+  // 1. Archivo del proyecto empaquetado
   try {
     const jsonPath = path.join(process.cwd(), 'lib', 'data', 'librosDigitalesPersonalizados.json');
     if (fs.existsSync(jsonPath)) {
       const raw = fs.readFileSync(jsonPath, 'utf8');
       const data = JSON.parse(raw);
-      if (Array.isArray(data)) return data;
+      if (Array.isArray(data)) {
+        data.forEach((l) => mapa.set(l.id, l));
+      }
     }
   } catch (err) {
     console.warn('Aviso leyendo librosDigitalesPersonalizados.json:', err);
   }
-  return [];
+
+  // 2. Archivo en /tmp para entornos Serverless donde el directorio raíz es de solo lectura
+  try {
+    const tmpPath = path.join(os.tmpdir(), 'roncedo_libros_digitales_personalizados.json');
+    if (fs.existsSync(tmpPath)) {
+      const raw = fs.readFileSync(tmpPath, 'utf8');
+      const data = JSON.parse(raw);
+      if (Array.isArray(data)) {
+        data.forEach((l) => mapa.set(l.id, l));
+      }
+    }
+  } catch (err) {
+    // Ignorar avisos de tmp
+  }
+
+  return Array.from(mapa.values());
 }
 
 /**
  * Guarda las obras personalizadas en el archivo local de persistencia
  */
 export function guardarCatalogoPersonalizadoEnDisco(libros: LibroDigital[]): void {
+  // 1. Intentar guardar en archivo de proyecto (desarrollo o entornos con FS escribible)
   try {
     const jsonPath = path.join(process.cwd(), 'lib', 'data', 'librosDigitalesPersonalizados.json');
     fs.writeFileSync(jsonPath, JSON.stringify(libros, null, 2), 'utf8');
   } catch (err) {
-    console.warn('Aviso guardando librosDigitalesPersonalizados.json:', err);
+    // En Vercel Serverless process.cwd() es solo lectura (EROFS)
+  }
+
+  // 2. Guardar en /tmp (siempre escribible en Serverless Lambdas)
+  try {
+    const tmpPath = path.join(os.tmpdir(), 'roncedo_libros_digitales_personalizados.json');
+    fs.writeFileSync(tmpPath, JSON.stringify(libros, null, 2), 'utf8');
+  } catch (err) {
+    console.warn('Aviso guardando en tmp:', err);
   }
 }
 
@@ -86,9 +128,10 @@ export async function getTodosLosLibrosDigitales(): Promise<LibroDigital[]> {
   });
 
   // 3. Si Supabase está conectado, traer obras adicionales o actualizadas
-  if (isSupabaseConfigured && supabase) {
+  const dbClient = getActiveSupabaseClient();
+  if (dbClient) {
     try {
-      const fetchPromise = supabase
+      const fetchPromise = dbClient
         .from('libros_digitales')
         .select('*')
         .order('created_at', { ascending: false });
@@ -331,7 +374,8 @@ export async function guardarLibroBibliotecaRoncedo(
     guardarCatalogoPersonalizadoEnDisco(personalizados);
 
     // 2. Guardar en Supabase si está disponible
-    if (isSupabaseConfigured && supabase) {
+    const clientToUse = getActiveSupabaseClient();
+    if (clientToUse) {
       const payload = {
         id: nuevoLibro.id,
         titulo: nuevoLibro.titulo,
@@ -353,11 +397,11 @@ export async function guardarLibroBibliotecaRoncedo(
         archivo_pdf_url: nuevoLibro.archivo_pdf_url,
         estado_enlace: 'verificado',
         ultima_verificacion: new Date().toISOString(),
-        subido_por: userId || null,
+        subido_por: esUUID(userId) ? userId : esUUID(libro.subido_por) ? libro.subido_por : null,
         updated_at: new Date().toISOString(),
       };
 
-      const { error } = await supabase.from('libros_digitales').upsert(payload, { onConflict: 'id' });
+      const { error } = await clientToUse.from('libros_digitales').upsert(payload, { onConflict: 'id' });
       if (error) {
         console.warn('Aviso guardando en Supabase libros_digitales:', error.message);
       }
@@ -381,8 +425,9 @@ export async function eliminarLibroBibliotecaRoncedo(id: string): Promise<{ succ
     guardarCatalogoPersonalizadoEnDisco(filtrados);
 
     // 2. Eliminar de Supabase
-    if (isSupabaseConfigured && supabase) {
-      await supabase.from('libros_digitales').delete().eq('id', id);
+    const clientToUse = getActiveSupabaseClient();
+    if (clientToUse) {
+      await clientToUse.from('libros_digitales').delete().eq('id', id);
     }
 
     invalidarCacheDigital();

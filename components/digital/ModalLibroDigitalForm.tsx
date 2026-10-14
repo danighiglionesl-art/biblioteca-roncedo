@@ -55,18 +55,27 @@ const LICENCIAS_FRECUENTES = [
   'Obra Histórica Digitalizada',
 ];
 
-const GENEROS_FRECUENTES = [
-  'Historia Institucional y Local',
-  'Literatura Argentina',
-  'Novela y Ficción',
-  'Cuentos y Relatos',
-  'Poesía Hispanoamericana',
-  'Filosofía y Ciencias Sociales',
-  'Biografías y Memorias',
-  'Investigación y Ensayos',
-  'Teatro y Dramaturgia',
-  'Educación y Pedagogía',
+export const GENEROS_MATERIAS_LISTA = [
+  '♿ Inclusión, Discapacidad y Accesibilidad',
+  '🩺 Salud, Sexualidad y Bienestar',
+  '⚖️ Derechos Humanos, Sociedad y Género',
+  '🏛️ Historia Institucional y Local',
+  '🇦🇷 Literatura Argentina',
+  '🌎 Literatura Latinoamericana y Universal',
+  '📖 Novela y Ficción',
+  '📝 Cuentos y Relatos',
+  '📜 Poesía y Letras',
+  '🧠 Filosofía y Ciencias Sociales',
+  '🎓 Educación, Pedagogía y Didáctica',
+  '🔬 Ciencia, Técnica y Divulgación',
+  '🧒 Infantil y Juvenil',
+  '🎭 Arte, Teatro y Cultura',
+  '👤 Biografías, Memorias y Testimonios',
+  '🔍 Investigación, Ensayo y Crítica',
+  '⚽ Deportes y Vida Social',
 ];
+
+const GENEROS_FRECUENTES = GENEROS_MATERIAS_LISTA;
 
 export function ModalLibroDigitalForm({
   libroParaEditar,
@@ -81,7 +90,7 @@ export function ModalLibroDigitalForm({
   const [editorial, setEditorial] = useState('Ediciones Biblioteca Dr. Lautaro Roncedo');
   const [anio, setAnio] = useState(new Date().getFullYear().toString());
   const [idioma, setIdioma] = useState('es');
-  const [genero, setGenero] = useState('Historia Institucional y Local');
+  const [genero, setGenero] = useState('♿ Inclusión, Discapacidad y Accesibilidad');
   const [fuente, setFuente] = useState<FuenteDigital>('roncedo_digital');
   const [disponibilidad, setDisponibilidad] = useState<DisponibilidadDigital>('descarga_libre');
   const [tipoLicencia, setTipoLicencia] = useState('Biblioteca Roncedo (Acceso Abierto)');
@@ -102,19 +111,21 @@ export function ModalLibroDigitalForm({
   const [mensajeEstado, setMensajeEstado] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [tabActiva, setTabActiva] = useState<'formulario' | 'preview'>('formulario');
+  const [libroPublicadoExitosamente, setLibroPublicadoExitosamente] = useState<LibroDigital | null>(null);
 
   const filePdfInputRef = useRef<HTMLInputElement>(null);
   const filePortadaInputRef = useRef<HTMLInputElement>(null);
 
   // Inicializar campos según creación o edición
   useEffect(() => {
+    setLibroPublicadoExitosamente(null);
     if (libroParaEditar) {
       setTitulo(libroParaEditar.titulo || '');
       setAutor(libroParaEditar.autor || '');
       setEditorial(libroParaEditar.editorial || '');
       setAnio(libroParaEditar.anio?.toString() || new Date().getFullYear().toString());
       setIdioma(libroParaEditar.idioma || 'es');
-      setGenero(libroParaEditar.genero_o_materia || 'Historia Institucional y Local');
+      setGenero(libroParaEditar.genero_o_materia || '♿ Inclusión, Discapacidad y Accesibilidad');
       setFuente(libroParaEditar.fuente || 'roncedo_digital');
       setDisponibilidad(libroParaEditar.disponibilidad || 'descarga_libre');
       setTipoLicencia(libroParaEditar.tipo_licencia || 'Dominio Público');
@@ -134,7 +145,7 @@ export function ModalLibroDigitalForm({
       setEditorial('Ediciones Biblioteca Dr. Lautaro Roncedo');
       setAnio(new Date().getFullYear().toString());
       setIdioma('es');
-      setGenero('Historia Institucional y Local');
+      setGenero('♿ Inclusión, Discapacidad y Accesibilidad');
       setFuente('roncedo_digital');
       setDisponibilidad('descarga_libre');
       setTipoLicencia('Biblioteca Roncedo (Acceso Abierto)');
@@ -412,8 +423,24 @@ export function ModalLibroDigitalForm({
         throw new Error(data.error || 'Error al guardar el libro digital.');
       }
 
+      // 1. Guardar copia en localStorage de seguridad para sincronización instantánea
+      try {
+        const LOCAL_STORAGE_KEY = 'roncedo_libros_digitales_personalizados_v1';
+        const guardadosRaw = localStorage.getItem(LOCAL_STORAGE_KEY);
+        const guardados: LibroDigital[] = guardadosRaw ? JSON.parse(guardadosRaw) : [];
+        const idx = guardados.findIndex((l) => l.id === data.libro.id);
+        if (idx >= 0) {
+          guardados[idx] = data.libro;
+        } else {
+          guardados.unshift(data.libro);
+        }
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(guardados));
+      } catch (e) {
+        console.warn('Aviso guardando en localStorage:', e);
+      }
+
       onSuccess(data.libro);
-      onClose();
+      setLibroPublicadoExitosamente(data.libro);
     } catch (err: any) {
       console.error('Error al guardar libro digital:', err);
       setErrorMsg(err.message || 'Ocurrió un error inesperado al guardar la obra.');
@@ -492,8 +519,104 @@ export function ModalLibroDigitalForm({
           </div>
         )}
 
-        {/* Cuerpo del Modal: Formulario + Vista Previa en Tiempo Real */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Si el libro fue publicado, mostrar el Cartel Oficial de Confirmación */}
+        {libroPublicadoExitosamente ? (
+          <div className="flex-1 overflow-y-auto p-6 sm:p-10 flex flex-col items-center justify-center text-center space-y-6">
+            <div className="relative">
+              <div className="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-inner border-4 border-emerald-200">
+                <CheckCircle2 className="w-12 h-12" />
+              </div>
+              <div className="absolute -top-1 -right-1 bg-amber-400 text-slate-900 rounded-full p-1.5 shadow-md">
+                <Sparkles className="w-4 h-4" />
+              </div>
+            </div>
+
+            <div className="max-w-lg space-y-2">
+              <span className="inline-block bg-emerald-50 text-emerald-800 text-xs font-black uppercase px-3 py-1 rounded-full border border-emerald-200">
+                Publicación Exitosa
+              </span>
+              <h3 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                El libro digital fue publicado de manera correcta
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-sans">
+                La obra ya se encuentra disponible en la Biblioteca Digital institucional para lectura online, consulta y descarga libre en formato PDF por parte de todos los socios y la comunidad.
+              </p>
+            </div>
+
+            {/* Tarjeta resumen de la obra publicada */}
+            <div className="w-full max-w-md bg-slate-50 border border-slate-200 rounded-2xl p-4 flex gap-4 text-left shadow-sm">
+              <div className="w-20 h-28 bg-slate-200 rounded-xl overflow-hidden flex-shrink-0 relative shadow-inner border border-slate-300">
+                <Image
+                  src={libroPublicadoExitosamente.portada_url || '/images/escudo-roncedo.png'}
+                  alt={libroPublicadoExitosamente.titulo}
+                  fill
+                  className="object-cover"
+                  unoptimized
+                />
+              </div>
+              <div className="flex-1 min-w-0 space-y-1">
+                <span className="text-[10px] font-black uppercase tracking-wider text-roncedo-blue bg-blue-50 px-2 py-0.5 rounded-md inline-block">
+                  {libroPublicadoExitosamente.genero_o_materia || 'Colección General'}
+                </span>
+                <h4 className="text-sm font-black text-slate-900 line-clamp-2">
+                  {libroPublicadoExitosamente.titulo}
+                </h4>
+                <p className="text-xs text-slate-600 truncate">
+                  ✍️ {libroPublicadoExitosamente.autor}
+                </p>
+                <p className="text-[11px] text-slate-500 truncate">
+                  🏛️ {libroPublicadoExitosamente.editorial} • {libroPublicadoExitosamente.anio}
+                </p>
+                <div className="pt-1 flex items-center gap-2">
+                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full inline-flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                    PDF Disponible para Descarga Libre
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Acciones */}
+            <div className="flex flex-col sm:flex-row gap-3 w-full max-w-md pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setLibroPublicadoExitosamente(null);
+                  onClose();
+                }}
+                className="flex-1 bg-gradient-to-r from-roncedo-blue to-[#0c2340] text-white font-bold py-3 px-5 rounded-2xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 text-sm"
+              >
+                <BookOpen className="w-4 h-4 text-amber-300" />
+                <span>Ver en Biblioteca Digital</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setLibroPublicadoExitosamente(null);
+                  setTitulo('');
+                  setAutor('Biblioteca Dr. Lautaro Roncedo');
+                  setEditorial('Ediciones Biblioteca Dr. Lautaro Roncedo');
+                  setAnio(new Date().getFullYear().toString());
+                  setIdioma('es');
+                  setGenero('♿ Inclusión, Discapacidad y Accesibilidad');
+                  setDescripcion('');
+                  setPdfUrl('');
+                  setArchivoPdf(null);
+                  setArchivoPortada(null);
+                  setPortadaUrl('/images/escudo-roncedo.png');
+                  setPortadaPreview('/images/escudo-roncedo.png');
+                }}
+                className="bg-white border-2 border-slate-300 hover:border-slate-400 text-slate-700 font-bold py-3 px-5 rounded-2xl transition-all text-sm"
+              >
+                Publicar otro libro (PDF)
+              </button>
+            </div>
+          </div>
+        ) : (
+          <>
+            {/* Cuerpo del Modal: Formulario + Vista Previa en Tiempo Real */}
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Panel Izquierdo: Formulario de Carga */}
           <form
             id="form-libro-digital"
@@ -601,34 +724,74 @@ export function ModalLibroDigitalForm({
 
               {/* Género o Materia */}
               <div>
-                <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
-                  Género o Materia
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={genero}
-                    onChange={(e) => setGenero(e.target.value)}
-                    placeholder="Escribe o selecciona abajo"
-                    className="flex-1 bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-roncedo-blue"
-                  />
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-[11px] font-bold text-slate-700 uppercase">
+                    Género o Materia *
+                  </label>
+                  <span className="text-[10px] text-slate-400 font-medium">
+                    Elegí del listado o escribí una materia personalizada
+                  </span>
                 </div>
-                {/* Sugerencias de Géneros */}
-                <div className="flex flex-wrap gap-1.5 mt-2">
-                  {GENEROS_FRECUENTES.slice(0, 5).map((g) => (
-                    <button
-                      key={g}
-                      type="button"
-                      onClick={() => setGenero(g)}
-                      className={`text-[10px] px-2 py-0.5 rounded-lg border transition-colors ${
-                        genero === g
-                          ? 'bg-roncedo-blue text-white border-roncedo-blue font-bold'
-                          : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-100'
-                      }`}
+                <div className="space-y-2">
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <input
+                      type="text"
+                      list="lista-materias-digitales"
+                      value={genero}
+                      onChange={(e) => setGenero(e.target.value)}
+                      placeholder="Escribe o selecciona (ej: Inclusión y Discapacidad)"
+                      className="flex-1 bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-roncedo-blue"
+                    />
+                    <select
+                      value={GENEROS_MATERIAS_LISTA.includes(genero) ? genero : ''}
+                      onChange={(e) => {
+                        if (e.target.value) setGenero(e.target.value);
+                      }}
+                      className="bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-xl px-2.5 py-2 text-xs text-slate-700 font-bold focus:outline-none cursor-pointer sm:max-w-[210px]"
                     >
-                      {g}
-                    </button>
-                  ))}
+                      <option value="">📋 Ver listado de materias...</option>
+                      {GENEROS_MATERIAS_LISTA.map((m) => (
+                        <option key={m} value={m}>
+                          {m}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <datalist id="lista-materias-digitales">
+                    {GENEROS_MATERIAS_LISTA.map((m) => (
+                      <option key={m} value={m} />
+                    ))}
+                  </datalist>
+
+                  {/* Chips Rápidos de Categorías Populares */}
+                  <div className="flex flex-wrap gap-1.5 pt-1">
+                    {[
+                      '♿ Inclusión, Discapacidad y Accesibilidad',
+                      '🩺 Salud, Sexualidad y Bienestar',
+                      '🏛️ Historia Institucional y Local',
+                      '🇦🇷 Literatura Argentina',
+                      '🧠 Filosofía y Ciencias Sociales',
+                      '🎓 Educación y Pedagogía',
+                      '📖 Novela y Ficción',
+                    ].map((materiaItem) => {
+                      const isSelected = genero === materiaItem;
+                      return (
+                        <button
+                          key={materiaItem}
+                          type="button"
+                          onClick={() => setGenero(materiaItem)}
+                          className={`text-[10px] px-2.5 py-1 rounded-lg border transition-all font-medium flex items-center gap-1 ${
+                            isSelected
+                              ? 'bg-roncedo-blue text-white border-roncedo-blue shadow-sm font-bold'
+                              : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100 hover:border-slate-300'
+                          }`}
+                        >
+                          {materiaItem}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
             </div>
@@ -1099,7 +1262,9 @@ export function ModalLibroDigitalForm({
             </button>
           </div>
         </div>
-      </div>
-    </div>
+      </>
+    )}
+  </div>
+</div>
   );
 }

@@ -2,6 +2,46 @@ import { LibroDigital } from '@/types';
 
 export const LIBROS_DIGITALES_CURADOS: LibroDigital[] = [
   {
+    "id": "roncedo-sexualidad-inclusion-discapacidad",
+    "titulo": "Sexualidad e inclusión de personas con discapacidad",
+    "autor": "Álvaro Besoaín Saldaña, Bielka Carvajal Gutiérrez, Claudia Cornejo Aravena, Matías Henríquez Ortiz, Laura Rueda Castro, Paula Soto Reyes, Jame Rebolledo Sanhueza",
+    "editorial": "SENADIS - Universidad de Chile, Facultad de Medicina",
+    "anio": 2019,
+    "idioma": "es",
+    "descripcion": "Segunda edición de la guía y manual de formación sobre sexualidad, afectividad y derechos de personas con discapacidad. Desarrollado por el Servicio Nacional de la Discapacidad (SENADIS) y la Facultad de Medicina de la Universidad de Chile, promoviendo la autonomía personal, la accesibilidad, la no discriminación y la educación sexual integral.",
+    "portada_url": "/images/portadas/sexualidad-e-inclusion.jpg",
+    "fuente": "roncedo_digital",
+    "fuentes_adicionales": [],
+    "enlace_oficial": "https://repositorio.uchile.cl/handle/2250/170245",
+    "enlace_lectura": "https://libros.uchile.cl/1120",
+    "enlace_descarga": "https://repositorio.uchile.cl/bitstream/handle/2250/170245/Sexualidad-e-inclusion.pdf?sequence=1&isAllowed=y",
+    "disponibilidad": "descarga_libre",
+    "formatos": [
+      {
+        "tipo": "pdf",
+        "label": "Descargar PDF Completo (4.2 MB)",
+        "url": "https://repositorio.uchile.cl/bitstream/handle/2250/170245/Sexualidad-e-inclusion.pdf?sequence=1&isAllowed=y"
+      },
+      {
+        "tipo": "html",
+        "label": "Lectura en Línea (Lectura Fácil)",
+        "url": "https://libros.uchile.cl/1120"
+      },
+      {
+        "tipo": "externo",
+        "label": "Ficha Oficial en Repositorio U. de Chile",
+        "url": "https://repositorio.uchile.cl/handle/2250/170245"
+      }
+    ],
+    "es_argentino_o_latino": true,
+    "genero_o_materia": "Inclusión, Discapacidad y Accesibilidad",
+    "archivo_pdf_url": "https://repositorio.uchile.cl/bitstream/handle/2250/170245/Sexualidad-e-inclusion.pdf?sequence=1&isAllowed=y",
+    "tipo_licencia": "Creative Commons BY-NC-ND 3.0 Chile",
+    "estado_enlace": "verificado",
+    "ultima_verificacion": "2026-10-14T20:00:00.000Z",
+    "created_at": "2026-10-14T20:00:00.000Z"
+  },
+  {
     "id": "dig-martin-fierro",
     "titulo": "El Gaucho Martín Fierro",
     "autor": "José Hernández",
