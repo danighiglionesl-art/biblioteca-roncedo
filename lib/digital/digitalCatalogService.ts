@@ -34,7 +34,36 @@ export function getCatalogoBaseMaestro(): LibroDigital[] {
 }
 
 /**
- * Obtiene todas las obras digitales combinando Supabase (si está disponible) y el catálogo maestro
+ * Carga las obras personalizadas agregadas por el administrador
+ */
+export function getCatalogoPersonalizado(): LibroDigital[] {
+  try {
+    const jsonPath = path.join(process.cwd(), 'lib', 'data', 'librosDigitalesPersonalizados.json');
+    if (fs.existsSync(jsonPath)) {
+      const raw = fs.readFileSync(jsonPath, 'utf8');
+      const data = JSON.parse(raw);
+      if (Array.isArray(data)) return data;
+    }
+  } catch (err) {
+    console.warn('Aviso leyendo librosDigitalesPersonalizados.json:', err);
+  }
+  return [];
+}
+
+/**
+ * Guarda las obras personalizadas en el archivo local de persistencia
+ */
+export function guardarCatalogoPersonalizadoEnDisco(libros: LibroDigital[]): void {
+  try {
+    const jsonPath = path.join(process.cwd(), 'lib', 'data', 'librosDigitalesPersonalizados.json');
+    fs.writeFileSync(jsonPath, JSON.stringify(libros, null, 2), 'utf8');
+  } catch (err) {
+    console.warn('Aviso guardando librosDigitalesPersonalizados.json:', err);
+  }
+}
+
+/**
+ * Obtiene todas las obras digitales combinando Supabase (si está disponible), catálogo personalizado y catálogo maestro
  */
 export async function getTodosLosLibrosDigitales(): Promise<LibroDigital[]> {
   const now = Date.now();
@@ -42,7 +71,7 @@ export async function getTodosLosLibrosDigitales(): Promise<LibroDigital[]> {
     return memoryCatalogCache;
   }
 
-  // 1. Cargar base local de 5.800+ obras
+  // 1. Cargar base local de 5.800+ obras maestras
   const base = getCatalogoBaseMaestro();
   const mapa = new Map<string, LibroDigital>();
 
@@ -50,7 +79,13 @@ export async function getTodosLosLibrosDigitales(): Promise<LibroDigital[]> {
     mapa.set(l.id, l);
   });
 
-  // 2. Si Supabase está conectado, traer obras adicionales o actualizadas (especialmente las propias de Roncedo)
+  // 2. Cargar obras personalizadas agregadas por administradores en archivo local
+  const personalizados = getCatalogoPersonalizado();
+  personalizados.forEach((p) => {
+    mapa.set(p.id, p);
+  });
+
+  // 3. Si Supabase está conectado, traer obras adicionales o actualizadas
   if (isSupabaseConfigured && supabase) {
     try {
       const fetchPromise = supabase
@@ -235,11 +270,14 @@ export async function buscarLibrosDigitales(params: DigitalSearchParams): Promis
 }
 
 /**
- * Agrega o edita un libro digital de la Biblioteca Roncedo (Plataforma 7)
+ * Agrega o edita un libro digital con todos los campos configurables
  */
-export async function guardarLibroBibliotecaRoncedo(libro: Partial<LibroDigital>, userId?: string): Promise<{ success: boolean; error?: string; libro?: LibroDigital }> {
+export async function guardarLibroBibliotecaRoncedo(
+  libro: Partial<LibroDigital>,
+  userId?: string
+): Promise<{ success: boolean; error?: string; libro?: LibroDigital }> {
   try {
-    const id = libro.id || `roncedo-${Date.now()}`;
+    const id = libro.id || `roncedo-pdf-${Date.now()}`;
     const formatos = libro.formatos || [];
 
     if (libro.archivo_pdf_url && !formatos.some((f) => f.tipo === 'pdf')) {
@@ -250,31 +288,49 @@ export async function guardarLibroBibliotecaRoncedo(libro: Partial<LibroDigital>
       });
     }
 
+    const fuente = (libro.fuente as FuenteDigital) || 'roncedo_digital';
+    const disponibilidad = (libro.disponibilidad as DisponibilidadDigital) || 'descarga_libre';
+    const esArgentinoLatino = typeof libro.es_argentino_o_latino === 'boolean'
+      ? libro.es_argentino_o_latino
+      : fuente === 'roncedo_digital' || fuente === 'bnmm';
+
     const nuevoLibro: LibroDigital = {
       id,
-      titulo: libro.titulo || 'Sin título',
-      autor: libro.autor || 'Biblioteca Roncedo',
-      editorial: libro.editorial || 'Ediciones Biblioteca Dr. Lautaro Roncedo',
-      anio: libro.anio || new Date().getFullYear(),
-      idioma: 'es',
-      descripcion: libro.descripcion || 'Libro digitalizado perteneciente a la colección de la Biblioteca Dr. Lautaro Roncedo.',
-      portada_url: libro.portada_url || '/images/escudo-roncedo.png',
-      fuente: 'roncedo_digital',
-      enlace_oficial: libro.archivo_pdf_url || `/biblioteca-digital?id=${id}`,
-      enlace_lectura: libro.archivo_pdf_url,
-      enlace_descarga: libro.archivo_pdf_url,
-      disponibilidad: 'descarga_libre',
+      titulo: libro.titulo?.trim() || 'Sin título',
+      autor: libro.autor?.trim() || 'Biblioteca Roncedo',
+      editorial: libro.editorial?.trim() || 'Ediciones Biblioteca Dr. Lautaro Roncedo',
+      anio: libro.anio ? Number(libro.anio) : new Date().getFullYear(),
+      idioma: libro.idioma?.trim() || 'es',
+      descripcion: libro.descripcion?.trim() || 'Publicación digitalizada de la colección oficial de Biblioteca Roncedo.',
+      portada_url: libro.portada_url?.trim() || '/images/escudo-roncedo.png',
+      fuente,
+      enlace_oficial: libro.enlace_oficial?.trim() || libro.archivo_pdf_url || `/biblioteca-digital?id=${id}`,
+      enlace_lectura: libro.enlace_lectura?.trim() || libro.archivo_pdf_url,
+      enlace_descarga: libro.enlace_descarga?.trim() || libro.archivo_pdf_url,
+      disponibilidad,
       formatos,
-      es_argentino_o_latino: true,
-      genero_o_materia: libro.genero_o_materia || 'Historia Local y Regional',
-      archivo_pdf_url: libro.archivo_pdf_url,
-      tipo_licencia: libro.tipo_licencia || 'Biblioteca Roncedo (Acceso Abierto)',
+      es_argentino_o_latino: esArgentinoLatino,
+      genero_o_materia: libro.genero_o_materia?.trim() || 'Colección Digital Biblioteca Roncedo',
+      archivo_pdf_url: libro.archivo_pdf_url?.trim(),
+      tipo_licencia: libro.tipo_licencia?.trim() || 'Dominio Público',
       estado_enlace: 'verificado',
       ultima_verificacion: new Date().toISOString(),
-      subido_por: userId,
-      created_at: new Date().toISOString(),
+      subido_por: userId || libro.subido_por,
+      created_at: libro.created_at || new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     };
 
+    // 1. Guardar en catálogo personalizado local (persistencia garantizada)
+    const personalizados = getCatalogoPersonalizado();
+    const indice = personalizados.findIndex((p) => p.id === id);
+    if (indice >= 0) {
+      personalizados[indice] = nuevoLibro;
+    } else {
+      personalizados.unshift(nuevoLibro);
+    }
+    guardarCatalogoPersonalizadoEnDisco(personalizados);
+
+    // 2. Guardar en Supabase si está disponible
     if (isSupabaseConfigured && supabase) {
       const payload = {
         id: nuevoLibro.id,
@@ -286,14 +342,14 @@ export async function guardarLibroBibliotecaRoncedo(libro: Partial<LibroDigital>
         anio: Number(nuevoLibro.anio) || new Date().getFullYear(),
         portada_url: nuevoLibro.portada_url,
         descripcion: nuevoLibro.descripcion,
-        fuente: 'roncedo_digital',
+        fuente: nuevoLibro.fuente,
         enlace_oficial: nuevoLibro.enlace_oficial,
         enlace_lectura: nuevoLibro.enlace_lectura,
         enlace_descarga: nuevoLibro.enlace_descarga,
         disponibilidad: nuevoLibro.disponibilidad,
         formatos: nuevoLibro.formatos,
         tipo_licencia: nuevoLibro.tipo_licencia,
-        es_argentino_o_latino: true,
+        es_argentino_o_latino: nuevoLibro.es_argentino_o_latino,
         archivo_pdf_url: nuevoLibro.archivo_pdf_url,
         estado_enlace: 'verificado',
         ultima_verificacion: new Date().toISOString(),
@@ -319,9 +375,16 @@ export async function guardarLibroBibliotecaRoncedo(libro: Partial<LibroDigital>
  */
 export async function eliminarLibroBibliotecaRoncedo(id: string): Promise<{ success: boolean; error?: string }> {
   try {
+    // 1. Eliminar de catálogo personalizado local
+    const personalizados = getCatalogoPersonalizado();
+    const filtrados = personalizados.filter((p) => p.id !== id);
+    guardarCatalogoPersonalizadoEnDisco(filtrados);
+
+    // 2. Eliminar de Supabase
     if (isSupabaseConfigured && supabase) {
       await supabase.from('libros_digitales').delete().eq('id', id);
     }
+
     invalidarCacheDigital();
     return { success: true };
   } catch (err: any) {

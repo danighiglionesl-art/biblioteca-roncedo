@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Image from 'next/image';
 import {
   Globe2,
@@ -21,38 +21,30 @@ import {
   X,
   ShieldCheck,
   Calendar,
+  Pencil,
 } from 'lucide-react';
 import { LibroDigital, FuenteDigital, MetricasBibliotecaDigital } from '@/types';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase/client';
 import { LectorDigitalModal } from '@/components/digital/LectorDigitalModal';
+import { ModalLibroDigitalForm } from '@/components/digital/ModalLibroDigitalForm';
 import { formatFechaArgentina } from '@/lib/utils';
+import { useAuth } from '@/lib/auth/AuthContext';
 
 export function GestionBibliotecaDigital() {
+  const { user } = useAuth();
   const [metricas, setMetricas] = useState<MetricasBibliotecaDigital | null>(null);
   const [cargandoMetricas, setCargandoMetricas] = useState(true);
   const [sincronizando, setSincronizando] = useState(false);
   const [resultadoSync, setResultadoSync] = useState<{ exito: boolean; mensaje: string } | null>(null);
 
-  // Libros propios de Biblioteca Roncedo
+  // Libros propios y catálogo personalizado ABM
   const [librosRoncedo, setLibrosRoncedo] = useState<LibroDigital[]>([]);
   const [cargandoRoncedo, setCargandoRoncedo] = useState(true);
-  const [modalNuevoLibro, setModalNuevoLibro] = useState(false);
-  const [guardandoLibro, setGuardandoLibro] = useState(false);
+  const [modalLibroFormOpen, setModalLibroFormOpen] = useState(false);
+  const [libroParaEditar, setLibroParaEditar] = useState<LibroDigital | null>(null);
   const [libroParaLeer, setLibroParaLeer] = useState<LibroDigital | null>(null);
-
-  // Formulario nuevo libro Roncedo
-  const [formTitulo, setFormTitulo] = useState('');
-  const [formAutor, setFormAutor] = useState('Biblioteca Dr. Lautaro Roncedo');
-  const [formEditorial, setFormEditorial] = useState('Ediciones Biblioteca Roncedo');
-  const [formAnio, setFormAnio] = useState(new Date().getFullYear().toString());
-  const [formGenero, setFormGenero] = useState('Historia Institucional y Local');
-  const [formLicencia, setFormLicencia] = useState('Biblioteca Roncedo (Acceso Abierto)');
-  const [formPdfUrl, setFormPdfUrl] = useState('');
-  const [formPortadaUrl, setFormPortadaUrl] = useState('');
-  const [formDescripcion, setFormDescripcion] = useState('');
-  const [archivoPdfFile, setArchivoPdfFile] = useState<File | null>(null);
-  const [subiendoPdf, setSubiendoPdf] = useState(false);
-  const [progresoPdf, setProgresoPdf] = useState(0);
+  const [busquedaAdmin, setBusquedaAdmin] = useState('');
+  const [filtroFuenteAdmin, setFiltroFuenteAdmin] = useState<string>('todas');
 
   // Cargar métricas
   const cargarMetricas = useCallback(async () => {
@@ -124,108 +116,20 @@ export function GestionBibliotecaDigital() {
     }
   };
 
-  // Subir archivo PDF
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
-        alert('Por favor selecciona un archivo con formato PDF (.pdf).');
-        return;
-      }
-      setArchivoPdfFile(file);
-      if (!formTitulo) {
-        const nombreLimpio = file.name.replace(/\.[^/.]+$/, '').replace(/[_-]/g, ' ');
-        setFormTitulo(nombreLimpio);
-      }
-    }
-  };
-
-  // Guardar nuevo libro de Biblioteca Roncedo
-  const handleGuardarLibro = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formTitulo.trim()) {
-      alert('El título del libro es obligatorio.');
-      return;
-    }
-
-    setGuardandoLibro(true);
-    try {
-      let finalPdfUrl = formPdfUrl.trim();
-
-      // Si seleccionó un archivo PDF físico y Supabase está configurado, subir al bucket
-      if (archivoPdfFile) {
-        setSubiendoPdf(true);
-        if (isSupabaseConfigured && supabase) {
-          const timestamp = Date.now();
-          const cleanName = archivoPdfFile.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-          const filePath = `obras/${timestamp}_${cleanName}`;
-
-          const { data: uploadData, error: uploadError } = await supabase.storage
-            .from('libros_digitales_pdf')
-            .upload(filePath, archivoPdfFile, {
-              cacheControl: '3600',
-              upsert: true,
-              contentType: 'application/pdf',
-            });
-
-          if (uploadError) {
-            console.warn('Fallo en Supabase Storage, usando blob/url:', uploadError.message);
-          } else if (uploadData) {
-            const { data: publicUrlData } = supabase.storage
-              .from('libros_digitales_pdf')
-              .getPublicUrl(filePath);
-            finalPdfUrl = publicUrlData.publicUrl;
-          }
-        }
-
-        // Si no subió a Supabase Storage y no hay url externa, usar data URL o fallback
-        if (!finalPdfUrl) {
-          finalPdfUrl = await new Promise<string>((resolve) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(reader.result as string);
-            reader.readAsDataURL(archivoPdfFile);
-          });
-        }
-      }
-
-      const res = await fetch('/api/digital/roncedo', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          titulo: formTitulo.trim(),
-          autor: formAutor.trim(),
-          editorial: formEditorial.trim(),
-          anio: formAnio.trim(),
-          genero_o_materia: formGenero.trim(),
-          tipo_licencia: formLicencia.trim(),
-          archivo_pdf_url: finalPdfUrl,
-          portada_url: formPortadaUrl.trim() || '/images/escudo-roncedo.png',
-          descripcion: formDescripcion.trim(),
-        }),
-      });
-
-      const data = await res.json();
-      if (data.success) {
-        alert('¡Libro digital agregado exitosamente al catálogo oficial de Biblioteca Roncedo!');
-        setModalNuevoLibro(false);
-        // Reset form
-        setFormTitulo('');
-        setFormPdfUrl('');
-        setFormPortadaUrl('');
-        setFormDescripcion('');
-        setArchivoPdfFile(null);
-        await cargarLibrosRoncedo();
-        await cargarMetricas();
-      } else {
-        alert(`Error al guardar: ${data.error || 'Ocurrió un error inesperado'}`);
-      }
-    } catch (err: any) {
-      alert(`Error al guardar: ${err.message}`);
-    } finally {
-      setGuardandoLibro(false);
-      setSubiendoPdf(false);
-    }
-  };
+  // Filtrado de obras en el panel de administración
+  const librosFiltradosAdmin = useMemo(() => {
+    return librosRoncedo.filter((l) => {
+      const q = busquedaAdmin.trim().toLowerCase();
+      const coincideTexto =
+        !q ||
+        l.titulo.toLowerCase().includes(q) ||
+        l.autor.toLowerCase().includes(q) ||
+        (l.editorial && l.editorial.toLowerCase().includes(q)) ||
+        (l.genero_o_materia && l.genero_o_materia.toLowerCase().includes(q));
+      const coincideFuente = filtroFuenteAdmin === 'todas' || l.fuente === filtroFuenteAdmin;
+      return coincideTexto && coincideFuente;
+    });
+  }, [librosRoncedo, busquedaAdmin, filtroFuenteAdmin]);
 
   // Eliminar libro de Biblioteca Roncedo
   const handleEliminarLibro = async (id: string, titulo: string) => {
@@ -452,83 +356,155 @@ export function GestionBibliotecaDigital() {
         </div>
       </div>
 
-      {/* SECCIÓN 7: Libros Digitales de la Biblioteca Roncedo (PDF) */}
+      {/* SECCIÓN 7: Gestión Integral y ABM de Libros Digitales (PDF) */}
       <div className="bg-white rounded-3xl p-6 shadow-card border border-amber-300/80 space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-amber-100 pb-4">
           <div>
             <div className="inline-flex items-center gap-1.5 text-amber-800 text-xs font-bold bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200 mb-1">
-              <span>🏛️ Plataforma Oficial Nº 7</span>
+              <span>🏛️ Plataforma Nº 7 • ABM de Libros Digitales</span>
             </div>
             <h3 className="text-lg font-black text-slate-900">
-              Libros Digitales de la Biblioteca Roncedo
+              Colección Digital Roncedo y Obras Personalizadas
             </h3>
-            <p className="text-xs text-slate-500">
-              Colección digital institucional propia. Subí y administrá archivos PDF con metadatos normalizados para lectura online o descarga comunitaria.
+            <p className="text-xs text-slate-500 max-w-2xl">
+              Carga, edición y baja de obras digitales en PDF con metadatos normalizados (autor, editorial, año, género, autor argentino/latino, licencia, portada y lector integrado).
             </p>
           </div>
 
           <button
-            onClick={() => setModalNuevoLibro(true)}
-            className="bg-roncedo-navy hover:bg-blue-900 text-white font-bold text-xs py-2.5 px-4 rounded-xl shadow transition-all flex items-center justify-center gap-2 self-start sm:self-auto"
+            onClick={() => {
+              setLibroParaEditar(null);
+              setModalLibroFormOpen(true);
+            }}
+            className="bg-roncedo-navy hover:bg-blue-900 text-white font-black text-xs py-2.5 px-4 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 self-start sm:self-auto cursor-pointer"
           >
             <PlusCircle className="w-4 h-4 text-roncedo-gold" />
-            <span>+ Agregar Obra en PDF</span>
+            <span>+ Cargar Nuevo Libro Digital (PDF)</span>
           </button>
         </div>
 
-        {/* Listado de Libros de Biblioteca Roncedo */}
+        {/* Buscador y Filtros de la Tabla ABM */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-50 p-3 rounded-2xl border border-slate-200">
+          <div className="relative w-full sm:w-72">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+            <input
+              type="text"
+              value={busquedaAdmin}
+              onChange={(e) => setBusquedaAdmin(e.target.value)}
+              placeholder="Buscar por título, autor o género..."
+              className="w-full pl-9 pr-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-roncedo-blue"
+            />
+          </div>
+
+          <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
+            <select
+              value={filtroFuenteAdmin}
+              onChange={(e) => setFiltroFuenteAdmin(e.target.value)}
+              className="bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-roncedo-blue"
+            >
+              <option value="todas">Todas las fuentes</option>
+              <option value="roncedo_digital">🏛️ Biblioteca Roncedo (PDF)</option>
+              <option value="bnmm">🇦🇷 BN Mariano Moreno</option>
+              <option value="bne">🇪🇸 Biblioteca de España</option>
+              <option value="wikisource">📖 Wikisource</option>
+              <option value="gutenberg">📘 Project Gutenberg</option>
+              <option value="cervantes">🏛️ Cervantes Virtual</option>
+              <option value="openlibrary">🌐 Open Library</option>
+            </select>
+
+            <span className="text-[11px] font-bold text-slate-500 bg-white px-2.5 py-1.5 rounded-xl border border-slate-200 whitespace-nowrap">
+              {librosFiltradosAdmin.length} obra{librosFiltradosAdmin.length !== 1 ? 's' : ''}
+            </span>
+          </div>
+        </div>
+
+        {/* Listado de Libros ABM */}
         {cargandoRoncedo ? (
           <div className="py-12 text-center text-slate-400 flex items-center justify-center gap-2">
             <RefreshCw className="w-5 h-5 animate-spin text-roncedo-blue" />
             <span className="text-xs font-semibold">Cargando colección de Biblioteca Roncedo...</span>
           </div>
-        ) : librosRoncedo.length === 0 ? (
+        ) : librosFiltradosAdmin.length === 0 ? (
           <div className="py-12 text-center border-2 border-dashed border-amber-200 rounded-2xl bg-amber-50/40 p-6 space-y-3">
             <FileText className="w-10 h-10 text-amber-400 mx-auto" />
             <h4 className="text-sm font-bold text-slate-800">
-              Aún no hay archivos PDF cargados para Biblioteca Roncedo
+              {busquedaAdmin
+                ? 'No se encontraron obras con ese criterio de búsqueda'
+                : 'Aún no hay archivos PDF cargados para Biblioteca Roncedo'}
             </h4>
             <p className="text-xs text-slate-500 max-w-md mx-auto">
-              Hacé clic en &ldquo;Agregar Obra en PDF&rdquo; para subir el primer libro o documento institucional (estatutos, memorias, obras locales, investigaciones).
+              {busquedaAdmin
+                ? 'Probá modificando el término o limpiando los filtros.'
+                : 'Hacé clic en "+ Cargar Nuevo Libro Digital (PDF)" para subir el primer libro o documento institucional con todos sus metadatos.'}
             </p>
             <button
-              onClick={() => setModalNuevoLibro(true)}
+              onClick={() => {
+                if (busquedaAdmin) {
+                  setBusquedaAdmin('');
+                  setFiltroFuenteAdmin('todas');
+                } else {
+                  setLibroParaEditar(null);
+                  setModalLibroFormOpen(true);
+                }
+              }}
               className="bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs py-2 px-4 rounded-xl transition-colors inline-flex items-center gap-1.5"
             >
               <PlusCircle className="w-4 h-4" />
-              <span>Subir primer PDF</span>
+              <span>{busquedaAdmin ? 'Limpiar Búsqueda' : 'Cargar Primer PDF'}</span>
             </button>
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto rounded-2xl border border-slate-200">
             <table className="w-full text-left text-xs">
               <thead className="bg-slate-50 text-slate-600 uppercase text-[10px] tracking-wider border-b border-slate-200">
                 <tr>
                   <th className="py-3 px-3">Obra</th>
                   <th className="py-3 px-3">Autor / Editorial</th>
                   <th className="py-3 px-3">Año / Materia</th>
-                  <th className="py-3 px-3">Licencia</th>
-                  <th className="py-3 px-3 text-right">Acciones</th>
+                  <th className="py-3 px-3">Licencia / Fuente</th>
+                  <th className="py-3 px-3 text-right">Acciones ABM</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {librosRoncedo.map((l) => (
-                  <tr key={l.id} className="hover:bg-slate-50 transition-colors">
+                {librosFiltradosAdmin.map((l) => (
+                  <tr key={l.id} className="hover:bg-amber-50/40 transition-colors">
                     <td className="py-3 px-3 font-semibold text-slate-900 flex items-center gap-2.5">
-                      <div className="w-8 h-10 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center flex-shrink-0 shadow-sm border border-amber-200">
-                        <FileText className="w-4 h-4" />
-                      </div>
-                      <div>
-                        <span className="font-bold block line-clamp-1">{l.titulo}</span>
+                      {l.portada_url ? (
+                        <div className="relative w-9 h-12 rounded-lg overflow-hidden flex-shrink-0 shadow-sm border border-slate-200 bg-slate-100">
+                          <Image
+                            src={l.portada_url}
+                            alt={l.titulo}
+                            fill
+                            sizes="36px"
+                            className="object-cover"
+                            unoptimized
+                          />
+                        </div>
+                      ) : (
+                        <div className="w-9 h-12 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center flex-shrink-0 shadow-sm border border-amber-200">
+                          <FileText className="w-4 h-4" />
+                        </div>
+                      )}
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="font-bold text-slate-900 block line-clamp-1" title={l.titulo}>
+                            {l.titulo}
+                          </span>
+                          {l.es_argentino_o_latino && (
+                            <span className="text-[9px] font-bold text-amber-800 bg-amber-100 px-1.5 py-0.2 rounded border border-amber-200">
+                              🇦🇷 Latino/Arg
+                            </span>
+                          )}
+                        </div>
                         {l.archivo_pdf_url && (
                           <span className="text-[10px] text-emerald-600 font-semibold block">
-                            Archivo PDF listo
+                            📄 Archivo PDF vinculado
                           </span>
                         )}
                       </div>
                     </td>
                     <td className="py-3 px-3 text-slate-600">
-                      <span className="block font-medium">{l.autor}</span>
+                      <span className="block font-bold text-slate-800">{l.autor}</span>
                       <span className="text-[10px] text-slate-400">{l.editorial || 'Ed. Roncedo'}</span>
                     </td>
                     <td className="py-3 px-3 text-slate-600">
@@ -536,36 +512,54 @@ export function GestionBibliotecaDigital() {
                       <span className="text-[10px] text-slate-400">{l.genero_o_materia || 'General'}</span>
                     </td>
                     <td className="py-3 px-3">
-                      <span className="bg-slate-100 text-slate-700 text-[10px] font-bold px-2 py-0.5 rounded">
-                        {l.tipo_licencia || 'Acceso Abierto'}
+                      <span className="bg-slate-100 text-slate-700 text-[10px] font-bold px-2 py-0.5 rounded block w-fit mb-1">
+                        {l.tipo_licencia || 'Dominio Público'}
+                      </span>
+                      <span className="text-[9px] text-slate-400 uppercase font-bold">
+                        {l.fuente}
                       </span>
                     </td>
-                    <td className="py-3 px-3 text-right space-x-1">
+                    <td className="py-3 px-3 text-right space-x-1 whitespace-nowrap">
+                      {/* Botón Editar Obra */}
+                      <button
+                        onClick={() => {
+                          setLibroParaEditar(l);
+                          setModalLibroFormOpen(true);
+                        }}
+                        className="p-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-roncedo-blue hover:text-blue-900 transition-colors inline-flex"
+                        title="Editar metadatos de la obra"
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </button>
+
+                      {/* Botón Leer en App */}
                       <button
                         onClick={() => setLibroParaLeer(l)}
-                        className="p-1.5 rounded-lg bg-slate-100 hover:bg-blue-100 text-slate-700 hover:text-roncedo-navy transition-colors inline-flex"
+                        className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-roncedo-navy transition-colors inline-flex"
                         title="Leer en la App"
                       >
                         <BookOpen className="w-4 h-4" />
                       </button>
 
+                      {/* Botón Descargar PDF */}
                       {l.archivo_pdf_url && (
                         <a
                           href={l.archivo_pdf_url}
                           download
                           target="_blank"
                           rel="noreferrer"
-                          className="p-1.5 rounded-lg bg-slate-100 hover:bg-emerald-100 text-slate-700 hover:text-emerald-700 transition-colors inline-flex"
+                          className="p-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 transition-colors inline-flex"
                           title="Descargar PDF"
                         >
                           <Download className="w-4 h-4" />
                         </a>
                       )}
 
+                      {/* Botón Eliminar */}
                       <button
                         onClick={() => handleEliminarLibro(l.id, l.titulo)}
-                        className="p-1.5 rounded-lg bg-slate-100 hover:bg-rose-100 text-slate-700 hover:text-rose-700 transition-colors inline-flex"
-                        title="Eliminar obra"
+                        className="p-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 transition-colors inline-flex"
+                        title="Eliminar obra del catálogo"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -578,207 +572,26 @@ export function GestionBibliotecaDigital() {
         )}
       </div>
 
-      {/* Modal para Agregar Nuevo Libro PDF de Biblioteca Roncedo */}
-      {modalNuevoLibro && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-3xl max-w-xl w-full p-6 shadow-2xl border border-slate-200 my-8 space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center font-bold">
-                  🏛️
-                </div>
-                <div>
-                  <h3 className="text-base font-black text-slate-900">
-                    Nueva Obra Digital • Biblioteca Roncedo
-                  </h3>
-                  <span className="text-[11px] text-slate-500">
-                    Sube el archivo PDF con sus datos bibliográficos oficiales
-                  </span>
-                </div>
-              </div>
-              <button
-                onClick={() => setModalNuevoLibro(false)}
-                className="text-slate-400 hover:text-slate-600 p-1"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
+      {/* Modal ABM de Libro Digital (Alta y Modificación) con Vista Previa en Vivo */}
+      <ModalLibroDigitalForm
+        isOpen={modalLibroFormOpen}
+        libroParaEditar={libroParaEditar}
+        onClose={() => {
+          setModalLibroFormOpen(false);
+          setLibroParaEditar(null);
+        }}
+        onSuccess={async (libroGuardado) => {
+          await cargarLibrosRoncedo();
+          await cargarMetricas();
+          setResultadoSync({
+            exito: true,
+            mensaje: `Obra "${libroGuardado.titulo}" guardada y sincronizada exitosamente en el catálogo.`,
+          });
+        }}
+        userId={user?.id}
+      />
 
-            <form onSubmit={handleGuardarLibro} className="space-y-4 text-xs">
-              {/* Título y Autor */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
-                    Título de la Obra *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formTitulo}
-                    onChange={(e) => setFormTitulo(e.target.value)}
-                    placeholder="Ej: Historia de Alcira Gigena y la Biblioteca"
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-semibold focus:outline-none focus:ring-2 focus:ring-roncedo-blue"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
-                    Autor *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formAutor}
-                    onChange={(e) => setFormAutor(e.target.value)}
-                    placeholder="Ej: Dr. Lautaro Roncedo / Varios autores"
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-semibold focus:outline-none focus:ring-2 focus:ring-roncedo-blue"
-                  />
-                </div>
-              </div>
-
-              {/* Editorial y Año */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="sm:col-span-2">
-                  <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
-                    Editorial
-                  </label>
-                  <input
-                    type="text"
-                    value={formEditorial}
-                    onChange={(e) => setFormEditorial(e.target.value)}
-                    placeholder="Ediciones Biblioteca Roncedo"
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-roncedo-blue"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
-                    Año
-                  </label>
-                  <input
-                    type="number"
-                    value={formAnio}
-                    onChange={(e) => setFormAnio(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-semibold focus:outline-none focus:ring-2 focus:ring-roncedo-blue"
-                  />
-                </div>
-              </div>
-
-              {/* Género / Materia y Licencia */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
-                    Género / Materia
-                  </label>
-                  <input
-                    type="text"
-                    value={formGenero}
-                    onChange={(e) => setFormGenero(e.target.value)}
-                    placeholder="Historia local, Actas, Ensayo, Poesía"
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-roncedo-blue"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
-                    Tipo de Licencia
-                  </label>
-                  <select
-                    value={formLicencia}
-                    onChange={(e) => setFormLicencia(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-roncedo-blue"
-                  >
-                    <option value="Biblioteca Roncedo (Acceso Abierto)">Biblioteca Roncedo (Acceso Abierto)</option>
-                    <option value="Dominio Público">Dominio Público</option>
-                    <option value="Creative Commons BY-NC">Creative Commons BY-NC</option>
-                    <option value="Autorizado por el Autor">Autorizado por el Autor</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Subida del Archivo PDF */}
-              <div className="p-3 bg-amber-50/70 border border-amber-200 rounded-2xl space-y-2">
-                <label className="block text-[11px] font-black text-amber-900 uppercase">
-                  Archivo PDF del Libro
-                </label>
-                <div className="flex flex-col sm:flex-row items-center gap-2">
-                  <input
-                    type="file"
-                    accept=".pdf,application/pdf"
-                    onChange={handleFileChange}
-                    className="text-xs file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-amber-600 file:text-white hover:file:bg-amber-700 text-slate-700 w-full"
-                  />
-                </div>
-                <div className="text-[10px] text-slate-500">
-                  O ingresá una URL directa a un archivo PDF público:
-                </div>
-                <input
-                  type="url"
-                  value={formPdfUrl}
-                  onChange={(e) => setFormPdfUrl(e.target.value)}
-                  placeholder="https://ejemplo.com/archivo.pdf"
-                  className="w-full bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-roncedo-blue"
-                />
-              </div>
-
-              {/* Portada URL (opcional) */}
-              <div>
-                <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
-                  URL de Portada (Opcional)
-                </label>
-                <input
-                  type="text"
-                  value={formPortadaUrl}
-                  onChange={(e) => setFormPortadaUrl(e.target.value)}
-                  placeholder="/images/escudo-roncedo.png o enlace de imagen"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-roncedo-blue"
-                />
-              </div>
-
-              {/* Descripción / Sinopsis */}
-              <div>
-                <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
-                  Descripción / Sinopsis
-                </label>
-                <textarea
-                  rows={3}
-                  value={formDescripcion}
-                  onChange={(e) => setFormDescripcion(e.target.value)}
-                  placeholder="Reseña breve de la publicación, contexto histórico o contenido general..."
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-roncedo-blue"
-                />
-              </div>
-
-              {/* Botones de Acción */}
-              <div className="pt-2 border-t border-slate-100 flex items-center justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => setModalNuevoLibro(false)}
-                  className="px-4 py-2 rounded-xl text-slate-600 hover:bg-slate-100 font-bold"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  disabled={guardandoLibro || subiendoPdf}
-                  className="bg-roncedo-navy hover:bg-blue-900 text-white font-black px-5 py-2 rounded-xl shadow-md transition-all flex items-center gap-1.5"
-                >
-                  {guardandoLibro || subiendoPdf ? (
-                    <>
-                      <RefreshCw className="w-4 h-4 animate-spin text-roncedo-gold" />
-                      <span>Subiendo obra...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Check className="w-4 h-4 text-roncedo-gold" />
-                      <span>Guardar Obra</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Modal Lector Digital si el admin desea previsualizar una obra */}
+      {/* Modal Lector Digital si el admin desea previsualizar la lectura de una obra */}
       {libroParaLeer && (
         <LectorDigitalModal
           libro={libroParaLeer}

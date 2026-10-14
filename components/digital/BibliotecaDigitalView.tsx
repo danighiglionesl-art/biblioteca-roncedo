@@ -16,12 +16,20 @@ import {
   Library,
   ShieldCheck,
   CheckCircle2,
+  Pencil,
+  PlusCircle,
+  Trash2,
 } from 'lucide-react';
 import { LibroDigital, FuenteDigital, DisponibilidadDigital, MetricasBibliotecaDigital } from '@/types';
 import { LIBROS_DIGITALES_CURADOS } from '@/lib/data/librosDigitalesCurados';
+import { useAuth } from '@/lib/auth/AuthContext';
 import { LectorDigitalModal } from './LectorDigitalModal';
+import { ModalLibroDigitalForm } from './ModalLibroDigitalForm';
 
 export function BibliotecaDigitalView() {
+  const { user } = useAuth();
+  const esAdmin = user?.role === 'admin' || user?.email?.toLowerCase().includes('biblioroncedo');
+
   const [query, setQuery] = useState('');
   const [tipoBusqueda, setTipoBusqueda] = useState<'todos' | 'titulo' | 'autor' | 'editorial' | 'genero'>('todos');
   const [fuenteFiltro, setFuenteFiltro] = useState<'todas' | FuenteDigital>('todas');
@@ -37,6 +45,10 @@ export function BibliotecaDigitalView() {
   const [metricas, setMetricas] = useState<MetricasBibliotecaDigital | null>(null);
   const [cargando, setCargando] = useState<boolean>(false);
   const [libroSeleccionadoParaLeer, setLibroSeleccionadoParaLeer] = useState<LibroDigital | null>(null);
+
+  // Estados para ABM de Administrador
+  const [modalLibroFormOpen, setModalLibroFormOpen] = useState(false);
+  const [libroParaEditar, setLibroParaEditar] = useState<LibroDigital | null>(null);
 
   // Ejecución de la búsqueda paginada centralizada
   const ejecutarBusqueda = useCallback(async (paginaObjetivo: number = paginaActual) => {
@@ -123,6 +135,25 @@ export function BibliotecaDigitalView() {
       setFuenteFiltro('todas');
       setSoloLatinos(false);
       setDispFiltro('todas');
+    }
+  };
+
+  const handleEliminarLibro = async (id: string, titulo: string) => {
+    if (!confirm(`¿Estás seguro de que deseas eliminar la obra "${titulo}" del catálogo digital?`)) {
+      return;
+    }
+    try {
+      const res = await fetch(`/api/digital/roncedo?id=${encodeURIComponent(id)}`, {
+        method: 'DELETE',
+      });
+      const data = await res.json();
+      if (data.success) {
+        ejecutarBusqueda(paginaActual);
+      } else {
+        alert(`Error al eliminar: ${data.error || 'Ocurrió un error inesperado'}`);
+      }
+    } catch (e: any) {
+      alert(`Error al eliminar obra: ${e.message}`);
     }
   };
 
@@ -282,6 +313,41 @@ export function BibliotecaDigitalView() {
           </div>
         </div>
       </div>
+
+      {/* Banner de Control ABM si es usuario biblioroncedo / admin */}
+      {esAdmin && (
+        <div className="bg-gradient-to-r from-amber-500/15 via-amber-400/10 to-amber-500/15 border-2 border-amber-300 rounded-3xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
+          <div className="flex items-center gap-3.5">
+            <div className="w-11 h-11 rounded-2xl bg-amber-500 text-slate-950 flex items-center justify-center font-black text-2xl shadow-sm flex-shrink-0">
+              🏛️
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="bg-roncedo-gold text-slate-900 font-extrabold text-[10px] uppercase px-2.5 py-0.5 rounded-full shadow-sm">
+                  Sesión Administrador Activa
+                </span>
+                <span className="text-xs font-bold text-slate-800">
+                  {user?.email || 'biblioroncedo@bibliotecaroncedo.ar'}
+                </span>
+              </div>
+              <p className="text-xs text-slate-600 mt-1 max-w-2xl leading-relaxed">
+                Podés dar de alta nuevas obras en PDF con todos sus campos o modificar directamente cualquiera de las fichas del catálogo en tiempo real.
+              </p>
+            </div>
+          </div>
+
+          <button
+            onClick={() => {
+              setLibroParaEditar(null);
+              setModalLibroFormOpen(true);
+            }}
+            className="bg-roncedo-navy hover:bg-blue-900 text-white font-black text-xs py-2.5 px-5 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 flex-shrink-0 self-stretch sm:self-auto cursor-pointer"
+          >
+            <PlusCircle className="w-4 h-4 text-roncedo-gold" />
+            <span>+ Cargar Nuevo Libro Digital (PDF)</span>
+          </button>
+        </div>
+      )}
 
       {/* Buscador Centralizado con Filtros Unificados */}
       <div id="catalogo-digital-top" className="bg-white rounded-3xl p-5 sm:p-6 shadow-card border border-blue-200/80 space-y-4">
@@ -706,6 +772,36 @@ export function BibliotecaDigitalView() {
                     </span>
                   )}
                 </div>
+
+                {/* Acciones Rápidas ABM para Administrador biblioroncedo */}
+                {esAdmin && (
+                  <div className="pt-2 mt-2 border-t border-amber-200/80 flex items-center justify-between text-xs bg-amber-50/80 p-2 rounded-xl">
+                    <span className="text-[10px] font-extrabold text-amber-900 flex items-center gap-1">
+                      ⚙️ ABM
+                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={() => {
+                          setLibroParaEditar(libro);
+                          setModalLibroFormOpen(true);
+                        }}
+                        className="px-2.5 py-1 rounded-lg bg-blue-100 hover:bg-blue-200 text-roncedo-blue font-bold text-[11px] flex items-center gap-1 transition-colors cursor-pointer"
+                        title="Editar metadatos de la obra"
+                      >
+                        <Pencil className="w-3 h-3" />
+                        <span>Editar</span>
+                      </button>
+                      <button
+                        onClick={() => handleEliminarLibro(libro.id, libro.titulo)}
+                        className="px-2.5 py-1 rounded-lg bg-rose-100 hover:bg-rose-200 text-rose-700 font-bold text-[11px] flex items-center gap-1 transition-colors cursor-pointer"
+                        title="Eliminar obra del catálogo"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                        <span>Eliminar</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           );
@@ -772,6 +868,20 @@ export function BibliotecaDigitalView() {
           onClose={() => setLibroSeleccionadoParaLeer(null)}
         />
       )}
+
+      {/* Modal ABM de Libro Digital (Alta y Modificación) con Vista Previa */}
+      <ModalLibroDigitalForm
+        isOpen={modalLibroFormOpen}
+        libroParaEditar={libroParaEditar}
+        onClose={() => {
+          setModalLibroFormOpen(false);
+          setLibroParaEditar(null);
+        }}
+        onSuccess={() => {
+          ejecutarBusqueda(paginaActual);
+        }}
+        userId={user?.id}
+      />
     </div>
   );
 }

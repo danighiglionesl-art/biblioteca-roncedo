@@ -38,12 +38,14 @@ import {
   ShoppingBag,
   Award,
   Globe2,
+  Barcode,
 } from 'lucide-react';
 import { GestionPortadas } from '@/components/admin/GestionPortadas';
 import { GestionNovedades } from '@/components/admin/GestionNovedades';
 import { GestionEventos } from '@/components/admin/GestionEventos';
 import { GestionTienda } from '@/components/admin/GestionTienda';
 import { GestionBibliotecaDigital } from '@/components/admin/GestionBibliotecaDigital';
+import { EnriquecimientoIsbnView } from '@/components/admin/EnriquecimientoIsbnView';
 
 export default function AdminPage() {
   const {
@@ -56,7 +58,7 @@ export default function AdminPage() {
     actualizarSocioProtector,
   } = useAuth();
 
-  const [activeTab, setActiveTab] = useState<'portadas' | 'digital' | 'novedades' | 'eventos' | 'tienda' | 'protectores' | 'solicitudes' | 'padron' | 'usuarios'>('portadas');
+  const [activeTab, setActiveTab] = useState<'portadas' | 'isbn' | 'digital' | 'novedades' | 'eventos' | 'tienda' | 'protectores' | 'solicitudes' | 'padron' | 'usuarios'>('portadas');
   const [searchTerm, setSearchTerm] = useState('');
 
   // Leer pestaña desde query param si viene especificada
@@ -65,6 +67,7 @@ export default function AdminPage() {
       const params = new URLSearchParams(window.location.search);
       const tabParam = params.get('tab');
       if (
+        tabParam === 'isbn' ||
         tabParam === 'digital' ||
         tabParam === 'novedades' ||
         tabParam === 'eventos' ||
@@ -444,7 +447,7 @@ export default function AdminPage() {
         </div>
 
         {/* Pestañas de Gestión */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm gap-1 text-xs font-bold">
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm gap-1 text-xs font-bold">
           <button
             onClick={() => setActiveTab('portadas')}
             className={`py-2.5 rounded-xl transition-colors flex items-center justify-center gap-1.5 ${
@@ -455,6 +458,18 @@ export default function AdminPage() {
           >
             <Sparkles className={`w-4 h-4 ${activeTab === 'portadas' ? 'text-roncedo-gold' : 'text-amber-500'}`} />
             <span>Portadas</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('isbn')}
+            className={`py-2.5 rounded-xl transition-colors flex items-center justify-center gap-1.5 ${
+              activeTab === 'isbn'
+                ? 'bg-gradient-to-r from-blue-950 via-blue-900 to-indigo-900 text-white shadow-sm'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <Barcode className={`w-4 h-4 ${activeTab === 'isbn' ? 'text-roncedo-gold' : 'text-blue-600'}`} />
+            <span>Catálogo ISBN</span>
           </button>
 
           <button
@@ -539,6 +554,9 @@ export default function AdminPage() {
 
         {/* Pestaña: Gestión de Portadas */}
         {activeTab === 'portadas' && <GestionPortadas />}
+
+        {/* Pestaña: Enriquecimiento y Control de ISBN (ISO 2108) */}
+        {activeTab === 'isbn' && <EnriquecimientoIsbnView />}
 
         {/* Pestaña: Gestión de Biblioteca Digital (5.800+ obras y PDF Roncedo) */}
         {activeTab === 'digital' && <GestionBibliotecaDigital />}

@@ -34,6 +34,7 @@ import {
   Eye,
   X,
   FileSpreadsheet,
+  Barcode,
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 
@@ -456,6 +457,15 @@ export function GestionPortadas() {
               <RefreshCw className="w-4 h-4 text-roncedo-celesteLight" />
               <span>Búsqueda Masiva ({librosSinPortada.length} sin portada)</span>
             </button>
+
+            <a
+              href="/admin?tab=isbn"
+              className="bg-blue-900/90 hover:bg-blue-950 text-white font-bold text-xs px-3.5 py-2.5 rounded-xl border border-blue-400/40 shadow-sm transition-all flex items-center gap-2"
+              title="Ir al módulo inteligente de validación y enriquecimiento de ISBN"
+            >
+              <Barcode className="w-4 h-4 text-roncedo-gold" />
+              <span>Módulo Catálogo ISBN</span>
+            </a>
 
             <button
               onClick={handleGuardarEnServidor}
