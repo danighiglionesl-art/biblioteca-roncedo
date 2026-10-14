@@ -841,6 +841,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (isSupabaseConfigured && supabase) {
       try {
         await supabase.from('profiles').update(data).eq('id', userId);
+        if (user && user.id === userId) {
+          await supabase.auth.updateUser({ data });
+        }
       } catch (err) {
         console.warn('Error sincronizando socio protector con Supabase:', err);
       }

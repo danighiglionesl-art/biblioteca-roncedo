@@ -55,6 +55,7 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   fecha_adhesion DATE,
   fecha_ultimo_pago TIMESTAMPTZ,
   proximo_vencimiento DATE,
+  datos_completados BOOLEAN DEFAULT FALSE NOT NULL,
   created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
   updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
 );
@@ -159,9 +160,60 @@ CREATE POLICY "Usuarios ven su propio perfil"
   ON public.profiles FOR SELECT 
   USING (auth.uid() = id);
 
+CREATE POLICY "Usuarios insertan su propio perfil" 
+  ON public.profiles FOR INSERT 
+  WITH CHECK (auth.uid() = id);
+
 CREATE POLICY "Usuarios editan su propio perfil" 
   ON public.profiles FOR UPDATE 
-  USING (auth.uid() = id);
+  USING (auth.uid() = id)
+  WITH CHECK (auth.uid() = id);
+
+CREATE POLICY "Admins gestionan perfiles"
+  ON public.profiles FOR ALL
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles p2 
+      WHERE p2.id = auth.uid() AND p2.role = 'admin'
+    )
+  );
+
+-- Trigger para crear automáticamente el perfil al registrarse un usuario en auth.users
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS trigger AS $$
+BEGIN
+  INSERT INTO public.profiles (
+    id, 
+    email, 
+    nombre, 
+    apellido, 
+    avatar_url, 
+    role,
+    datos_completados
+  )
+  VALUES (
+    new.id,
+    new.email,
+    COALESCE(new.raw_user_meta_data->>'nombre', split_part(new.email, '@', 1)),
+    COALESCE(new.raw_user_meta_data->>'apellido', ''),
+    COALESCE(new.raw_user_meta_data->>'avatar_url', new.raw_user_meta_data->>'picture', ''),
+    CASE 
+      WHEN lower(new.email) IN ('biblioroncedo@bibliotecaroncedo.ar', 'admin@bibliotecaroncedo.ar') THEN 'admin'::user_role 
+      ELSE 'usuario'::user_role 
+    END,
+    COALESCE((new.raw_user_meta_data->>'datos_completados')::boolean, false)
+  )
+  ON CONFLICT (id) DO UPDATE SET
+    avatar_url = COALESCE(EXCLUDED.avatar_url, public.profiles.avatar_url),
+    updated_at = NOW();
+  RETURN new;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
 
 -- Políticas de socios: los socios pueden ver su carnet
 CREATE POLICY "Socios leen su carnet" 
