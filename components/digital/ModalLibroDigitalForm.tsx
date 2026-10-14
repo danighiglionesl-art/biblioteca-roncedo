@@ -179,7 +179,8 @@ export function ModalLibroDigitalForm({
         const compressed = await compressImage(file, 800, 0.85);
         setArchivoPortada(compressed.file);
         setPortadaPreview(compressed.previewUrl);
-        setPortadaUrl(compressed.previewUrl);
+        // No colocamos la URL blob en el campo de texto para evitar URLs efímeras
+        setPortadaUrl('');
       } catch (err) {
         console.warn('Error comprimiendo portada:', err);
         const reader = new FileReader();
@@ -193,49 +194,128 @@ export function ModalLibroDigitalForm({
     }
   };
 
-  // Subir portada a Supabase Storage si está configurado
+  // Subir portada a Supabase Storage con multi-bucket fallback
   const subirImagenPortada = async (file: File): Promise<string> => {
+    const cleanName = `portada_${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+
     if (isSupabaseConfigured && supabase) {
+      // Intento 1: Bucket fototeca (carpeta portadas_digitales)
       try {
-        const cleanName = `portada_${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
-        const filePath = `portadas/${cleanName}`;
-        const { data, error } = await supabase.storage.from('novedades').upload(filePath, file, {
-          upsert: true,
-          contentType: file.type || 'image/webp',
-        });
+        const filePath = `portadas_digitales/${cleanName}`;
+        const { data, error } = await supabase.storage
+          .from('fototeca')
+          .upload(filePath, file, {
+            upsert: true,
+            contentType: file.type || 'image/webp',
+          });
         if (!error && data) {
-          const { data: publicData } = supabase.storage.from('novedades').getPublicUrl(filePath);
-          return publicData.publicUrl;
+          const { data: publicData } = supabase.storage
+            .from('fototeca')
+            .getPublicUrl(filePath);
+          if (publicData?.publicUrl) return publicData.publicUrl;
         }
       } catch (e) {
-        console.warn('Fallo storage portada, usando preview local:', e);
+        console.warn('Fallo bucket fototeca para portada:', e);
+      }
+
+      // Intento 2: Bucket novedades
+      try {
+        const filePath = `portadas/${cleanName}`;
+        const { data, error } = await supabase.storage
+          .from('novedades')
+          .upload(filePath, file, {
+            upsert: true,
+            contentType: file.type || 'image/webp',
+          });
+        if (!error && data) {
+          const { data: publicData } = supabase.storage
+            .from('novedades')
+            .getPublicUrl(filePath);
+          if (publicData?.publicUrl) return publicData.publicUrl;
+        }
+      } catch (e) {
+        console.warn('Fallo bucket novedades para portada:', e);
       }
     }
-    return portadaPreview || '/images/escudo-roncedo.png';
+
+    // Fallback: como la foto de portada comprimida pesa menos de 150 KB, Base64 es seguro y persistente
+    try {
+      return await new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.readAsDataURL(file);
+      });
+    } catch {
+      return '/images/escudo-roncedo.png';
+    }
   };
 
-  // Subir PDF a Supabase Storage
+  // Subir PDF a Supabase Storage con multi-bucket fallback
   const subirArchivoPdf = async (file: File): Promise<string> => {
+    const timestamp = Date.now();
+    const cleanName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+    let lastErrorMsg = '';
+
     if (isSupabaseConfigured && supabase) {
-      const timestamp = Date.now();
-      const cleanName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-      const filePath = `obras/${timestamp}_${cleanName}`;
+      // Intento 1: Bucket dedicado libros_digitales_pdf
+      try {
+        const filePath = `obras/${timestamp}_${cleanName}`;
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('libros_digitales_pdf')
+          .upload(filePath, file, {
+            cacheControl: '3600',
+            upsert: true,
+            contentType: 'application/pdf',
+          });
 
-      const { data, error } = await supabase.storage.from('libros_digitales_pdf').upload(filePath, file, {
-        cacheControl: '3600',
-        upsert: true,
-        contentType: 'application/pdf',
-      });
-
-      if (!error && data) {
-        const { data: publicUrlData } = supabase.storage.from('libros_digitales_pdf').getPublicUrl(filePath);
-        return publicUrlData.publicUrl;
+        if (!uploadError && uploadData) {
+          const { data: publicUrlData } = supabase.storage
+            .from('libros_digitales_pdf')
+            .getPublicUrl(filePath);
+          if (publicUrlData?.publicUrl) {
+            return publicUrlData.publicUrl;
+          }
+        }
+        if (uploadError) {
+          console.warn('Intento en libros_digitales_pdf falló:', uploadError.message);
+          lastErrorMsg = uploadError.message;
+        }
+      } catch (e: any) {
+        console.warn('Excepción en libros_digitales_pdf:', e);
+        lastErrorMsg = e.message;
       }
-      console.warn('Error al subir PDF a Supabase Storage:', error?.message);
+
+      // Intento 2: Bucket fototeca (carpeta digital_obras) con políticas abiertas
+      try {
+        const pathFototeca = `digital_obras/${timestamp}_${cleanName}`;
+        const { data: dataFoto, error: errorFoto } = await supabase.storage
+          .from('fototeca')
+          .upload(pathFototeca, file, {
+            cacheControl: '3600',
+            upsert: true,
+            contentType: 'application/pdf',
+          });
+
+        if (!errorFoto && dataFoto) {
+          const { data: publicUrlData } = supabase.storage
+            .from('fototeca')
+            .getPublicUrl(pathFototeca);
+          if (publicUrlData?.publicUrl) {
+            return publicUrlData.publicUrl;
+          }
+        }
+        if (errorFoto) {
+          console.warn('Intento en bucket fototeca falló:', errorFoto.message);
+          lastErrorMsg = errorFoto.message;
+        }
+      } catch (e: any) {
+        console.warn('Excepción en fototeca para PDF:', e);
+        lastErrorMsg = e.message;
+      }
     }
 
-    // Fallback: Data URL si el archivo es menor a 8MB
-    if (file.size < 8 * 1024 * 1024) {
+    // Si falló el almacenamiento en la nube y el archivo es muy liviano (< 2 MB), usar Base64
+    if (file.size < 2 * 1024 * 1024) {
       return await new Promise<string>((resolve) => {
         const reader = new FileReader();
         reader.onload = () => resolve(reader.result as string);
@@ -243,7 +323,10 @@ export function ModalLibroDigitalForm({
       });
     }
 
-    throw new Error('El archivo PDF supera el límite sin conexión. Conéctate a Supabase Storage o usa una URL directa.');
+    // Para archivos de más de 2 MB, jamás enviamos Base64 por JSON porque Vercel rechaza payloads > 4.5 MB con error 413
+    throw new Error(
+      `No se pudo subir el archivo PDF (${(file.size / (1024 * 1024)).toFixed(1)} MB) a Supabase Storage (${lastErrorMsg || 'permisos denegados o almacenamiento no disponible'}). Podés ingresar el enlace público directo al archivo en el campo de URL o verificar los permisos del bucket en Supabase.`
+    );
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -265,7 +348,7 @@ export function ModalLibroDigitalForm({
 
     try {
       let finalPdfUrl = pdfUrl.trim();
-      let finalPortadaUrl = portadaUrl.trim() || '/images/escudo-roncedo.png';
+      let finalPortadaUrl = portadaUrl.trim();
 
       // 1. Subida de PDF físico si fue seleccionado
       if (archivoPdf) {
@@ -277,6 +360,13 @@ export function ModalLibroDigitalForm({
       if (archivoPortada) {
         setMensajeEstado('Guardando imagen de portada...');
         finalPortadaUrl = await subirImagenPortada(archivoPortada);
+      }
+
+      // Si la URL de portada es un blob temporal de previsualización, limpiarlo o reemplazarlo
+      if (!finalPortadaUrl || finalPortadaUrl.startsWith('blob:')) {
+        finalPortadaUrl = portadaPreview && !portadaPreview.startsWith('blob:')
+          ? portadaPreview
+          : '/images/escudo-roncedo.png';
       }
 
       setMensajeEstado('Guardando en catálogo institucional...');
@@ -307,7 +397,17 @@ export function ModalLibroDigitalForm({
         body: JSON.stringify(payload),
       });
 
-      const data = await res.json();
+      const responseText = await res.text();
+      let data: any;
+      try {
+        data = JSON.parse(responseText);
+      } catch {
+        if (res.status === 413) {
+          throw new Error('El tamaño de los datos enviados excede el límite del servidor (4.5 MB). El archivo PDF debe subirse al almacenamiento de Supabase o vincularse por enlace URL.');
+        }
+        throw new Error(`Error del servidor (${res.status}): ${responseText.substring(0, 150)}`);
+      }
+
       if (!data.success) {
         throw new Error(data.error || 'Error al guardar el libro digital.');
       }

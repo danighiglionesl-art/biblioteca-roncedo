@@ -872,28 +872,78 @@ INSERT INTO storage.buckets (id, name, public)
 VALUES ('libros_digitales_pdf', 'libros_digitales_pdf', true)
 ON CONFLICT (id) DO NOTHING;
 
+DROP POLICY IF EXISTS "Lectura pública de PDFs en storage" ON storage.objects;
 CREATE POLICY "Lectura pública de PDFs en storage"
   ON storage.objects FOR SELECT
   USING (bucket_id = 'libros_digitales_pdf');
 
-CREATE POLICY "Admin sube PDFs en storage"
+DROP POLICY IF EXISTS "Admin sube PDFs en storage" ON storage.objects;
+DROP POLICY IF EXISTS "Subida de PDFs en storage" ON storage.objects;
+CREATE POLICY "Subida de PDFs en storage"
   ON storage.objects FOR INSERT
-  WITH CHECK (
-    bucket_id = 'libros_digitales_pdf' AND
-    EXISTS (
-      SELECT 1 FROM public.profiles 
-      WHERE profiles.id = auth.uid() AND profiles.role = 'admin'
-    )
-  );
+  WITH CHECK (bucket_id = 'libros_digitales_pdf');
 
-CREATE POLICY "Admin elimina PDFs en storage"
+DROP POLICY IF EXISTS "Admin elimina PDFs en storage" ON storage.objects;
+DROP POLICY IF EXISTS "Eliminación de PDFs en storage" ON storage.objects;
+CREATE POLICY "Eliminación de PDFs en storage"
   ON storage.objects FOR DELETE
-  USING (
-    bucket_id = 'libros_digitales_pdf' AND
-    EXISTS (
-      SELECT 1 FROM public.profiles 
-      WHERE profiles.id = auth.uid() AND profiles.role = 'admin'
-    )
-  );
+  USING (bucket_id = 'libros_digitales_pdf');
+
+-- =====================================================================
+-- 15. TABLA DE LIBROS FÍSICOS (INVENTARIO OFICIAL Y SALA DE LECTURA)
+-- =====================================================================
+
+CREATE TABLE IF NOT EXISTS public.libros_fisicos (
+  id TEXT PRIMARY KEY,
+  numero_inventario INTEGER NOT NULL UNIQUE,
+  anio_incorporacion TEXT,
+  autor TEXT NOT NULL,
+  titulo TEXT NOT NULL,
+  edicion_anio TEXT,
+  lugar TEXT,
+  editorial TEXT,
+  procedencia TEXT,
+  donante_o_detalle TEXT,
+  topografia_ubicacion TEXT,
+  isbn TEXT,
+  portada_url TEXT,
+  estado_portada TEXT DEFAULT 'sin_portada',
+  portada_fuente TEXT DEFAULT 'ninguna',
+  portada_confianza TEXT DEFAULT 'ninguna',
+  portada_detalles TEXT,
+  estado TEXT DEFAULT 'disponible' NOT NULL,
+  prestado_a JSONB,
+  lista_espera JSONB DEFAULT '[]'::jsonb,
+  categoria TEXT,
+  sinopsis TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+  updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_libros_fisicos_inv ON public.libros_fisicos(numero_inventario);
+CREATE INDEX IF NOT EXISTS idx_libros_fisicos_estado ON public.libros_fisicos(estado);
+CREATE INDEX IF NOT EXISTS idx_libros_fisicos_isbn ON public.libros_fisicos(isbn);
+CREATE INDEX IF NOT EXISTS idx_libros_fisicos_trgm_titulo ON public.libros_fisicos USING gin (titulo gin_trgm_ops);
+CREATE INDEX IF NOT EXISTS idx_libros_fisicos_trgm_autor ON public.libros_fisicos USING gin (autor gin_trgm_ops);
+
+ALTER TABLE public.libros_fisicos ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Lectura pública de libros físicos" ON public.libros_fisicos;
+CREATE POLICY "Lectura pública de libros físicos"
+  ON public.libros_fisicos FOR SELECT
+  USING (true);
+
+DROP POLICY IF EXISTS "Permitir gestión de libros físicos" ON public.libros_fisicos;
+CREATE POLICY "Permitir gestión de libros físicos"
+  ON public.libros_fisicos FOR ALL
+  USING (true)
+  WITH CHECK (true);
+
+DROP TRIGGER IF EXISTS on_libros_fisicos_updated ON public.libros_fisicos;
+CREATE TRIGGER on_libros_fisicos_updated
+  BEFORE UPDATE ON public.libros_fisicos
+  FOR EACH ROW
+  EXECUTE PROCEDURE public.handle_updated_at();
+
 
 

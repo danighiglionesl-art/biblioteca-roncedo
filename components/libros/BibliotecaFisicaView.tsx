@@ -22,6 +22,7 @@ import {
   Library,
   LayoutGrid,
   LayoutList,
+  Cloud,
 } from 'lucide-react';
 import { ModalDetalleLibroFisico } from './ModalDetalleLibroFisico';
 import { ModalABMLibro } from './ModalABMLibro';
@@ -33,6 +34,9 @@ export function BibliotecaFisicaView() {
   const {
     librosFisicos,
     reservas,
+    isNubeSincronizada,
+    cargandoNube,
+    sincronizarConNube,
     solicitarPrestamo,
     solicitarReserva,
     cancelarReserva,
@@ -48,6 +52,10 @@ export function BibliotecaFisicaView() {
   const [modoVista, setModoVista] = useState<'tarjetas' | 'visual'>('tarjetas');
   const [paginaActual, setPaginaActual] = useState(1);
 
+  // Estados de Sincronización Nube
+  const [sincronizandoManual, setSincronizandoManual] = useState(false);
+  const [syncFeedback, setSyncFeedback] = useState<{ tipo: 'exito' | 'error' | 'info'; texto: string } | null>(null);
+
   // Modales
   const [libroSeleccionado, setLibroSeleccionado] = useState<LibroFisico | null>(null);
   const [modalAbmAbierto, setModalAbmAbierto] = useState(false);
@@ -55,6 +63,33 @@ export function BibliotecaFisicaView() {
 
   const isAdmin = user && user.role === 'admin';
   const isSocio = user && (user.role === 'socio' || user.role === 'admin');
+
+  const handleSincronizarNube = async () => {
+    setSincronizandoManual(true);
+    setSyncFeedback(null);
+    try {
+      const res = await sincronizarConNube();
+      if (res.success) {
+        setSyncFeedback({
+          tipo: 'exito',
+          texto: res.message || 'Catálogo sincronizado exitosamente con la nube.',
+        });
+      } else {
+        setSyncFeedback({
+          tipo: 'error',
+          texto: res.message || 'Error al sincronizar con la nube.',
+        });
+      }
+    } catch (e: any) {
+      setSyncFeedback({
+        tipo: 'error',
+        texto: e.message || 'Error de conexión con la nube.',
+      });
+    } finally {
+      setSincronizandoManual(false);
+      setTimeout(() => setSyncFeedback(null), 8000);
+    }
+  };
 
   // Obtener categorías topográficas más frecuentes
   const categoriasTopograficas = useMemo(() => {
@@ -173,20 +208,71 @@ export function BibliotecaFisicaView() {
             </div>
 
             {isAdmin && (
-              <button
-                onClick={() => {
-                  setLibroAEditar(null);
-                  setModalAbmAbierto(true);
-                }}
-                className="bg-roncedo-gold hover:bg-yellow-600 text-roncedo-navyDark font-black text-xs px-4 py-2.5 rounded-2xl transition-colors flex items-center justify-center gap-2 shadow-md"
-              >
-                <PlusCircle className="w-4 h-4" />
-                <span>+ Agregar Libro al Inventario</span>
-              </button>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <button
+                  onClick={() => {
+                    setLibroAEditar(null);
+                    setModalAbmAbierto(true);
+                  }}
+                  className="bg-roncedo-gold hover:bg-yellow-600 text-roncedo-navyDark font-black text-xs px-4 py-2.5 rounded-2xl transition-colors flex items-center justify-center gap-2 shadow-md flex-1"
+                >
+                  <PlusCircle className="w-4 h-4" />
+                  <span>+ Agregar Libro</span>
+                </button>
+
+                <button
+                  onClick={handleSincronizarNube}
+                  disabled={sincronizandoManual || cargandoNube}
+                  title="Sincronizar catálogo completo con la base de datos Supabase en la nube"
+                  className="bg-white/15 hover:bg-white/25 text-white font-bold text-xs px-3.5 py-2.5 rounded-2xl transition-colors flex items-center justify-center gap-2 border border-white/25"
+                >
+                  <Cloud
+                    className={`w-4 h-4 ${
+                      sincronizandoManual || cargandoNube
+                        ? 'animate-pulse text-roncedo-gold'
+                        : isNubeSincronizada
+                        ? 'text-emerald-300'
+                        : 'text-blue-200'
+                    }`}
+                  />
+                  <span>
+                    {sincronizandoManual || cargandoNube
+                      ? 'Sincronizando...'
+                      : isNubeSincronizada
+                      ? 'Nube al día'
+                      : 'Subir a Nube'}
+                  </span>
+                </button>
+              </div>
             )}
           </div>
         </div>
       </div>
+
+      {/* Mensaje de feedback de sincronización con la nube */}
+      {syncFeedback && (
+        <div
+          className={`p-4 rounded-2xl text-xs font-semibold flex items-center justify-between gap-3 border shadow-sm transition-all ${
+            syncFeedback.tipo === 'exito'
+              ? 'bg-emerald-50 text-emerald-900 border-emerald-300/80'
+              : syncFeedback.tipo === 'error'
+              ? 'bg-red-50 text-red-900 border-red-300/80'
+              : 'bg-blue-50 text-blue-900 border-blue-300/80'
+          }`}
+        >
+          <div className="flex items-center gap-2.5">
+            {syncFeedback.tipo === 'exito' && <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />}
+            {syncFeedback.tipo === 'error' && <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0" />}
+            <span>{syncFeedback.texto}</span>
+          </div>
+          <button
+            onClick={() => setSyncFeedback(null)}
+            className="text-slate-400 hover:text-slate-600 text-xs px-2 py-0.5"
+          >
+            ✕
+          </button>
+        </div>
+      )}
 
       {/* Buscador y Filtros */}
       <div className="bg-white rounded-3xl p-5 sm:p-6 shadow-card border border-blue-200/80 space-y-4">

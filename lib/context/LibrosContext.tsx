@@ -11,6 +11,14 @@ import {
 } from '@/types';
 import LIBROS_RAW from '@/lib/data/librosFisicos.json';
 import { buscarPortadaLibro, PortadaSearchResult } from '@/lib/services/bookCoversService';
+import {
+  getLibrosFisicos,
+  guardarLibroFisicoEnNube,
+  actualizarLibroFisicoEnNube,
+  eliminarLibroFisicoDeNube,
+  sincronizarLoteLibrosEnNube,
+  LOCAL_STORAGE_LIBROS_KEY,
+} from '@/lib/supabase/librosFisicos';
 
 interface LibrosContextType {
   librosFisicos: LibroFisico[];
@@ -19,6 +27,8 @@ interface LibrosContextType {
   talleres: TallerInscripcion[];
   fotosAportadas: FotoAportada[];
   isLoading: boolean;
+  isNubeSincronizada: boolean;
+  cargandoNube: boolean;
   solicitarPrestamo: (libroId: string, user: UserProfile) => Promise<{ success: boolean; error?: string }>;
   solicitarReserva: (libroId: string, user: UserProfile) => Promise<{ success: boolean; error?: string }>;
   cancelarReserva: (reservaId: string) => Promise<void>;
@@ -42,13 +52,14 @@ interface LibrosContextType {
   buscarYAsociarPortada: (id: string) => Promise<{ success: boolean; resultado: PortadaSearchResult }>;
   actualizarLoteLibros: (nuevosLibros: LibroFisico[]) => void;
   guardarEnServidor: (librosParaGuardar?: LibroFisico[]) => Promise<{ success: boolean; message?: string }>;
+  sincronizarConNube: () => Promise<{ success: boolean; count?: number; message?: string }>;
   aportarFoto: (datos: { titulo: string; descripcion: string; anio_aproximado?: string; imagen_url: string; user_id: string }) => Promise<{ success: boolean }>;
   restablecerInventarioOriginal: () => void;
 }
 
 const LibrosContext = createContext<LibrosContextType | undefined>(undefined);
 
-const STORAGE_KEY_LIBROS = 'roncedo_libros_fisicos_v4';
+const STORAGE_KEY_LIBROS = LOCAL_STORAGE_LIBROS_KEY;
 const STORAGE_KEY_PRESTAMOS = 'roncedo_prestamos_v4';
 const STORAGE_KEY_RESERVAS = 'roncedo_reservas_v4';
 const STORAGE_KEY_FOTOS = 'roncedo_fotos_aportadas_v4';
@@ -108,18 +119,17 @@ export function LibrosProvider({ children }: { children: React.ReactNode }) {
   const [talleres] = useState<TallerInscripcion[]>(TALLERES_INICIALES);
   const [fotosAportadas, setFotosAportadas] = useState<FotoAportada[]>(FOTOS_INICIALES);
   const [isLoading, setIsLoading] = useState(true);
+  const [isNubeSincronizada, setIsNubeSincronizada] = useState(false);
+  const [cargandoNube, setCargandoNube] = useState(false);
 
-  // Inicializar estado desde LocalStorage
+  // 1. Carga inmediata desde LocalStorage para rendering instantáneo
   useEffect(() => {
     try {
       const storedLibros = localStorage.getItem(STORAGE_KEY_LIBROS);
       if (storedLibros) {
         const parsed = JSON.parse(storedLibros);
-        if (!Array.isArray(parsed) || parsed.length < (LIBROS_RAW as any).length) {
-          setLibrosFisicos(LIBROS_RAW as any);
-          localStorage.setItem(STORAGE_KEY_LIBROS, JSON.stringify(LIBROS_RAW));
-        } else {
-          // Sincronizar portadas e ISBNs nuevos que vengan del archivo base preservando préstamos locales
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          // Si hay datos locales, sincronizar portadas base y mantener
           const rawMap = new Map((LIBROS_RAW as any[]).map((r) => [r.id, r]));
           const merged = parsed.map((item: LibroFisico) => {
             const raw = rawMap.get(item.id);
@@ -138,6 +148,9 @@ export function LibrosProvider({ children }: { children: React.ReactNode }) {
             };
           });
           setLibrosFisicos(merged);
+        } else {
+          setLibrosFisicos(LIBROS_RAW as any);
+          localStorage.setItem(STORAGE_KEY_LIBROS, JSON.stringify(LIBROS_RAW));
         }
       } else {
         setLibrosFisicos(LIBROS_RAW as any);
@@ -167,6 +180,29 @@ export function LibrosProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setIsLoading(false);
     }
+  }, []);
+
+  // 2. Sincronización asincrónica con la Nube (Supabase)
+  useEffect(() => {
+    let activo = true;
+    async function sincronizarNube() {
+      setCargandoNube(true);
+      try {
+        const librosDesdeNube = await getLibrosFisicos();
+        if (activo && librosDesdeNube && librosDesdeNube.length > 0) {
+          setLibrosFisicos(librosDesdeNube);
+          setIsNubeSincronizada(true);
+        }
+      } catch (err) {
+        console.warn('[LibrosContext] No se pudo sincronizar con Supabase:', err);
+      } finally {
+        if (activo) setCargandoNube(false);
+      }
+    }
+    sincronizarNube();
+    return () => {
+      activo = false;
+    };
   }, []);
 
   const persistLibros = (items: LibroFisico[]) => {
@@ -241,6 +277,18 @@ export function LibrosProvider({ children }: { children: React.ReactNode }) {
     persistLibros(updatedLibros);
     persistPrestamos([nuevoPrestamo, ...prestamos]);
 
+    // Persistir en Supabase
+    actualizarLibroFisicoEnNube(libroId, {
+      estado: 'prestado',
+      prestado_a: {
+        user_id: user.id,
+        nombre_socio: `${user.nombre} ${user.apellido}`,
+        numero_socio: user.numero_socio || '1042',
+        fecha_prestamo: fechaPrestamoStr,
+        fecha_devolucion_prevista: fechaDevolucionStr,
+      },
+    }).catch(() => {});
+
     return { success: true };
   };
 
@@ -273,19 +321,21 @@ export function LibrosProvider({ children }: { children: React.ReactNode }) {
       estado: 'en_espera',
     };
 
+    const nuevaListaEspera = [
+      ...(libro.lista_espera || []),
+      {
+        user_id: user.id,
+        nombre_socio: `${user.nombre} ${user.apellido}`,
+        numero_socio: user.numero_socio || '1042',
+        fecha_solicitud: new Date().toISOString(),
+      },
+    ];
+
     const updatedLibros = librosFisicos.map((l) => {
       if (l.id === libroId) {
         return {
           ...l,
-          lista_espera: [
-            ...(l.lista_espera || []),
-            {
-              user_id: user.id,
-              nombre_socio: `${user.nombre} ${user.apellido}`,
-              numero_socio: user.numero_socio || '1042',
-              fecha_solicitud: new Date().toISOString(),
-            },
-          ],
+          lista_espera: nuevaListaEspera,
         };
       }
       return l;
@@ -293,6 +343,11 @@ export function LibrosProvider({ children }: { children: React.ReactNode }) {
 
     persistLibros(updatedLibros);
     persistReservas([nuevaReserva, ...reservas]);
+
+    // Persistir en Supabase
+    actualizarLibroFisicoEnNube(libroId, {
+      lista_espera: nuevaListaEspera,
+    }).catch(() => {});
 
     return { success: true };
   };
@@ -304,16 +359,24 @@ export function LibrosProvider({ children }: { children: React.ReactNode }) {
     const updatedReservas = reservas.filter((r) => r.id !== reservaId);
     persistReservas(updatedReservas);
 
+    let listaEsperaActualizada: any[] | undefined;
     const updatedLibros = librosFisicos.map((l) => {
       if (l.id === reserva.libro_id && l.lista_espera) {
+        listaEsperaActualizada = l.lista_espera.filter((e: any) => e.user_id !== reserva.user_id);
         return {
           ...l,
-          lista_espera: l.lista_espera.filter((e) => e.user_id !== reserva.user_id),
+          lista_espera: listaEsperaActualizada,
         };
       }
       return l;
     });
     persistLibros(updatedLibros);
+
+    if (listaEsperaActualizada) {
+      actualizarLibroFisicoEnNube(reserva.libro_id, {
+        lista_espera: listaEsperaActualizada,
+      }).catch(() => {});
+    }
   };
 
   const renovarPrestamo = async (prestamoId: string): Promise<{ success: boolean; error?: string }> => {
@@ -336,19 +399,27 @@ export function LibrosProvider({ children }: { children: React.ReactNode }) {
     persistPrestamos(updatedPrestamos);
 
     // Actualizar también en el libro
+    let prestadoActualizado: any;
     const updatedLibros = librosFisicos.map((l) => {
       if (l.id === pres.libro_id && l.prestado_a) {
+        prestadoActualizado = {
+          ...l.prestado_a,
+          fecha_devolucion_prevista: nuevaFechaStr,
+        };
         return {
           ...l,
-          prestado_a: {
-            ...l.prestado_a,
-            fecha_devolucion_prevista: nuevaFechaStr,
-          },
+          prestado_a: prestadoActualizado,
         };
       }
       return l;
     });
     persistLibros(updatedLibros);
+
+    if (prestadoActualizado) {
+      actualizarLibroFisicoEnNube(pres.libro_id, {
+        prestado_a: prestadoActualizado,
+      }).catch(() => {});
+    }
 
     return { success: true };
   };
@@ -386,6 +457,13 @@ export function LibrosProvider({ children }: { children: React.ReactNode }) {
       return l;
     });
     persistLibros(updatedLibros);
+
+    // Actualizar en Supabase
+    actualizarLibroFisicoEnNube(libroId, {
+      estado: nuevoEstado,
+      prestado_a: null as any,
+      lista_espera: nuevaListaEspera,
+    }).catch(() => {});
 
     // Marcar préstamo como devuelto
     const updatedPrestamos = prestamos.map((p) =>
@@ -440,18 +518,36 @@ export function LibrosProvider({ children }: { children: React.ReactNode }) {
 
     const updated = [libroCompleto, ...librosFisicos];
     persistLibros(updated);
+
+    // Persistir directamente en Supabase
+    guardarLibroFisicoEnNube(libroCompleto).catch((cloudErr) => {
+      console.warn('Error guardando libro en la nube:', cloudErr);
+    });
+
     return { success: true, id: newId };
   };
 
   const actualizarLibro = async (id: string, datos: Partial<LibroFisico>): Promise<{ success: boolean }> => {
     const updated = librosFisicos.map((l) => (l.id === id ? { ...l, ...datos } : l));
     persistLibros(updated);
+
+    // Persistir directamente en Supabase
+    actualizarLibroFisicoEnNube(id, datos).catch((cloudErr) => {
+      console.warn('Error actualizando libro en la nube:', cloudErr);
+    });
+
     return { success: true };
   };
 
   const eliminarLibro = async (id: string): Promise<{ success: boolean }> => {
     const updated = librosFisicos.filter((l) => l.id !== id);
     persistLibros(updated);
+
+    // Persistir directamente en Supabase
+    eliminarLibroFisicoDeNube(id).catch((cloudErr) => {
+      console.warn('Error eliminando libro en la nube:', cloudErr);
+    });
+
     return { success: true };
   };
 
@@ -527,18 +623,59 @@ export function LibrosProvider({ children }: { children: React.ReactNode }) {
   ): Promise<{ success: boolean; message?: string }> => {
     try {
       const librosASincronizar = librosParaGuardar || librosFisicos;
-      const res = await fetch('/api/admin/portadas', {
+
+      // 1. Sincronizar en Supabase
+      const resNube = await sincronizarLoteLibrosEnNube(librosASincronizar);
+
+      // 2. Intentar guardar en disco local (desarrollo / API)
+      fetch('/api/admin/portadas', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'sincronizar_archivo',
           librosActualizados: librosASincronizar,
         }),
-      });
-      const data = await res.json();
-      return { success: data.success, message: data.message };
+      }).catch(() => {});
+
+      if (resNube.success) {
+        setIsNubeSincronizada(true);
+        return {
+          success: true,
+          message: `Guardado exitoso: ${resNube.insertados} libros sincronizados en la nube de Supabase.`,
+        };
+      } else {
+        return {
+          success: resNube.insertados > 0,
+          message: `Sincronizados ${resNube.insertados} libros en la nube.`,
+        };
+      }
     } catch (err: any) {
       return { success: false, message: err.message || 'Error al guardar en servidor' };
+    }
+  };
+
+  const sincronizarConNube = async (): Promise<{ success: boolean; count?: number; message?: string }> => {
+    setCargandoNube(true);
+    try {
+      const res = await sincronizarLoteLibrosEnNube(librosFisicos);
+      if (res.success) {
+        setIsNubeSincronizada(true);
+        return {
+          success: true,
+          count: res.insertados,
+          message: `Inventario completo (${res.insertados} libros) sincronizado con Supabase.`,
+        };
+      } else {
+        return {
+          success: res.insertados > 0,
+          count: res.insertados,
+          message: `Sincronizados ${res.insertados} libros en la nube.`,
+        };
+      }
+    } catch (e: any) {
+      return { success: false, message: e.message || 'Error al conectar con la nube' };
+    } finally {
+      setCargandoNube(false);
     }
   };
 
@@ -578,6 +715,8 @@ export function LibrosProvider({ children }: { children: React.ReactNode }) {
         talleres,
         fotosAportadas,
         isLoading,
+        isNubeSincronizada,
+        cargandoNube,
         solicitarPrestamo,
         solicitarReserva,
         cancelarReserva,
@@ -592,6 +731,7 @@ export function LibrosProvider({ children }: { children: React.ReactNode }) {
         buscarYAsociarPortada,
         actualizarLoteLibros,
         guardarEnServidor,
+        sincronizarConNube,
         aportarFoto,
         restablecerInventarioOriginal,
       }}
@@ -608,3 +748,4 @@ export function useLibros() {
   }
   return context;
 }
+

@@ -192,6 +192,8 @@ export interface LibroFisico {
   estado: 'disponible' | 'prestado';
   prestado_a?: PrestadoDetalle;
   lista_espera?: EsperaDetalle[];
+  categoria?: string;
+  sinopsis?: string;
 }
 
 export interface PrestamoActivo {
