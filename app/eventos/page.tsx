@@ -848,7 +848,7 @@ export default function EventosPage() {
                       DR. LAUTARO RONCEDO
                     </span>
                     <span className="text-[9px] text-slate-500 font-bold block">
-                      Fundado el 4 de Abril de 1926 • Alcira Gigena, Córdoba
+                      Fundado el 15 de marzo de 1926 • Alcira Gigena, Córdoba
                     </span>
                   </div>
                 </div>

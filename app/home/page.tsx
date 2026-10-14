@@ -200,7 +200,7 @@ export default function HomePage() {
                   Club Sp. y B. Dr. Lautaro Roncedo
                 </span>
                 <span className="text-xs text-blue-100 font-medium">
-                  Fundado el 13 de marzo de 1926
+                  Fundado el 15 de marzo de 1926
                 </span>
               </div>
               <h1 className="text-2xl sm:text-3xl font-black text-white">

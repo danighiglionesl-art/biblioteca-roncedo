@@ -6,7 +6,7 @@ export const PRODUCTOS_INICIALES_TIENDA: ProductoTienda[] = [
     titulo: 'Cien Años de Pasión y Cultura: Historia Oficial Roncedo (1926-2026)',
     subtitulo: 'Edición Centenario de Lujo • Tapa Dura con Gofrado Dorado',
     descripcion:
-      'Obra histórica monumental en 320 páginas a todo color. Recopila desde el acta fundacional del 13 de marzo de 1926, memorias de la comisión directiva, anécdotas de pioneros de Alcira Gigena, el archivo de fotos del Dr. Lautaro Roncedo, hitos deportivos y el nacimiento de la biblioteca comunitaria.',
+      'Obra histórica monumental en 320 páginas a todo color. Recopila desde el acta fundacional del 15 de marzo de 1926, memorias de la comisión directiva, anécdotas de pioneros de Alcira Gigena, el archivo de fotos del Dr. Lautaro Roncedo, hitos deportivos y el nacimiento de la biblioteca comunitaria.',
     categoria: 'centenario',
     precio: 28000,
     precio_socio_bronce: 27440, // 2% off
