@@ -63,7 +63,7 @@ export function CarnetDigital({ user, className = '' }: CarnetDigitalProps) {
 
         {/* Cabecera del Carnet */}
         <div className="px-5 pt-4 pb-3 border-b border-white/10 relative z-10 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3.5 min-w-0">
+          <div className="flex items-center gap-3.5 flex-1 min-w-0">
             <div className="relative w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0 drop-shadow-lg">
               <Image
                 src="/images/logo-biblioteca.png"
@@ -73,41 +73,31 @@ export function CarnetDigital({ user, className = '' }: CarnetDigitalProps) {
                 priority
               />
             </div>
-            <div className="min-w-0">
-              <p className="text-[10px] sm:text-[11px] tracking-widest uppercase font-bold text-roncedo-celesteLight truncate">
-                {isSocioProtectorActivo ? 'CARNET DE SOCIO PROTECTOR' : 'CREDENCIAL DIGITAL DE APP'}
+            <div className="flex-1 min-w-0">
+              <p className="text-[10px] sm:text-[11px] tracking-wider uppercase font-bold text-roncedo-celesteLight">
+                {isSocioProtectorActivo ? 'CREDENCIAL • SOCIO PROTECTOR' : 'CREDENCIAL'}
               </p>
               <h2 className="text-base sm:text-lg font-black text-white leading-tight">
                 Biblioteca Roncedo
               </h2>
-              <p className="text-xs text-blue-200 truncate">
-                Club Sp. y B. Dr. Lautaro Roncedo
+              <p className="text-xs text-blue-200 font-medium">
+                Club Sp. y Bibl. Dr. Lautaro Roncedo
               </p>
             </div>
           </div>
-          <div className="text-right flex items-center gap-2.5 flex-shrink-0">
-            {isSocioProtectorActivo && medallaInfo && (
-              <div
-                className="relative w-12 h-15 flex-shrink-0 drop-shadow-md hover:scale-105 transition-transform"
-                title={`Socio Protector ${medallaInfo.label}`}
-              >
-                <Image
-                  src={medallaInfo.medalla}
-                  alt={`Medalla ${medallaInfo.label}`}
-                  fill
-                  className="object-contain"
-                />
-              </div>
-            )}
-            <div>
-              <span className="text-[9px] uppercase tracking-wider text-slate-400 block font-semibold">
-                {isSocioProtectorActivo ? 'N° PROTECTOR' : 'ID USUARIO'}
-              </span>
-              <span className="text-lg sm:text-xl font-black text-amber-300 tracking-wider">
-                {isSocioProtectorActivo ? `#PROT-${user.tipo_socio_protector ? user.tipo_socio_protector.slice(0, 3).toUpperCase() : 'ORO'}` : `#USR-${user.id.slice(-4).toUpperCase()}`}
-              </span>
+          {isSocioProtectorActivo && medallaInfo && (
+            <div
+              className="relative w-12 h-14 flex-shrink-0 drop-shadow-md hover:scale-105 transition-transform"
+              title={`Socio Protector ${medallaInfo.label}`}
+            >
+              <Image
+                src={medallaInfo.medalla}
+                alt={`Medalla ${medallaInfo.label}`}
+                fill
+                className="object-contain"
+              />
             </div>
-          </div>
+          )}
         </div>
 
         {/* Cuerpo del Carnet */}

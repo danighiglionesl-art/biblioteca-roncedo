@@ -40,7 +40,7 @@ const MARCHAS: MarchaTrack[] = [
     id: 'tradicional',
     titulo: 'Marcha Oficial Tradicional',
     subtitulo: 'Versión Solemne e Histórica',
-    artista: 'Club Sp. y B. Dr. Lautaro Roncedo',
+    artista: 'Club Sp. y Bibl. Dr. Lautaro Roncedo',
     duracionEstimada: '2:20',
     src: '/audios/marchaoriginal.mp3',
     descripcion:

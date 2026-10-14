@@ -197,7 +197,7 @@ export default function HomePage() {
             <div>
               <div className="flex flex-wrap items-center gap-2 mb-1.5">
                 <span className="text-[11px] font-bold uppercase tracking-wider text-white bg-white/20 px-2.5 py-0.5 rounded-full border border-white/30 backdrop-blur-sm">
-                  Club Sp. y B. Dr. Lautaro Roncedo
+                  Club Sp. y Bibl. Dr. Lautaro Roncedo
                 </span>
                 <span className="text-xs text-blue-100 font-medium">
                   Fundado el 15 de marzo de 1926
@@ -493,7 +493,7 @@ export default function HomePage() {
               <span>Patrimonio y Memoria Colectiva</span>
             </div>
             <h2 className="text-xl sm:text-2xl font-black text-white">
-              Club Sp. y B. Dr. Lautaro Roncedo - Alcira Gigena
+              Club Sp. y Bibl. Dr. Lautaro Roncedo - Alcira Gigena
             </h2>
             <div className="text-xs sm:text-sm text-blue-100 mt-3 leading-relaxed space-y-2">
               <p>

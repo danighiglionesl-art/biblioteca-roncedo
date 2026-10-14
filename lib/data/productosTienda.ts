@@ -91,7 +91,7 @@ export const PRODUCTOS_INICIALES_TIENDA: ProductoTienda[] = [
     titulo: 'Mate Imperial Artesanal con Escudo Grabado',
     subtitulo: 'Calabaza seleccionada, cuero vacuno legítimo y virola de alpaca',
     descripcion:
-      'Mate imperial de diseño exclusivo para la comunidad roncedense. Calabaza de pared gruesa, cuatro patas reforzadas, forrado a mano en cuero vacuno labrado con virola de alpaca grabada con el escudo del Club Sp. y B. Dr. Lautaro Roncedo. Incluye bombilla pico de loro de alpaca.',
+      'Mate imperial de diseño exclusivo para la comunidad roncedense. Calabaza de pared gruesa, cuatro patas reforzadas, forrado a mano en cuero vacuno labrado con virola de alpaca grabada con el escudo del Club Sp. y Bibl. Dr. Lautaro Roncedo. Incluye bombilla pico de loro de alpaca.',
     categoria: 'souvenirs',
     precio: 32000,
     precio_socio_bronce: 31360,
@@ -241,7 +241,7 @@ export const PRODUCTOS_INICIALES_TIENDA: ProductoTienda[] = [
     titulo: 'Llavero Metálico Centenario Esmaltado',
     subtitulo: 'Fundición maciza en zamak niquelado con estuche de pana',
     descripcion:
-      'Llavero destapador de bolsillo con escudo esmaltado en resina de alta resistencia. Presentado en cajita conmemorativa con grabado láser "Club Sp. y B. Dr. Lautaro Roncedo - Alcira Gigena".',
+      'Llavero destapador de bolsillo con escudo esmaltado en resina de alta resistencia. Presentado en cajita conmemorativa con grabado láser "Club Sp. y Bibl. Dr. Lautaro Roncedo - Alcira Gigena".',
     categoria: 'souvenirs',
     precio: 5000,
     precio_socio_bronce: 4900,

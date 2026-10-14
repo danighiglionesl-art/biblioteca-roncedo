@@ -68,7 +68,7 @@ export default function InferioresPage() {
                   Divisiones Inferiores
                 </h1>
                 <p className="text-xs sm:text-sm text-sky-100 mt-1 max-w-xl leading-relaxed">
-                  Toda la información del fútbol formativo del Club Sp. y B. Dr. Lautaro Roncedo: tablas de posiciones, cronograma de partidos, fixture, resultados y tabla de goleadores.
+                  Toda la información del fútbol formativo del Club Sp. y Bibl. Dr. Lautaro Roncedo: tablas de posiciones, cronograma de partidos, fixture, resultados y tabla de goleadores.
                 </p>
               </div>
             </div>
