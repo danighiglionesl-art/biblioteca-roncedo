@@ -88,12 +88,12 @@ export default function HomePage() {
     },
     {
       titulo: 'Biblioteca Digital',
-      descripcion: 'Obras clásicas, lectura online y descargas libres',
+      descripcion: 'Libros digitales y audiolibros gratuitos en streaming',
       href: '/biblioteca-digital',
       icon: Globe2,
       color: 'from-blue-700 to-indigo-900',
-      badge: 'Colección Digital',
-      badgeColor: 'bg-blue-500/20 text-blue-800',
+      badge: 'Libros y Audiolibros',
+      badgeColor: 'bg-emerald-500/20 text-emerald-800 border-emerald-300',
       isProximamente: false,
     },
     {

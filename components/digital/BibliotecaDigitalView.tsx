@@ -20,12 +20,14 @@ import {
   PlusCircle,
   Trash2,
   X,
+  Headphones,
 } from 'lucide-react';
 import { LibroDigital, FuenteDigital, DisponibilidadDigital, MetricasBibliotecaDigital } from '@/types';
 import { LIBROS_DIGITALES_CURADOS } from '@/lib/data/librosDigitalesCurados';
 import { useAuth } from '@/lib/auth/AuthContext';
 import { LectorDigitalModal } from './LectorDigitalModal';
 import { ModalLibroDigitalForm } from './ModalLibroDigitalForm';
+import { AudiolibrosView } from '@/components/audiolibros/AudiolibrosView';
 
 export function BibliotecaDigitalView() {
   const { user } = useAuth();
@@ -47,6 +49,29 @@ export function BibliotecaDigitalView() {
   const [cargando, setCargando] = useState<boolean>(false);
   const [libroSeleccionadoParaLeer, setLibroSeleccionadoParaLeer] = useState<LibroDigital | null>(null);
   const [cartelExito, setCartelExito] = useState<{ visible: boolean; libroTitulo: string } | null>(null);
+
+  // Modo de sección: LIBROS DIGITALES vs AUDIOLIBROS
+  const [modoSeccion, setModoSeccion] = useState<'libros' | 'audiolibros'>('libros');
+
+  // Leer parámetro ?tab=audiolibros si viene en la URL
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const tab = params.get('tab');
+      if (tab === 'audiolibros' || tab === 'audio') {
+        setModoSeccion('audiolibros');
+      }
+    }
+  }, []);
+
+  const cambiarModoSeccion = (nuevoModo: 'libros' | 'audiolibros') => {
+    setModoSeccion(nuevoModo);
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      url.searchParams.set('tab', nuevoModo);
+      window.history.replaceState({}, '', url.toString());
+    }
+  };
 
   // Estados para ABM de Administrador
   const [modalLibroFormOpen, setModalLibroFormOpen] = useState(false);
@@ -261,7 +286,76 @@ export function BibliotecaDigitalView() {
 
   return (
     <div className="space-y-6">
-      {/* Cartel de Confirmación Oficial de Publicación */}
+      {/* SELECTOR DESTACADO: LIBROS DIGITALES vs AUDIOLIBROS */}
+      <div className="bg-white p-2 sm:p-2.5 rounded-3xl border border-blue-200/90 shadow-md grid grid-cols-2 gap-2 text-xs font-black">
+        <button
+          type="button"
+          onClick={() => cambiarModoSeccion('libros')}
+          className={`py-3.5 px-3 sm:px-5 rounded-2xl transition-all flex items-center justify-center gap-3 text-center ${
+            modoSeccion === 'libros'
+              ? 'bg-gradient-to-r from-roncedo-navy via-[#163761] to-[#1E4D88] text-white shadow-md scale-[1.01]'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+          }`}
+        >
+          <div
+            className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
+              modoSeccion === 'libros' ? 'bg-roncedo-gold text-roncedo-navy shadow-xs' : 'bg-slate-100 text-slate-500'
+            }`}
+          >
+            <BookOpen className="w-5 h-5" />
+          </div>
+          <div className="text-left min-w-0">
+            <span className="block text-xs sm:text-sm font-black leading-tight truncate">LIBROS DIGITALES</span>
+            <span
+              className={`text-[10px] block font-medium truncate ${
+                modoSeccion === 'libros' ? 'text-blue-200' : 'text-slate-400'
+              }`}
+            >
+              5.890+ Obras • Lectura y PDF
+            </span>
+          </div>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => cambiarModoSeccion('audiolibros')}
+          className={`py-3.5 px-3 sm:px-5 rounded-2xl transition-all flex items-center justify-center gap-3 text-center ${
+            modoSeccion === 'audiolibros'
+              ? 'bg-gradient-to-r from-[#0B2240] via-[#143D73] to-[#2B6CB5] text-white shadow-md scale-[1.01]'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+          }`}
+        >
+          <div
+            className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
+              modoSeccion === 'audiolibros' ? 'bg-roncedo-gold text-roncedo-navy shadow-xs' : 'bg-slate-100 text-roncedo-blue'
+            }`}
+          >
+            <Headphones className="w-5 h-5" />
+          </div>
+          <div className="text-left min-w-0">
+            <span className="block text-xs sm:text-sm font-black leading-tight truncate flex items-center gap-1.5">
+              <span>AUDIOLIBROS</span>
+              <span className="bg-amber-400 text-slate-900 text-[9px] px-1.5 py-0.5 rounded-full font-extrabold uppercase tracking-wider">
+                Streaming
+              </span>
+            </span>
+            <span
+              className={`text-[10px] block font-medium truncate ${
+                modoSeccion === 'audiolibros' ? 'text-blue-200' : 'text-slate-400'
+              }`}
+            >
+              Escucha Integrada • Capítulos
+            </span>
+          </div>
+        </button>
+      </div>
+
+      {/* RENDERIZADO CONDICIONAL DE AUDIOLIBROS O LIBROS DIGITALES */}
+      {modoSeccion === 'audiolibros' ? (
+        <AudiolibrosView />
+      ) : (
+        <>
+          {/* Cartel de Confirmación Oficial de Publicación */}
       {cartelExito?.visible && (
         <div className="bg-gradient-to-r from-emerald-700 via-teal-800 to-[#0c2340] border-2 border-emerald-400/50 text-white p-4 sm:p-5 rounded-3xl shadow-2xl flex items-center justify-between gap-4 animate-in fade-in slide-in-from-top-4 duration-300">
           <div className="flex items-center gap-3.5">
@@ -975,6 +1069,8 @@ export function BibliotecaDigitalView() {
         }}
         userId={user?.id}
       />
+        </>
+      )}
     </div>
   );
 }

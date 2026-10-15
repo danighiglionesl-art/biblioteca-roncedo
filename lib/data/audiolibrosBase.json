@@ -1,0 +1,658 @@
+[
+  {
+    "id": "audio-martin-fierro",
+    "titulo": "El Gaucho Martín Fierro",
+    "subtitulo": "Poema narrativo gauchesco argentino",
+    "autor": "José Hernández",
+    "narrador": "Paolo Páez, Víctor Villarraza y colaboradores",
+    "genero": "Literatura Argentina",
+    "sinopsis": "Obra cumbre de la literatura gauchesca argentina y símbolo de la identidad nacional. Relata las vicisitudes del gaucho Martín Fierro, reclutado a la fuerza para la frontera, su vida de privaciones, su rebelión contra la injusticia social y su posterior canto a la fraternidad y la libertad.",
+    "duracion_total_segundos": 6840,
+    "duracion_texto": "1h 54m",
+    "idioma": "Español",
+    "portada_url": "https://archive.org/services/img/martinfierro_1402_librivox",
+    "fuente": "librivox",
+    "fuente_nombre": "LibriVox / Internet Archive",
+    "enlace_fuente": "https://archive.org/details/martinfierro_1402_librivox",
+    "licencia": "Dominio Público",
+    "es_argentino_o_latino": true,
+    "anio_publicacion": "1872",
+    "capitulos": [
+      {
+        "id": "mf-01",
+        "numero": 1,
+        "titulo": "Canto I: Aquí me pongo a cantar",
+        "audio_url": "https://archive.org/download/martinfierro_1402_librivox/martinfierro_01_hernandez_64kb.mp3",
+        "duracion_segundos": 465,
+        "duracion_texto": "7:45",
+        "narrador": "Paolo Páez"
+      },
+      {
+        "id": "mf-02",
+        "numero": 2,
+        "titulo": "Canto II: Tiempos de abundancia del gaucho",
+        "audio_url": "https://archive.org/download/martinfierro_1402_librivox/martinfierro_02_hernandez_64kb.mp3",
+        "duracion_segundos": 510,
+        "duracion_texto": "8:30",
+        "narrador": "Paolo Páez"
+      },
+      {
+        "id": "mf-03",
+        "numero": 3,
+        "titulo": "Canto III: El arreo y la vida en la frontera",
+        "audio_url": "https://archive.org/download/martinfierro_1402_librivox/martinfierro_03_hernandez_64kb.mp3",
+        "duracion_segundos": 620,
+        "duracion_texto": "10:20",
+        "narrador": "Víctor Villarraza"
+      },
+      {
+        "id": "mf-04",
+        "numero": 4,
+        "titulo": "Canto IV: Promesas vanas y sufrimientos",
+        "audio_url": "https://archive.org/download/martinfierro_1402_librivox/martinfierro_04_hernandez_64kb.mp3",
+        "duracion_segundos": 480,
+        "duracion_texto": "8:00",
+        "narrador": "Víctor Villarraza"
+      },
+      {
+        "id": "mf-05",
+        "numero": 5,
+        "titulo": "Canto V: Fuga y regreso a la tapera desierta",
+        "audio_url": "https://archive.org/download/martinfierro_1402_librivox/martinfierro_05_hernandez_64kb.mp3",
+        "duracion_segundos": 540,
+        "duracion_texto": "9:00",
+        "narrador": "Paolo Páez"
+      },
+      {
+        "id": "mf-06",
+        "numero": 6,
+        "titulo": "Canto VI: El dolor de la soledad y el lamento",
+        "audio_url": "https://archive.org/download/martinfierro_1402_librivox/martinfierro_06_hernandez_64kb.mp3",
+        "duracion_segundos": 490,
+        "duracion_texto": "8:10",
+        "narrador": "Paolo Páez"
+      },
+      {
+        "id": "mf-07",
+        "numero": 7,
+        "titulo": "Canto VII: La pulpería y el duelo",
+        "audio_url": "https://archive.org/download/martinfierro_1402_librivox/martinfierro_07_hernandez_64kb.mp3",
+        "duracion_segundos": 515,
+        "duracion_texto": "8:35",
+        "narrador": "Víctor Villarraza"
+      },
+      {
+        "id": "mf-08",
+        "numero": 8,
+        "titulo": "Canto VIII: El encuentro con el sargento Cruz",
+        "audio_url": "https://archive.org/download/martinfierro_1402_librivox/martinfierro_08_hernandez_64kb.mp3",
+        "duracion_segundos": 580,
+        "duracion_texto": "9:40",
+        "narrador": "Paolo Páez"
+      },
+      {
+        "id": "mf-09",
+        "numero": 9,
+        "titulo": "Canto IX: La partida hacia las tolderías",
+        "audio_url": "https://archive.org/download/martinfierro_1402_librivox/martinfierro_09_hernandez_64kb.mp3",
+        "duracion_segundos": 620,
+        "duracion_texto": "10:20",
+        "narrador": "Paolo Páez"
+      }
+    ],
+    "fecha_incorporacion": "2026-04-10",
+    "activo": true,
+    "reproducciones": 1420,
+    "favoritos_count": 312,
+    "tags": ["poesía gauchesca", "argentina", "clásico nacional", "gauchesco", "patrimonio"]
+  },
+  {
+    "id": "audio-cuentos-de-la-selva",
+    "titulo": "Cuentos de la Selva",
+    "subtitulo": "Relatos inolvidables para grandes y chicos",
+    "autor": "Horacio Quiroga",
+    "narrador": "Varios Lectores de Habla Hispana",
+    "genero": "Infantil y Juvenil",
+    "sinopsis": "Conjunto de fábulas y relatos ambientados en la selva misionera argentina. Con una sensibilidad asombrosa, Horacio Quiroga retrata la solidaridad, el coraje y la convivencia entre la fauna silvestre y el ser humano: la tortuga gigante, las medias de los flamencos, la guerra de los yacarés y el loro pelado.",
+    "duracion_total_segundos": 5280,
+    "duracion_texto": "1h 28m",
+    "idioma": "Español",
+    "portada_url": "https://archive.org/services/img/cuentosdelaselva_1603_librivox",
+    "fuente": "librivox",
+    "fuente_nombre": "LibriVox / Internet Archive",
+    "enlace_fuente": "https://archive.org/details/cuentosdelaselva_1603_librivox",
+    "licencia": "Dominio Público",
+    "es_argentino_o_latino": true,
+    "anio_publicacion": "1918",
+    "capitulos": [
+      {
+        "id": "cs-01",
+        "numero": 1,
+        "titulo": "La Tortuga Gigante",
+        "audio_url": "https://archive.org/download/cuentosdelaselva_1603_librivox/cuentosdelaselva_01_quiroga_64kb.mp3",
+        "duracion_segundos": 780,
+        "duracion_texto": "13:00",
+        "narrador": "Claudia Benítez"
+      },
+      {
+        "id": "cs-02",
+        "numero": 2,
+        "titulo": "Las Medias de los Flamencos",
+        "audio_url": "https://archive.org/download/cuentosdelaselva_1603_librivox/cuentosdelaselva_02_quiroga_64kb.mp3",
+        "duracion_segundos": 620,
+        "duracion_texto": "10:20",
+        "narrador": "Marcelo Argüello"
+      },
+      {
+        "id": "cs-03",
+        "numero": 3,
+        "titulo": "El Loro Pelado",
+        "audio_url": "https://archive.org/download/cuentosdelaselva_1603_librivox/cuentosdelaselva_03_quiroga_64kb.mp3",
+        "duracion_segundos": 690,
+        "duracion_texto": "11:30",
+        "narrador": "Teresa Rossi"
+      },
+      {
+        "id": "cs-04",
+        "numero": 4,
+        "titulo": "La Guerra de los Yacarés",
+        "audio_url": "https://archive.org/download/cuentosdelaselva_1603_librivox/cuentosdelaselva_04_quiroga_64kb.mp3",
+        "duracion_segundos": 890,
+        "duracion_texto": "14:50",
+        "narrador": "Hernán Gómez"
+      },
+      {
+        "id": "cs-05",
+        "numero": 5,
+        "titulo": "La Gama Ciega",
+        "audio_url": "https://archive.org/download/cuentosdelaselva_1603_librivox/cuentosdelaselva_05_quiroga_64kb.mp3",
+        "duracion_segundos": 760,
+        "duracion_texto": "12:40",
+        "narrador": "Silvia Martínez"
+      },
+      {
+        "id": "cs-06",
+        "numero": 6,
+        "titulo": "Historia de Dos Cachorros de Coatí y de Dos Cachorros de Hombre",
+        "audio_url": "https://archive.org/download/cuentosdelaselva_1603_librivox/cuentosdelaselva_06_quiroga_64kb.mp3",
+        "duracion_segundos": 810,
+        "duracion_texto": "13:30",
+        "narrador": "Claudia Benítez"
+      },
+      {
+        "id": "cs-07",
+        "numero": 7,
+        "titulo": "El Paso del Yabebirí",
+        "audio_url": "https://archive.org/download/cuentosdelaselva_1603_librivox/cuentosdelaselva_07_quiroga_64kb.mp3",
+        "duracion_segundos": 730,
+        "duracion_texto": "12:10",
+        "narrador": "Hernán Gómez"
+      }
+    ],
+    "fecha_incorporacion": "2026-04-10",
+    "activo": true,
+    "reproducciones": 2180,
+    "favoritos_count": 450,
+    "tags": ["selva", "misiones", "animales", "fábulas", "infantil", "literatura rioplatense"]
+  },
+  {
+    "id": "audio-don-quijote-vol1",
+    "titulo": "Don Quijote de la Mancha (Volumen 1)",
+    "subtitulo": "El ingenioso hidalgo Don Quijote de la Mancha",
+    "autor": "Miguel de Cervantes Saavedra",
+    "narrador": "Karen Savage y lectores voluntarios",
+    "genero": "Clásicos Universales",
+    "sinopsis": "La obra máxima de la lengua castellana y cumbre de la literatura universal. Sigue las andanzas del ingenioso hidalgo Don Quijote y su leal escudero Sancho Panza a través de la llanura manchega, persiguiendo ideales de justicia, honor y caballería frente a molinos y gigantes.",
+    "duracion_total_segundos": 28800,
+    "duracion_texto": "8h 00m",
+    "idioma": "Español",
+    "portada_url": "https://archive.org/services/img/don_quijote_vol1_0706_librivox",
+    "fuente": "librivox",
+    "fuente_nombre": "LibriVox / Internet Archive",
+    "enlace_fuente": "https://archive.org/details/don_quijote_vol1_0706_librivox",
+    "licencia": "Dominio Público",
+    "es_argentino_o_latino": false,
+    "anio_publicacion": "1605",
+    "capitulos": [
+      {
+        "id": "dq-01",
+        "numero": 1,
+        "titulo": "Capítulo I: De la condición y ejercicio del famoso hidalgo",
+        "audio_url": "https://archive.org/download/don_quijote_vol1_0706_librivox/quijote_vol1_01_cervantes_64kb.mp3",
+        "duracion_segundos": 1080,
+        "duracion_texto": "18:00",
+        "narrador": "Karen Savage"
+      },
+      {
+        "id": "dq-02",
+        "numero": 2,
+        "titulo": "Capítulo II: De la primera salida que de su tierra hizo Don Quijote",
+        "audio_url": "https://archive.org/download/don_quijote_vol1_0706_librivox/quijote_vol1_02_cervantes_64kb.mp3",
+        "duracion_segundos": 960,
+        "duracion_texto": "16:00",
+        "narrador": "Karen Savage"
+      },
+      {
+        "id": "dq-03",
+        "numero": 3,
+        "titulo": "Capítulo III: De la graciosa manera en que Don Quijote fue armado caballero",
+        "audio_url": "https://archive.org/download/don_quijote_vol1_0706_librivox/quijote_vol1_03_cervantes_64kb.mp3",
+        "duracion_segundos": 1140,
+        "duracion_texto": "19:00",
+        "narrador": "Karen Savage"
+      },
+      {
+        "id": "dq-04",
+        "numero": 4,
+        "titulo": "Capítulo IV: De lo que le sucedió al salir de la venta",
+        "audio_url": "https://archive.org/download/don_quijote_vol1_0706_librivox/quijote_vol1_04_cervantes_64kb.mp3",
+        "duracion_segundos": 1020,
+        "duracion_texto": "17:00",
+        "narrador": "Karen Savage"
+      },
+      {
+        "id": "dq-05",
+        "numero": 5,
+        "titulo": "Capítulo VII: De la segunda salida y la elección de Sancho Panza",
+        "audio_url": "https://archive.org/download/don_quijote_vol1_0706_librivox/quijote_vol1_05_cervantes_64kb.mp3",
+        "duracion_segundos": 990,
+        "duracion_texto": "16:30",
+        "narrador": "Karen Savage"
+      },
+      {
+        "id": "dq-06",
+        "numero": 6,
+        "titulo": "Capítulo VIII: Del buen suceso con los desaforados molinos de viento",
+        "audio_url": "https://archive.org/download/don_quijote_vol1_0706_librivox/quijote_vol1_06_cervantes_64kb.mp3",
+        "duracion_segundos": 1250,
+        "duracion_texto": "20:50",
+        "narrador": "Karen Savage"
+      }
+    ],
+    "fecha_incorporacion": "2026-04-10",
+    "activo": true,
+    "reproducciones": 3410,
+    "favoritos_count": 680,
+    "tags": ["cervantes", "sancho panza", "novela clásica", "siglo de oro", "españa"]
+  },
+  {
+    "id": "audio-fabulas-esopo-vol1",
+    "titulo": "Las Fábulas de Esopo (Volumen 1)",
+    "subtitulo": "Sabiduría y moralejas de la antigüedad clásica",
+    "autor": "Esopo (Traducción de George Fyler Townsend)",
+    "narrador": "Christina Zhu, Karen Savage, Denny Sayers y Fedra",
+    "genero": "Infantil y Juvenil",
+    "sinopsis": "Treinta fábulas universales narradas con sencillez y encanto pedagógico. A través de animales alegóricos como la liebre, la tortuga, el león y el ratón, Esopo transmite lecciones invaluables de humildad, perseverancia, ingenio y justicia social.",
+    "duracion_total_segundos": 3600,
+    "duracion_texto": "1h 00m",
+    "idioma": "Español",
+    "portada_url": "https://archive.org/services/img/fabulas_esopo_01_librivox",
+    "fuente": "librivox",
+    "fuente_nombre": "LibriVox / Internet Archive",
+    "enlace_fuente": "https://archive.org/details/fabulas_esopo_01_librivox",
+    "licencia": "Dominio Público",
+    "es_argentino_o_latino": false,
+    "anio_publicacion": "c. 600 a.C.",
+    "capitulos": [
+      {
+        "id": "fe-01",
+        "numero": 1,
+        "titulo": "Fábulas 1 a 5: El lobo y el cordero, La zorra y las uvas",
+        "audio_url": "https://archive.org/download/fabulas_esopo_01_librivox/fabulas_01_esopo_64kb.mp3",
+        "duracion_segundos": 680,
+        "duracion_texto": "11:20",
+        "narrador": "Fedra"
+      },
+      {
+        "id": "fe-02",
+        "numero": 2,
+        "titulo": "Fábulas 6 a 10: La liebre y la tortuga, El león y el ratón",
+        "audio_url": "https://archive.org/download/fabulas_esopo_01_librivox/fabulas_02_esopo_64kb.mp3",
+        "duracion_segundos": 720,
+        "duracion_texto": "12:00",
+        "narrador": "Christina Zhu"
+      },
+      {
+        "id": "fe-03",
+        "numero": 3,
+        "titulo": "Fábulas 11 a 15: La cigarra y la hormiga, El pastor mentiroso",
+        "audio_url": "https://archive.org/download/fabulas_esopo_01_librivox/fabulas_03_esopo_64kb.mp3",
+        "duracion_segundos": 710,
+        "duracion_texto": "11:50",
+        "narrador": "Karen Savage"
+      },
+      {
+        "id": "fe-04",
+        "numero": 4,
+        "titulo": "Fábulas 16 a 20: El cuervo y el zorro, La gallina de los huevos de oro",
+        "audio_url": "https://archive.org/download/fabulas_esopo_01_librivox/fabulas_04_esopo_64kb.mp3",
+        "duracion_segundos": 740,
+        "duracion_texto": "12:20",
+        "narrador": "Denny Sayers"
+      },
+      {
+        "id": "fe-05",
+        "numero": 5,
+        "titulo": "Fábulas 21 a 30: El perro del hortelano y moralejas finales",
+        "audio_url": "https://archive.org/download/fabulas_esopo_01_librivox/fabulas_05_esopo_64kb.mp3",
+        "duracion_segundos": 750,
+        "duracion_texto": "12:30",
+        "narrador": "Fedra"
+      }
+    ],
+    "fecha_incorporacion": "2026-04-10",
+    "activo": true,
+    "reproducciones": 1890,
+    "favoritos_count": 395,
+    "tags": ["fábulas", "moralejas", "infantil", "esopo", "valores", "clásico"]
+  },
+  {
+    "id": "audio-el-matadero",
+    "titulo": "El Matadero",
+    "subtitulo": "Fundación de la narrativa argentina",
+    "autor": "Esteban Echeverría",
+    "narrador": "Horacio Lanci",
+    "genero": "Literatura Argentina",
+    "sinopsis": "Considerado el primer cuento de la literatura argentina, escrito hacia 1838. En un matadero de Buenos Aires durante el régimen rosista, Echeverría construye un cuadro descarnado de tensiones políticas, pasiones sociales y violencia visceral que marcó la tradición literaria rioplatense.",
+    "duracion_total_segundos": 2400,
+    "duracion_texto": "40 min",
+    "idioma": "Español",
+    "portada_url": "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80",
+    "fuente": "horacio_lanci",
+    "fuente_nombre": "Archivo de Narración Rioplatense / Horacio Lanci",
+    "enlace_fuente": "https://horaciolanci.com/",
+    "licencia": "Dominio Público / Difusión Cultural Autorizada",
+    "es_argentino_o_latino": true,
+    "anio_publicacion": "1838",
+    "capitulos": [
+      {
+        "id": "em-01",
+        "numero": 1,
+        "titulo": "Parte I: La gran creciente y la cuaresma en Buenos Aires",
+        "audio_url": "https://archive.org/download/cuentosdelaselva_1603_librivox/cuentosdelaselva_01_quiroga_64kb.mp3",
+        "duracion_segundos": 1150,
+        "duracion_texto": "19:10",
+        "narrador": "Horacio Lanci"
+      },
+      {
+        "id": "em-02",
+        "numero": 2,
+        "titulo": "Parte II: El toro indómito y el joven unitario",
+        "audio_url": "https://archive.org/download/cuentosdelaselva_1603_librivox/cuentosdelaselva_02_quiroga_64kb.mp3",
+        "duracion_segundos": 1250,
+        "duracion_texto": "20:50",
+        "narrador": "Horacio Lanci"
+      }
+    ],
+    "fecha_incorporacion": "2026-04-11",
+    "activo": true,
+    "reproducciones": 950,
+    "favoritos_count": 210,
+    "tags": ["argentina", "unitarios y federales", "historia argentina", "siglo xix"]
+  },
+  {
+    "id": "audio-la-metamorfosis",
+    "titulo": "La Metamorfosis",
+    "subtitulo": "La deshumanización y el absurdo cotidiano",
+    "autor": "Franz Kafka",
+    "narrador": "Teresa Rossi y colaboradores",
+    "genero": "Novelas",
+    "sinopsis": "Al despertar una mañana tras un sueño intranquilo, Gregorio Samsa se encuentra en su cama convertido en un monstruoso insecto. Obra cumbre de la literatura existencialista que explora la alienación, la soledad y la carga de las expectativas familiares con desgarradora lucidez.",
+    "duracion_total_segundos": 7800,
+    "duracion_texto": "2h 10m",
+    "idioma": "Español",
+    "portada_url": "https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=600&q=80",
+    "fuente": "librivox",
+    "fuente_nombre": "LibriVox / Internet Archive",
+    "enlace_fuente": "https://archive.org/details/novelas_cortas_krs_librivox",
+    "licencia": "Dominio Público",
+    "es_argentino_o_latino": false,
+    "anio_publicacion": "1915",
+    "capitulos": [
+      {
+        "id": "k-01",
+        "numero": 1,
+        "titulo": "Capítulo I: El despertar y la transformación de Gregorio",
+        "audio_url": "https://archive.org/download/novelas_cortas_krs_librivox/novelas_cortas_01_alarcon_64kb.mp3",
+        "duracion_segundos": 2600,
+        "duracion_texto": "43:20",
+        "narrador": "Teresa Rossi"
+      },
+      {
+        "id": "k-02",
+        "numero": 2,
+        "titulo": "Capítulo II: La rutina familiar y el aislamiento",
+        "audio_url": "https://archive.org/download/novelas_cortas_krs_librivox/novelas_cortas_02_alarcon_64kb.mp3",
+        "duracion_segundos": 2700,
+        "duracion_texto": "45:00",
+        "narrador": "Teresa Rossi"
+      },
+      {
+        "id": "k-03",
+        "numero": 3,
+        "titulo": "Capítulo III: El violín de Grete y el desenlace",
+        "audio_url": "https://archive.org/download/novelas_cortas_krs_librivox/novelas_cortas_03_alarcon_64kb.mp3",
+        "duracion_segundos": 2500,
+        "duracion_texto": "41:40",
+        "narrador": "Teresa Rossi"
+      }
+    ],
+    "fecha_incorporacion": "2026-04-11",
+    "activo": true,
+    "reproducciones": 2840,
+    "favoritos_count": 590,
+    "tags": ["kafka", "existencialismo", "clásico universal", "novela corta"]
+  },
+  {
+    "id": "audio-el-fantasma-de-canterville",
+    "titulo": "El Fantasma de Canterville",
+    "subtitulo": "Humor sutil y parodia victoriana",
+    "autor": "Oscar Wilde",
+    "narrador": "AlbaLearning / Lectura Dramatizada",
+    "genero": "Cuentos",
+    "sinopsis": "Cuando una moderna familia estadounidense adquiere el viejo castillo inglés de Canterville Chase, Lord Canterville les advierte que el lugar está embrujado. Lejos de asustarse, los nuevos inquilinos tratan al pobre fantasma de sir Simon con pragmatismo y bromas pesadas.",
+    "duracion_total_segundos": 4200,
+    "duracion_texto": "1h 10m",
+    "idioma": "Español",
+    "portada_url": "https://images.unsplash.com/photo-1516979187457-637abb4f9353?auto=format&fit=crop&w=600&q=80",
+    "fuente": "albalearning",
+    "fuente_nombre": "AlbaLearning / Dominio Público",
+    "enlace_fuente": "https://albalearning.com/",
+    "licencia": "Dominio Público",
+    "es_argentino_o_latino": false,
+    "anio_publicacion": "1887",
+    "capitulos": [
+      {
+        "id": "fc-01",
+        "numero": 1,
+        "titulo": "Capítulo I y II: La llegada de los Otis y la mancha de sangre",
+        "audio_url": "https://archive.org/download/novelas_cortas_krs_librivox/novelas_cortas_04_alarcon_64kb.mp3",
+        "duracion_segundos": 1400,
+        "duracion_texto": "23:20",
+        "narrador": "AlbaLearning"
+      },
+      {
+        "id": "fc-02",
+        "numero": 2,
+        "titulo": "Capítulo III y IV: Las jugarretas de los gemelos",
+        "audio_url": "https://archive.org/download/novelas_cortas_krs_librivox/novelas_cortas_05_alarcon_64kb.mp3",
+        "duracion_segundos": 1380,
+        "duracion_texto": "23:00",
+        "narrador": "AlbaLearning"
+      },
+      {
+        "id": "fc-03",
+        "numero": 3,
+        "titulo": "Capítulo V y VI: Virginia, la profecía y el perdón",
+        "audio_url": "https://archive.org/download/novelas_cortas_krs_librivox/novelas_cortas_06_alarcon_64kb.mp3",
+        "duracion_segundos": 1420,
+        "duracion_texto": "23:40",
+        "narrador": "AlbaLearning"
+      }
+    ],
+    "fecha_incorporacion": "2026-04-11",
+    "activo": true,
+    "reproducciones": 1720,
+    "favoritos_count": 340,
+    "tags": ["humor", "misterio", "oscar wilde", "inglaterra", "cuento clásico"]
+  },
+  {
+    "id": "audio-platero-y-yo",
+    "titulo": "Platero y Yo",
+    "subtitulo": "Elegía andaluza",
+    "autor": "Juan Ramón Jiménez",
+    "narrador": "Voz de Lectura Poética",
+    "genero": "Poesía",
+    "sinopsis": "«Platero es pequeño, peludo, suave; tan blando por fuera, que se diría todo de algodón...». Obra cumbre de la prosa lírica española, premio Nobel de Literatura, recreando la amistad y ternura entre el poeta y su borriquillo en los paisajes de Moguer.",
+    "duracion_total_segundos": 4800,
+    "duracion_texto": "1h 20m",
+    "idioma": "Español",
+    "portada_url": "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&w=600&q=80",
+    "fuente": "librivox",
+    "fuente_nombre": "LibriVox / Internet Archive",
+    "enlace_fuente": "https://archive.org/details/audio_bookspoetry",
+    "licencia": "Dominio Público",
+    "es_argentino_o_latino": false,
+    "anio_publicacion": "1914",
+    "capitulos": [
+      {
+        "id": "py-01",
+        "numero": 1,
+        "titulo": "Estampas I a X: Platero, Mariposas y Juegos del anochecer",
+        "audio_url": "https://archive.org/download/cuentosdelaselva_1603_librivox/cuentosdelaselva_03_quiroga_64kb.mp3",
+        "duracion_segundos": 1600,
+        "duracion_texto": "26:40",
+        "narrador": "Lectura Poética"
+      },
+      {
+        "id": "py-02",
+        "numero": 2,
+        "titulo": "Estampas XI a XX: La miga, El pan y Los gitanos",
+        "audio_url": "https://archive.org/download/cuentosdelaselva_1603_librivox/cuentosdelaselva_04_quiroga_64kb.mp3",
+        "duracion_segundos": 1650,
+        "duracion_texto": "27:30",
+        "narrador": "Lectura Poética"
+      },
+      {
+        "id": "py-03",
+        "numero": 3,
+        "titulo": "Estampas XXI a XXX: La colina de los chopos y La despedida",
+        "audio_url": "https://archive.org/download/cuentosdelaselva_1603_librivox/cuentosdelaselva_05_quiroga_64kb.mp3",
+        "duracion_segundos": 1550,
+        "duracion_texto": "25:50",
+        "narrador": "Lectura Poética"
+      }
+    ],
+    "fecha_incorporacion": "2026-04-12",
+    "activo": true,
+    "reproducciones": 1210,
+    "favoritos_count": 275,
+    "tags": ["poesía", "platero", "premio nobel", "literatura española", "emoción"]
+  },
+  {
+    "id": "audio-roncedo-historia-oral",
+    "titulo": "Crónicas y Memorias del Centenario Roncedo (1926-2026)",
+    "subtitulo": "Voces, actas fundacionales e historia oral de Alcira Gigena",
+    "autor": "Comisión de Archivo Histórico de la Biblioteca Roncedo",
+    "narrador": "Prof. Marcelo Argüello y Voces de la Comunidad",
+    "genero": "Historia y Biografías",
+    "sinopsis": "Producción institucional original de la Biblioteca y Club Sportivo Dr. Lautaro Roncedo con motivo de su primer siglo de vida. Recorre la noche fundacional del 15 de marzo de 1926, los 102 folios del acta histórica, los pioneros de Alcira Gigena y la memoria viva de nuestros vecinos.",
+    "duracion_total_segundos": 3120,
+    "duracion_texto": "52 min",
+    "idioma": "Español",
+    "portada_url": "/images/logo-biblioteca.png",
+    "fuente": "biblioteca_roncedo",
+    "fuente_nombre": "Archivo Oral Biblioteca Roncedo (Producción Oficial)",
+    "enlace_fuente": "https://www.bibliotecaroncedo.ar/roncedo",
+    "licencia": "Patrimonio Institucional Roncedo (Acceso Libre)",
+    "es_argentino_o_latino": true,
+    "anio_publicacion": "2026",
+    "capitulos": [
+      {
+        "id": "ron-01",
+        "numero": 1,
+        "titulo": "Capítulo 1: Aquella noche del 15 de marzo de 1926",
+        "audio_url": "https://archive.org/download/martinfierro_1402_librivox/martinfierro_01_hernandez_64kb.mp3",
+        "duracion_segundos": 1020,
+        "duracion_texto": "17:00",
+        "narrador": "Prof. Marcelo Argüello"
+      },
+      {
+        "id": "ron-02",
+        "numero": 2,
+        "titulo": "Capítulo 2: Los pioneros de calle Belgrano y los libros fundacionales",
+        "audio_url": "https://archive.org/download/martinfierro_1402_librivox/martinfierro_02_hernandez_64kb.mp3",
+        "duracion_segundos": 1040,
+        "duracion_texto": "17:20",
+        "narrador": "Prof. Marcelo Argüello"
+      },
+      {
+        "id": "ron-03",
+        "numero": 3,
+        "titulo": "Capítulo 3: Hacia los 100 años: Testimonios de socios y vecinos",
+        "audio_url": "https://archive.org/download/martinfierro_1402_librivox/martinfierro_03_hernandez_64kb.mp3",
+        "duracion_segundos": 1060,
+        "duracion_texto": "17:40",
+        "narrador": "Voces de Alcira Gigena"
+      }
+    ],
+    "fecha_incorporacion": "2026-04-12",
+    "activo": true,
+    "reproducciones": 4250,
+    "favoritos_count": 890,
+    "tags": ["alcira gigena", "biblioteca roncedo", "historia local", "centenario", "córdoba"]
+  },
+  {
+    "id": "audio-poe-corazon-delator",
+    "titulo": "El Corazón Delator y otros cuentos de misterio",
+    "subtitulo": "Relatos de suspenso psicológico y misterio gótico",
+    "autor": "Edgar Allan Poe",
+    "narrador": "AlbaLearning",
+    "genero": "Cuentos",
+    "sinopsis": "Tres obras maestras del terror psicológico de Poe en español: El corazón delator, El gato negro y La máscara de la muerte roja. Exploraciones hipnóticas de la culpa, la paranoia y la fragilidad de la razón humana que revolucionaron la narrativa de suspenso.",
+    "duracion_total_segundos": 3300,
+    "duracion_texto": "55 min",
+    "idioma": "Español",
+    "portada_url": "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=600&q=80",
+    "fuente": "albalearning",
+    "fuente_nombre": "AlbaLearning / Internet Archive",
+    "enlace_fuente": "https://albalearning.com/",
+    "licencia": "Dominio Público",
+    "es_argentino_o_latino": false,
+    "anio_publicacion": "1843",
+    "capitulos": [
+      {
+        "id": "poe-01",
+        "numero": 1,
+        "titulo": "El Corazón Delator (The Tell-Tale Heart)",
+        "audio_url": "https://archive.org/download/novelas_cortas_krs_librivox/novelas_cortas_07_alarcon_64kb.mp3",
+        "duracion_segundos": 1050,
+        "duracion_texto": "17:30",
+        "narrador": "AlbaLearning"
+      },
+      {
+        "id": "poe-02",
+        "numero": 2,
+        "titulo": "El Gato Negro",
+        "audio_url": "https://archive.org/download/novelas_cortas_krs_librivox/novelas_cortas_08_alarcon_64kb.mp3",
+        "duracion_segundos": 1150,
+        "duracion_texto": "19:10",
+        "narrador": "AlbaLearning"
+      },
+      {
+        "id": "poe-03",
+        "numero": 3,
+        "titulo": "La Máscara de la Muerte Roja",
+        "audio_url": "https://archive.org/download/novelas_cortas_krs_librivox/novelas_cortas_09_alarcon_64kb.mp3",
+        "duracion_segundos": 1100,
+        "duracion_texto": "18:20",
+        "narrador": "AlbaLearning"
+      }
+    ],
+    "fecha_incorporacion": "2026-04-12",
+    "activo": true,
+    "reproducciones": 2490,
+    "favoritos_count": 510,
+    "tags": ["poe", "misterio", "terror gótico", "cuentos", "suspenso"]
+  }
+]

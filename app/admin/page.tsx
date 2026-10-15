@@ -39,12 +39,14 @@ import {
   Award,
   Globe2,
   Barcode,
+  Headphones,
 } from 'lucide-react';
 import { GestionPortadas } from '@/components/admin/GestionPortadas';
 import { GestionNovedades } from '@/components/admin/GestionNovedades';
 import { GestionEventos } from '@/components/admin/GestionEventos';
 import { GestionTienda } from '@/components/admin/GestionTienda';
 import { GestionBibliotecaDigital } from '@/components/admin/GestionBibliotecaDigital';
+import { GestionAudiolibros } from '@/components/admin/GestionAudiolibros';
 import { EnriquecimientoIsbnView } from '@/components/admin/EnriquecimientoIsbnView';
 
 export default function AdminPage() {
@@ -58,7 +60,7 @@ export default function AdminPage() {
     actualizarSocioProtector,
   } = useAuth();
 
-  const [activeTab, setActiveTab] = useState<'portadas' | 'isbn' | 'digital' | 'novedades' | 'eventos' | 'tienda' | 'protectores' | 'solicitudes' | 'padron' | 'usuarios'>('portadas');
+  const [activeTab, setActiveTab] = useState<'portadas' | 'isbn' | 'digital' | 'audiolibros' | 'novedades' | 'eventos' | 'tienda' | 'protectores' | 'solicitudes' | 'padron' | 'usuarios'>('portadas');
   const [searchTerm, setSearchTerm] = useState('');
 
   // Leer pestaña desde query param si viene especificada
@@ -69,6 +71,7 @@ export default function AdminPage() {
       if (
         tabParam === 'isbn' ||
         tabParam === 'digital' ||
+        tabParam === 'audiolibros' ||
         tabParam === 'novedades' ||
         tabParam === 'eventos' ||
         tabParam === 'tienda' ||
@@ -447,7 +450,7 @@ export default function AdminPage() {
         </div>
 
         {/* Pestañas de Gestión */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm gap-1 text-xs font-bold">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-9 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm gap-1 text-xs font-bold">
           <button
             onClick={() => setActiveTab('portadas')}
             className={`py-2.5 rounded-xl transition-colors flex items-center justify-center gap-1.5 ${
@@ -482,6 +485,18 @@ export default function AdminPage() {
           >
             <Globe2 className={`w-4 h-4 ${activeTab === 'digital' ? 'text-roncedo-gold' : 'text-emerald-600'}`} />
             <span>Bib. Digital</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('audiolibros')}
+            className={`py-2.5 rounded-xl transition-colors flex items-center justify-center gap-1.5 ${
+              activeTab === 'audiolibros'
+                ? 'bg-gradient-to-r from-amber-600 to-amber-700 text-white shadow-sm'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <Headphones className={`w-4 h-4 ${activeTab === 'audiolibros' ? 'text-roncedo-gold' : 'text-amber-600'}`} />
+            <span>Audiolibros</span>
           </button>
 
           <button
@@ -560,6 +575,9 @@ export default function AdminPage() {
 
         {/* Pestaña: Gestión de Biblioteca Digital (5.800+ obras y PDF Roncedo) */}
         {activeTab === 'digital' && <GestionBibliotecaDigital />}
+
+        {/* Pestaña: Gestión de Audiolibros (Streaming, ABM e Importador) */}
+        {activeTab === 'audiolibros' && <GestionAudiolibros />}
 
         {/* Pestaña: Gestión de Novedades (ABM con hasta 5 fotos) */}
         {activeTab === 'novedades' && <GestionNovedades />}

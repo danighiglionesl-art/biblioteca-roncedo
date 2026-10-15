@@ -2,11 +2,13 @@ import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { AuthProvider } from '@/lib/auth/AuthContext';
 import { LibrosProvider } from '@/lib/context/LibrosContext';
+import { AudioPlayerProvider } from '@/lib/context/AudioPlayerContext';
 import { AuthGuard } from '@/components/auth/AuthGuard';
 import { Header } from '@/components/navigation/Header';
 import { BottomNav } from '@/components/navigation/BottomNav';
 import { BotonWhatsappFlotante } from '@/components/common/BotonWhatsappFlotante';
 import { ServiceWorkerRegister } from '@/components/pwa/ServiceWorkerRegister';
+import { ReproductorFlotante } from '@/components/audiolibros/ReproductorFlotante';
 
 export const metadata: Metadata = {
   title: 'Biblioteca Roncedo | App Oficial',
@@ -72,15 +74,18 @@ export default function RootLayout({
       <body className="h-full flex flex-col bg-[#EDF5FD] text-slate-900 font-sans antialiased selection:bg-roncedo-celeste selection:text-white">
         <AuthProvider>
           <LibrosProvider>
-            <AuthGuard>
-              <ServiceWorkerRegister />
-              <Header />
-              <main className="flex-1">
-                {children}
-              </main>
-              <BottomNav />
-              <BotonWhatsappFlotante />
-            </AuthGuard>
+            <AudioPlayerProvider>
+              <AuthGuard>
+                <ServiceWorkerRegister />
+                <Header />
+                <main className="flex-1">
+                  {children}
+                </main>
+                <ReproductorFlotante />
+                <BottomNav />
+                <BotonWhatsappFlotante />
+              </AuthGuard>
+            </AudioPlayerProvider>
           </LibrosProvider>
         </AuthProvider>
       </body>
