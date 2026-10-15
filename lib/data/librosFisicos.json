@@ -11,13 +11,13 @@
     "procedencia": "Donación",
     "donante_o_detalle": "Battaglino, Roberto",
     "topografia_ubicacion": "",
-    "portada_url": "",
+    "portada_url": "/images/portadas/maradona-la-mano-de-dios.jpg",
     "estado": "disponible",
     "lista_espera": [],
-    "estado_portada": "sin_portada",
-    "portada_fuente": "ninguna",
-    "portada_confianza": "ninguna",
-    "portada_detalles": "No se encontró una coincidencia bibliográfica confiable con imagen de portada."
+    "estado_portada": "aprobada",
+    "portada_fuente": "manual",
+    "portada_confianza": "alta",
+    "portada_detalles": "Portada oficial Editorial Planeta (1997)"
   },
   {
     "id": "libro-2",

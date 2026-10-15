@@ -11,6 +11,7 @@ import {
   PortadaAlternative,
   PortadaSearchResult,
 } from '@/lib/services/bookCoversService';
+import { subirPortadaLibroFisico } from '@/lib/supabase/storagePortadas';
 import {
   BookOpen,
   Search,
@@ -62,6 +63,7 @@ export function GestionPortadas() {
   const [buscandoAlternativas, setBuscandoAlternativas] = useState(false);
   const [urlManual, setUrlManual] = useState('');
   const [isbnManual, setIsbnManual] = useState('');
+  const [subiendoArchivoManual, setSubiendoArchivoManual] = useState(false);
 
   // Estados de Procesamiento Masivo / Lotes
   const [procesandoLote, setProcesandoLote] = useState(false);
@@ -221,20 +223,29 @@ export function GestionPortadas() {
     notificar('Portada manual guardada exitosamente.');
   };
 
-  const handleSubirArchivoManual = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSubirArchivoManual = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-      alert('La imagen no puede superar los 5 MB.');
+    if (file.size > 15 * 1024 * 1024) {
+      alert('La imagen no puede superar los 15 MB.');
       return;
     }
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setUrlManual(reader.result as string);
-    };
-    reader.readAsDataURL(file);
+    try {
+      setSubiendoArchivoManual(true);
+      const res = await subirPortadaLibroFisico(file, libroSeleccionado?.numero_inventario);
+      if (res.success && res.url) {
+        setUrlManual(res.url);
+        notificar('Portada optimizada y subida a la nube exitosamente.');
+      } else {
+        alert(res.error || 'Error al procesar la imagen.');
+      }
+    } catch (err: any) {
+      alert(err.message || 'Error al subir la imagen.');
+    } finally {
+      setSubiendoArchivoManual(false);
+    }
   };
 
   // -------------------------------------------------------------------------
@@ -920,14 +931,22 @@ export function GestionPortadas() {
                   </div>
 
                   <div>
-                    <label className="text-[11px] font-bold text-slate-600 block mb-1">
-                      O subir archivo desde el dispositivo:
-                    </label>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-[11px] font-bold text-slate-600">
+                        O subir archivo desde el dispositivo:
+                      </label>
+                      {subiendoArchivoManual && (
+                        <span className="text-[10px] font-bold text-roncedo-blue flex items-center gap-1">
+                          <RefreshCw className="w-3 h-3 animate-spin" /> Subiendo a la nube...
+                        </span>
+                      )}
+                    </div>
                     <input
                       type="file"
                       accept="image/*"
+                      disabled={subiendoArchivoManual}
                       onChange={handleSubirArchivoManual}
-                      className="w-full text-xs text-slate-600 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-roncedo-navy file:text-white hover:file:bg-blue-900 cursor-pointer"
+                      className="w-full text-xs text-slate-600 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-roncedo-navy file:text-white hover:file:bg-blue-900 cursor-pointer disabled:opacity-50"
                     />
                   </div>
                 </div>

@@ -33,6 +33,13 @@ import {
 import { ScannerCodigoBarrasModal } from '@/components/isbn/ScannerCodigoBarrasModal';
 import { ModalRevisionBibliograficaIsbn, DatosLibroEdicion } from '@/components/isbn/ModalRevisionBibliograficaIsbn';
 import { useLibros } from '@/lib/context/LibrosContext';
+import { ModalGestionTopografias } from './ModalGestionTopografias';
+import {
+  extraerSeccionPrincipal,
+  extraerSubseccion,
+  componerTopografia,
+} from '@/lib/services/topografiaService';
+import { subirPortadaLibroFisico } from '@/lib/supabase/storagePortadas';
 
 interface ModalABMLibroProps {
   libroAEditar?: LibroFisico | null;
@@ -50,7 +57,7 @@ export function ModalABMLibro({
   onEliminar,
 }: ModalABMLibroProps) {
   const isEditing = !!libroAEditar;
-  const { librosFisicos } = useLibros();
+  const { librosFisicos, topografiasDisponibles } = useLibros();
 
   const [numeroInventario, setNumeroInventario] = useState<number>(
     libroAEditar ? libroAEditar.numero_inventario : ultimoInventario + 1
@@ -72,6 +79,44 @@ export function ModalABMLibro({
   const [portadaUrl, setPortadaUrl] = useState<string>(libroAEditar?.portada_url || '');
   const [estado, setEstado] = useState<'disponible' | 'prestado'>(libroAEditar?.estado || 'disponible');
 
+  // Gestión Estructurada de Topografía / Secciones
+  const [seccionSeleccionada, setSeccionSeleccionada] = useState<string>(() =>
+    extraerSeccionPrincipal(libroAEditar?.topografia_ubicacion || '')
+  );
+  const [subseccion, setSubseccion] = useState<string>(() =>
+    extraerSubseccion(libroAEditar?.topografia_ubicacion || '')
+  );
+  const [modoEdicionManual, setModoEdicionManual] = useState<boolean>(false);
+  const [modalTopografiasAbierto, setModalTopografiasAbierto] = useState<boolean>(false);
+
+  const handleCambioSeccion = (nuevaSec: string) => {
+    setSeccionSeleccionada(nuevaSec);
+    const comp = componerTopografia(nuevaSec, subseccion);
+    setTopografia(comp);
+  };
+
+  const handleCambioSubseccion = (nuevaSub: string) => {
+    setSubseccion(nuevaSub);
+    const comp = componerTopografia(seccionSeleccionada, nuevaSub);
+    setTopografia(comp);
+  };
+
+  const handleSeleccionarDesdeABM = (sec: string) => {
+    handleCambioSeccion(sec);
+    setModalTopografiasAbierto(false);
+  };
+
+  const opcionesSecciones = useMemo(() => {
+    const lista = [...(topografiasDisponibles || [])];
+    if (
+      seccionSeleccionada &&
+      !lista.some((t) => t.toLowerCase() === seccionSeleccionada.toLowerCase())
+    ) {
+      lista.unshift(seccionSeleccionada);
+    }
+    return lista;
+  }, [topografiasDisponibles, seccionSeleccionada]);
+
   // Campos adicionales enriquecidos
   const [categoria, setCategoria] = useState<string>((libroAEditar as any)?.categoria || '');
   const [sinopsis, setSinopsis] = useState<string>((libroAEditar as any)?.sinopsis || '');
@@ -84,6 +129,7 @@ export function ModalABMLibro({
 
   const [guardando, setGuardando] = useState(false);
   const [buscandoPortada, setBuscandoPortada] = useState(false);
+  const [subiendoFoto, setSubiendoFoto] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // -------------------------------------------------------------------------
@@ -223,20 +269,29 @@ export function ModalABMLibro({
     }
   };
 
-  // Manejador de subida de foto local
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Manejador de subida de foto local optimizada a la nube (Supabase Storage)
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        setError('La imagen no debe superar los 5 MB.');
-        return;
+    if (!file) return;
+
+    if (file.size > 15 * 1024 * 1024) {
+      setError('La imagen no debe superar los 15 MB.');
+      return;
+    }
+
+    try {
+      setSubiendoFoto(true);
+      setError(null);
+      const res = await subirPortadaLibroFisico(file, Number(numeroInventario) || undefined);
+      if (res.success && res.url) {
+        setPortadaUrl(res.url);
+      } else {
+        setError(res.error || 'No se pudo procesar la foto de portada.');
       }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPortadaUrl(reader.result as string);
-        setError(null);
-      };
-      reader.readAsDataURL(file);
+    } catch (err: any) {
+      setError(err.message || 'Error al subir la foto de portada.');
+    } finally {
+      setSubiendoFoto(false);
     }
   };
 
@@ -457,7 +512,12 @@ export function ModalABMLibro({
             {/* Sección Foto de Portada */}
             <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 flex flex-col sm:flex-row items-center gap-4">
               <div className="relative w-24 h-32 rounded-xl border border-slate-300 bg-white shadow-sm overflow-hidden flex flex-col items-center justify-center text-slate-400 flex-shrink-0 p-1">
-                {portadaUrl ? (
+                {subiendoFoto ? (
+                  <div className="text-center p-2 flex flex-col items-center justify-center">
+                    <RefreshCw className="w-7 h-7 text-roncedo-blue animate-spin mb-1" />
+                    <span className="text-[9px] font-bold text-roncedo-blue">Subiendo a la nube...</span>
+                  </div>
+                ) : portadaUrl ? (
                   <Image
                     src={portadaUrl}
                     alt="Portada del libro"
@@ -474,18 +534,26 @@ export function ModalABMLibro({
               </div>
 
               <div className="flex-1 space-y-2 w-full">
-                <span className="font-bold text-slate-800 block text-xs">
-                  Foto de Portada del Libro Físico
-                </span>
+                <div className="flex items-center justify-between flex-wrap gap-1">
+                  <span className="font-bold text-slate-800 block text-xs">
+                    Foto de Portada del Libro Físico
+                  </span>
+                  {portadaUrl && (
+                    <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full flex items-center gap-1">
+                      <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                      Portada activa y visible para todos
+                    </span>
+                  )}
+                </div>
                 <p className="text-[11px] text-slate-500">
-                  Podés buscarla automáticamente en Google Books / Open Library, o subir una foto.
+                  Podés buscarla automáticamente en Google Books / Open Library, o subir una foto desde tu dispositivo (se almacena en la nube para todos los usuarios).
                 </p>
 
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2 items-center">
                   <button
                     type="button"
                     onClick={handleBuscarPortadaAuto}
-                    disabled={buscandoPortada || (!titulo.trim() && !isbn.trim())}
+                    disabled={buscandoPortada || subiendoFoto || (!titulo.trim() && !isbn.trim())}
                     className="bg-roncedo-gold hover:bg-amber-400 text-roncedo-navy font-black px-3.5 py-2 rounded-xl flex items-center gap-1.5 transition-colors shadow-sm disabled:opacity-50"
                     title="Buscar automáticamente en Google Books y Open Library"
                   >
@@ -493,19 +561,24 @@ export function ModalABMLibro({
                     <span>{buscandoPortada ? 'Buscando...' : 'Auto-Buscar Portada'}</span>
                   </button>
 
-                  <label className="cursor-pointer bg-roncedo-navy hover:bg-blue-900 text-white font-bold px-3 py-2 rounded-xl flex items-center gap-1.5 transition-colors shadow-sm">
-                    <Camera className="w-4 h-4 text-roncedo-gold" />
-                    <span>Subir / Tomar Foto</span>
+                  <label className={`cursor-pointer bg-roncedo-navy hover:bg-blue-900 text-white font-bold px-3 py-2 rounded-xl flex items-center gap-1.5 transition-colors shadow-sm ${subiendoFoto ? 'opacity-60 cursor-not-allowed' : ''}`}>
+                    {subiendoFoto ? (
+                      <RefreshCw className="w-4 h-4 text-roncedo-gold animate-spin" />
+                    ) : (
+                      <Camera className="w-4 h-4 text-roncedo-gold" />
+                    )}
+                    <span>{subiendoFoto ? 'Subiendo a la nube...' : 'Subir / Tomar Foto'}</span>
                     <input
                       type="file"
                       accept="image/*"
                       capture="environment"
+                      disabled={subiendoFoto}
                       onChange={handleFileChange}
                       className="hidden"
                     />
                   </label>
 
-                  {portadaUrl && (
+                  {portadaUrl && !subiendoFoto && (
                     <button
                       type="button"
                       onClick={() => setPortadaUrl('')}
@@ -518,7 +591,7 @@ export function ModalABMLibro({
 
                 <input
                   type="text"
-                  value={portadaUrl.startsWith('data:') ? 'Imagen cargada localmente' : portadaUrl}
+                  value={portadaUrl.startsWith('data:') ? 'Imagen comprimida' : portadaUrl}
                   disabled={portadaUrl.startsWith('data:')}
                   onChange={(e) => setPortadaUrl(e.target.value)}
                   placeholder="O ingresar URL directa de la imagen (https://...)"
@@ -657,17 +730,99 @@ export function ModalABMLibro({
                 />
               </div>
 
-              <div className="sm:col-span-2">
-                <label className="block font-bold text-slate-700 uppercase tracking-wider text-[10px] mb-1">
-                  Topografía / Ubicación Física en Estantería
-                </label>
-                <input
-                  type="text"
-                  value={topografia}
-                  onChange={(e) => setTopografia(e.target.value)}
-                  placeholder="Ej: FUTBOL / FUTBOL ARGENTINO, LITERATURA / NOVELAS, Estante 3"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-bold text-roncedo-navy focus:outline-none focus:ring-2 focus:ring-roncedo-blue focus:bg-white"
-                />
+              {/* Sección y Topografía (Estantería) */}
+              <div className="sm:col-span-2 bg-gradient-to-br from-blue-50/60 to-slate-50 border border-blue-200/80 rounded-2xl p-3.5 space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center gap-1.5">
+                    <Layers className="w-4 h-4 text-roncedo-navy" />
+                    <span className="font-bold text-slate-800 uppercase tracking-wider text-[11px]">
+                      Sección y Topografía (Estantería)
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setModoEdicionManual(!modoEdicionManual)}
+                      className="text-[11px] font-semibold text-slate-500 hover:text-slate-800 underline underline-offset-2 transition-colors"
+                    >
+                      {modoEdicionManual ? '← Volver a lista' : 'Entrada libre'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setModalTopografiasAbierto(true)}
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-roncedo-navy hover:bg-blue-900 text-white rounded-xl text-xs font-bold transition-all shadow-sm active:scale-95"
+                    >
+                      <Layers className="w-3.5 h-3.5 text-roncedo-gold" />
+                      <span>ABM Secciones</span>
+                    </button>
+                  </div>
+                </div>
+
+                {modoEdicionManual ? (
+                  <div>
+                    <input
+                      type="text"
+                      value={topografia}
+                      onChange={(e) => setTopografia(e.target.value)}
+                      placeholder="Ej: LITERATURA / NOVELAS, HISTORIA / ARGENTINA..."
+                      className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 font-bold text-roncedo-navy focus:outline-none focus:ring-2 focus:ring-roncedo-blue"
+                    />
+                    <p className="text-[10px] text-slate-500 mt-1">
+                      Modo texto libre para casos especiales. Formato recomendado: <code className="text-roncedo-blue font-bold">SECCIÓN / SUBSECCIÓN</code>.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-2.5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                      {/* Dropdown de Secciones principales unificadas con el usuario final */}
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+                          Sección Principal *
+                        </label>
+                        <select
+                          value={seccionSeleccionada}
+                          onChange={(e) => handleCambioSeccion(e.target.value)}
+                          className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-roncedo-navy focus:outline-none focus:ring-2 focus:ring-roncedo-blue shadow-sm"
+                        >
+                          <option value="">-- Seleccionar Sección --</option>
+                          {opcionesSecciones.map((sec) => (
+                            <option key={sec} value={sec}>
+                              {sec}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* Subsección o Estante opcional */}
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-wider mb-1">
+                          Subsección / Estante (Opcional)
+                        </label>
+                        <input
+                          type="text"
+                          value={subseccion}
+                          onChange={(e) => handleCambioSubseccion(e.target.value)}
+                          placeholder="Ej: NOVELAS, CUENTOS, Estante 3..."
+                          className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-roncedo-blue shadow-sm"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Previsualización en vivo */}
+                    <div className="flex items-center gap-2 px-3 py-1.5 bg-white/80 rounded-xl border border-blue-100 text-xs">
+                      <span className="text-[11px] font-semibold text-slate-500">Ubicación asignada:</span>
+                      {topografia ? (
+                        <span className="font-mono font-bold text-roncedo-navy bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+                          {topografia}
+                        </span>
+                      ) : (
+                        <span className="text-slate-400 italic text-[11px]">
+                          Sin ubicación (selecciona una sección)
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Categoría / Género */}
@@ -779,6 +934,13 @@ export function ModalABMLibro({
         }}
         metadataEncontrada={metadataEncontrada}
         onAplicarCambios={handleAplicarCambiosBibliograficos}
+      />
+
+      {/* Modal ABM de Topografías y Secciones */}
+      <ModalGestionTopografias
+        isOpen={modalTopografiasAbierto}
+        onClose={() => setModalTopografiasAbierto(false)}
+        onSeleccionarSeccion={handleSeleccionarDesdeABM}
       />
     </>
   );

@@ -4,10 +4,19 @@ import LIBROS_RAW from '@/lib/data/librosFisicos.json';
 
 export const LOCAL_STORAGE_LIBROS_KEY = 'roncedo_libros_fisicos_v4';
 
+const RAW_MAP_BY_ID = new Map((LIBROS_RAW as any[]).map((r) => [r.id, r]));
+const RAW_MAP_BY_INV = new Map((LIBROS_RAW as any[]).map((r) => [Number(r.numero_inventario), r]));
+
 /**
  * Normaliza un objeto de libro físico para asegurar compatibilidad de esquema
  */
 export function normalizarLibro(l: any): LibroFisico {
+  const rawFallback = RAW_MAP_BY_ID.get(l.id) || RAW_MAP_BY_INV.get(Number(l.numero_inventario));
+  const portadaFinal =
+    (l.portada_url && String(l.portada_url).trim()) ||
+    (rawFallback?.portada_url && String(rawFallback.portada_url).trim()) ||
+    '';
+
   return {
     id: String(l.id || `libro-${l.numero_inventario || Date.now()}`),
     numero_inventario: Number(l.numero_inventario),
@@ -20,17 +29,17 @@ export function normalizarLibro(l: any): LibroFisico {
     procedencia: l.procedencia ? String(l.procedencia) : 'Donación',
     donante_o_detalle: l.donante_o_detalle ? String(l.donante_o_detalle) : '',
     topografia_ubicacion: l.topografia_ubicacion ? String(l.topografia_ubicacion) : '',
-    isbn: l.isbn ? String(l.isbn) : undefined,
-    portada_url: l.portada_url ? String(l.portada_url) : '',
-    estado_portada: l.estado_portada || (l.portada_url ? 'aprobada' : 'sin_portada'),
-    portada_fuente: l.portada_fuente || (l.portada_url ? 'manual' : 'ninguna'),
-    portada_confianza: l.portada_confianza || (l.portada_url ? 'alta' : 'ninguna'),
-    portada_detalles: l.portada_detalles || '',
+    isbn: l.isbn ? String(l.isbn) : rawFallback?.isbn || undefined,
+    portada_url: portadaFinal,
+    estado_portada: l.estado_portada || (portadaFinal ? 'aprobada' : (rawFallback?.estado_portada || 'sin_portada')),
+    portada_fuente: l.portada_fuente || (portadaFinal ? (rawFallback?.portada_fuente || 'manual') : 'ninguna'),
+    portada_confianza: l.portada_confianza || (portadaFinal ? (rawFallback?.portada_confianza || 'alta') : 'ninguna'),
+    portada_detalles: l.portada_detalles || (rawFallback?.portada_detalles || ''),
     estado: l.estado === 'prestado' ? 'prestado' : 'disponible',
     prestado_a: l.prestado_a || undefined,
     lista_espera: Array.isArray(l.lista_espera) ? l.lista_espera : [],
-    categoria: l.categoria ? String(l.categoria) : undefined,
-    sinopsis: l.sinopsis ? String(l.sinopsis) : undefined,
+    categoria: l.categoria ? String(l.categoria) : rawFallback?.categoria || undefined,
+    sinopsis: l.sinopsis ? String(l.sinopsis) : rawFallback?.sinopsis || undefined,
   };
 }
 
@@ -229,7 +238,18 @@ export async function actualizarLibroFisicoEnNube(
     if (datos.anio_incorporacion !== undefined) payload.anio_incorporacion = String(datos.anio_incorporacion);
     if (datos.edicion_anio !== undefined) payload.edicion_anio = String(datos.edicion_anio);
 
-    const { error } = await supabase.from('libros_fisicos').update(payload).eq('id', id);
+    if (datos.portada_url && !datos.estado_portada) {
+      payload.estado_portada = 'aprobada';
+    }
+
+    let query = supabase.from('libros_fisicos').update(payload);
+    if (id) {
+      query = query.eq('id', id);
+    } else if (datos.numero_inventario) {
+      query = query.eq('numero_inventario', Number(datos.numero_inventario));
+    }
+
+    const { error } = await query;
 
     if (error) {
       console.error('[LibrosFisicos] Error en update Supabase:', error);

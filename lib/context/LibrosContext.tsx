@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import {
   LibroFisico,
   PrestamoActivo,
@@ -19,6 +19,16 @@ import {
   sincronizarLoteLibrosEnNube,
   LOCAL_STORAGE_LIBROS_KEY,
 } from '@/lib/supabase/librosFisicos';
+import {
+  getTopografiasPersonalizadas,
+  guardarTopografiasPersonalizadas,
+  getTopografiasEliminadas,
+  guardarTopografiasEliminadas,
+  unificarListaTopografias,
+  extraerSeccionPrincipal,
+  extraerSubseccion,
+  componerTopografia,
+} from '@/lib/services/topografiaService';
 
 interface LibrosContextType {
   librosFisicos: LibroFisico[];
@@ -29,6 +39,10 @@ interface LibrosContextType {
   isLoading: boolean;
   isNubeSincronizada: boolean;
   cargandoNube: boolean;
+  topografiasDisponibles: string[];
+  agregarTopografia: (seccion: string) => Promise<{ success: boolean; error?: string }>;
+  renombrarTopografia: (seccionOriginal: string, nuevoNombre: string) => Promise<{ success: boolean; error?: string }>;
+  eliminarTopografia: (seccion: string) => Promise<{ success: boolean; error?: string }>;
   solicitarPrestamo: (libroId: string, user: UserProfile) => Promise<{ success: boolean; error?: string }>;
   solicitarReserva: (libroId: string, user: UserProfile) => Promise<{ success: boolean; error?: string }>;
   cancelarReserva: (reservaId: string) => Promise<void>;
@@ -121,10 +135,15 @@ export function LibrosProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [isNubeSincronizada, setIsNubeSincronizada] = useState(false);
   const [cargandoNube, setCargandoNube] = useState(false);
+  const [topografiasCustom, setTopografiasCustom] = useState<string[]>([]);
+  const [topografiasEliminadas, setTopografiasEliminadas] = useState<string[]>([]);
 
   // 1. Carga inmediata desde LocalStorage para rendering instantáneo
   useEffect(() => {
     try {
+      setTopografiasCustom(getTopografiasPersonalizadas());
+      setTopografiasEliminadas(getTopografiasEliminadas());
+
       const storedLibros = localStorage.getItem(STORAGE_KEY_LIBROS);
       if (storedLibros) {
         const parsed = JSON.parse(storedLibros);
@@ -532,9 +551,14 @@ export function LibrosProvider({ children }: { children: React.ReactNode }) {
     persistLibros(updated);
 
     // Persistir directamente en Supabase
-    actualizarLibroFisicoEnNube(id, datos).catch((cloudErr) => {
-      console.warn('Error actualizando libro en la nube:', cloudErr);
-    });
+    try {
+      const res = await actualizarLibroFisicoEnNube(id, datos);
+      if (!res.success) {
+        console.warn('[LibrosContext] Advertencia al actualizar en Supabase:', res.error);
+      }
+    } catch (cloudErr) {
+      console.warn('[LibrosContext] Error al actualizar libro en la nube:', cloudErr);
+    }
 
     return { success: true };
   };
@@ -550,6 +574,114 @@ export function LibrosProvider({ children }: { children: React.ReactNode }) {
 
     return { success: true };
   };
+
+  // -------------------------------------------------------------
+  // ABM y Gestión de Topografías / Secciones físicas
+  // -------------------------------------------------------------
+  const topografiasDisponibles = useMemo(() => {
+    return unificarListaTopografias(librosFisicos, topografiasCustom, topografiasEliminadas);
+  }, [librosFisicos, topografiasCustom, topografiasEliminadas]);
+
+  const agregarTopografia = async (seccion: string): Promise<{ success: boolean; error?: string }> => {
+    const normalizada = seccion.trim().toUpperCase();
+    if (!normalizada) {
+      return { success: false, error: 'El nombre de la sección no puede estar vacío.' };
+    }
+    const existe = topografiasDisponibles.some((t) => t.toUpperCase() === normalizada);
+    if (existe) {
+      return { success: false, error: `La sección "${normalizada}" ya existe.` };
+    }
+
+    // Si estaba en la lista de eliminadas, removerla
+    const nuevasEliminadas = topografiasEliminadas.filter((e) => e.toUpperCase() !== normalizada);
+    if (nuevasEliminadas.length !== topografiasEliminadas.length) {
+      setTopografiasEliminadas(nuevasEliminadas);
+      guardarTopografiasEliminadas(nuevasEliminadas);
+    }
+
+    const nuevasCustom = [...topografiasCustom.filter((c) => c.toUpperCase() !== normalizada), normalizada];
+    setTopografiasCustom(nuevasCustom);
+    guardarTopografiasPersonalizadas(nuevasCustom);
+
+    return { success: true };
+  };
+
+  const renombrarTopografia = async (
+    seccionOriginal: string,
+    nuevoNombre: string
+  ): Promise<{ success: boolean; error?: string }> => {
+    const origNorm = seccionOriginal.trim().toUpperCase();
+    const nuevoNorm = nuevoNombre.trim().toUpperCase();
+
+    if (!nuevoNorm) {
+      return { success: false, error: 'El nuevo nombre no puede estar vacío.' };
+    }
+    if (origNorm === nuevoNorm) {
+      return { success: true };
+    }
+
+    // 1. Actualizar en cascada todos los libros que usan esta sección
+    let cantidadAfectados = 0;
+    const librosModificados = librosFisicos.map((libro) => {
+      const secActual = extraerSeccionPrincipal(libro.topografia_ubicacion).toUpperCase();
+      if (secActual === origNorm) {
+        cantidadAfectados++;
+        const sub = extraerSubseccion(libro.topografia_ubicacion);
+        const nuevaTopografia = componerTopografia(nuevoNorm, sub);
+        const libroActualizado = { ...libro, topografia_ubicacion: nuevaTopografia };
+        actualizarLibroFisicoEnNube(libro.id, { topografia_ubicacion: nuevaTopografia }).catch((err) =>
+          console.warn('Error actualizando topografia en Supabase para libro', libro.id, err)
+        );
+        return libroActualizado;
+      }
+      return libro;
+    });
+
+    if (cantidadAfectados > 0) {
+      persistLibros(librosModificados);
+    }
+
+    // 2. Actualizar listas de personalizadas y eliminadas
+    const nuevasCustom = topografiasCustom
+      .filter((c) => c.toUpperCase() !== origNorm)
+      .concat(nuevoNorm);
+    setTopografiasCustom(nuevasCustom);
+    guardarTopografiasPersonalizadas(nuevasCustom);
+
+    const nuevasEliminadas = topografiasEliminadas.filter((e) => e.toUpperCase() !== nuevoNorm);
+    if (nuevasEliminadas.length !== topografiasEliminadas.length) {
+      setTopografiasEliminadas(nuevasEliminadas);
+      guardarTopografiasEliminadas(nuevasEliminadas);
+    }
+
+    return { success: true };
+  };
+
+  const eliminarTopografia = async (seccion: string): Promise<{ success: boolean; error?: string }> => {
+    const secNorm = seccion.trim().toUpperCase();
+    const librosAsociados = librosFisicos.filter(
+      (l) => extraerSeccionPrincipal(l.topografia_ubicacion).toUpperCase() === secNorm
+    );
+    if (librosAsociados.length > 0) {
+      return {
+        success: false,
+        error: `No se puede eliminar la sección "${seccion}" porque tiene ${librosAsociados.length} libro(s) asociados en el catálogo.`,
+      };
+    }
+
+    const nuevasCustom = topografiasCustom.filter((c) => c.toUpperCase() !== secNorm);
+    setTopografiasCustom(nuevasCustom);
+    guardarTopografiasPersonalizadas(nuevasCustom);
+
+    if (!topografiasEliminadas.some((e) => e.toUpperCase() === secNorm)) {
+      const nuevasEliminadas = [...topografiasEliminadas, secNorm];
+      setTopografiasEliminadas(nuevasEliminadas);
+      guardarTopografiasEliminadas(nuevasEliminadas);
+    }
+
+    return { success: true };
+  };
+
 
   const actualizarPortada = async (
     id: string,
@@ -717,6 +849,10 @@ export function LibrosProvider({ children }: { children: React.ReactNode }) {
         isLoading,
         isNubeSincronizada,
         cargandoNube,
+        topografiasDisponibles,
+        agregarTopografia,
+        renombrarTopografia,
+        eliminarTopografia,
         solicitarPrestamo,
         solicitarReserva,
         cancelarReserva,

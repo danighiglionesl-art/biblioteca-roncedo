@@ -23,9 +23,11 @@ import {
   LayoutGrid,
   LayoutList,
   Cloud,
+  Layers,
 } from 'lucide-react';
 import { ModalDetalleLibroFisico } from './ModalDetalleLibroFisico';
 import { ModalABMLibro } from './ModalABMLibro';
+import { ModalGestionTopografias } from './ModalGestionTopografias';
 
 const ITEMS_POR_PAGINA = 24;
 
@@ -36,6 +38,7 @@ export function BibliotecaFisicaView() {
     reservas,
     isNubeSincronizada,
     cargandoNube,
+    topografiasDisponibles,
     sincronizarConNube,
     solicitarPrestamo,
     solicitarReserva,
@@ -60,6 +63,7 @@ export function BibliotecaFisicaView() {
   const [libroSeleccionado, setLibroSeleccionado] = useState<LibroFisico | null>(null);
   const [modalAbmAbierto, setModalAbmAbierto] = useState(false);
   const [libroAEditar, setLibroAEditar] = useState<LibroFisico | null>(null);
+  const [modalGestionTopografiasAbierto, setModalGestionTopografiasAbierto] = useState(false);
 
   const isAdmin = user && user.role === 'admin';
   const isSocio = user && (user.role === 'socio' || user.role === 'admin');
@@ -356,13 +360,24 @@ export function BibliotecaFisicaView() {
               }}
               className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-roncedo-blue"
             >
-              <option value="todas">Todas las ubicaciones</option>
-              {categoriasTopograficas.map((cat) => (
+              <option value="todas">Todas las secciones ({librosFisicos.length})</option>
+              {topografiasDisponibles.map((cat) => (
                 <option key={cat} value={cat}>
                   {cat}
                 </option>
               ))}
             </select>
+            {isAdmin && (
+              <button
+                type="button"
+                onClick={() => setModalGestionTopografiasAbierto(true)}
+                className="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-roncedo-navy rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors border border-slate-200 shadow-sm"
+                title="ABM de Topografías y Secciones"
+              >
+                <Layers className="w-3.5 h-3.5 text-roncedo-gold" />
+                <span className="hidden sm:inline">ABM Secciones</span>
+              </button>
+            )}
           </div>
 
           {/* Alternador de Modo de Vista (Fichas vs Biblioteca Visual) */}
@@ -673,6 +688,17 @@ export function BibliotecaFisicaView() {
           }}
         />
       )}
+
+      {/* Modal ABM de Topografías y Secciones */}
+      <ModalGestionTopografias
+        isOpen={modalGestionTopografiasAbierto}
+        onClose={() => setModalGestionTopografiasAbierto(false)}
+        onSeleccionarSeccion={(sec) => {
+          setFiltroTopografia(sec);
+          setPaginaActual(1);
+          setModalGestionTopografiasAbierto(false);
+        }}
+      />
     </div>
   );
 }
