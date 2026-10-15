@@ -149,6 +149,11 @@ export function ModalDetalleLibroFisico({
                     <Clock className="w-3 h-3" />
                     Actualmente Prestado
                   </span>
+                ) : libro.estado === 'baja_transitoria' ? (
+                  <span className="bg-amber-100 text-amber-900 text-[10px] font-bold px-2.5 py-1 rounded-full border border-amber-300 flex items-center gap-1">
+                    <AlertCircle className="w-3 h-3 text-amber-600" />
+                    Baja Transitoria (Fuera de circulación)
+                  </span>
                 ) : (
                   <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2.5 py-1 rounded-full border border-emerald-300 flex items-center gap-1">
                     <CheckCircle2 className="w-3 h-3" />
@@ -286,7 +291,7 @@ export function ModalDetalleLibroFisico({
 
           <div className="flex items-center gap-2 flex-wrap ml-auto">
             {/* Si está disponible y es socio: Solicitar préstamo */}
-            {!estaPrestado && isSocio && (
+            {!estaPrestado && libro.estado !== 'baja_transitoria' && isSocio && (
               <button
                 disabled={procesando}
                 onClick={handlePrestamo}
@@ -295,6 +300,14 @@ export function ModalDetalleLibroFisico({
                 <BookOpen className="w-4 h-4 text-roncedo-gold" />
                 <span>{procesando ? 'Procesando...' : 'Solicitar Préstamo (14 días)'}</span>
               </button>
+            )}
+
+            {/* Si está en baja transitoria */}
+            {libro.estado === 'baja_transitoria' && (
+              <span className="bg-amber-100 text-amber-900 font-bold text-xs px-3 py-2 rounded-xl border border-amber-300 flex items-center gap-1.5">
+                <AlertCircle className="w-4 h-4 text-amber-700 flex-shrink-0" />
+                <span>Ejemplar no disponible para retiro temporalmente</span>
+              </span>
             )}
 
             {/* Si está prestado y es socio: Ingresar a lista de espera */}

@@ -189,7 +189,7 @@ export interface LibroFisico {
   portada_fuente?: 'google_books' | 'open_library' | 'manual' | 'ninguna';
   portada_confianza?: 'alta' | 'media' | 'baja' | 'ninguna';
   portada_detalles?: string;
-  estado: 'disponible' | 'prestado';
+  estado: 'disponible' | 'prestado' | 'baja_transitoria';
   prestado_a?: PrestadoDetalle;
   lista_espera?: EsperaDetalle[];
   categoria?: string;

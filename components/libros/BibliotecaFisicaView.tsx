@@ -50,7 +50,7 @@ export function BibliotecaFisicaView() {
   } = useLibros();
 
   const [busqueda, setBusqueda] = useState('');
-  const [filtroEstado, setFiltroEstado] = useState<'todos' | 'disponible' | 'prestado'>('todos');
+  const [filtroEstado, setFiltroEstado] = useState<'todos' | 'disponible' | 'prestado' | 'baja_transitoria'>('todos');
   const [filtroTopografia, setFiltroTopografia] = useState<string>('todas');
   const [modoVista, setModoVista] = useState<'tarjetas' | 'visual'>('tarjetas');
   const [paginaActual, setPaginaActual] = useState(1);
@@ -152,8 +152,9 @@ export function BibliotecaFisicaView() {
 
   // Estadísticas rápidas
   const totalLibros = librosFisicos.length;
+  const totalDisponibles = librosFisicos.filter((l) => l.estado === 'disponible').length;
   const totalPrestados = librosFisicos.filter((l) => l.estado === 'prestado').length;
-  const totalDisponibles = totalLibros - totalPrestados;
+  const totalBajaTransitoria = librosFisicos.filter((l) => l.estado === 'baja_transitoria').length;
 
   // Paginación
   const totalPaginas = Math.ceil(librosFiltrados.length / ITEMS_POR_PAGINA) || 1;
@@ -345,6 +346,17 @@ export function BibliotecaFisicaView() {
             >
               Prestados ({totalPrestados})
             </button>
+            <button
+              onClick={() => {
+                setFiltroEstado('baja_transitoria');
+                setPaginaActual(1);
+              }}
+              className={`px-3 py-1.5 rounded-xl transition-colors ${
+                filtroEstado === 'baja_transitoria' ? 'bg-amber-500 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              Baja Transitoria ({totalBajaTransitoria})
+            </button>
           </div>
 
           {/* Filtro por Topografía / Estantería */}
@@ -485,6 +497,10 @@ export function BibliotecaFisicaView() {
                       <span className="bg-red-600/90 backdrop-blur-sm text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full shadow">
                         Prestado
                       </span>
+                    ) : libro.estado === 'baja_transitoria' ? (
+                      <span className="bg-amber-500/90 backdrop-blur-sm text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full shadow">
+                        Baja Transitoria
+                      </span>
                     ) : (
                       <span className="bg-emerald-600/90 backdrop-blur-sm text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full shadow">
                         Disponible
@@ -528,6 +544,11 @@ export function BibliotecaFisicaView() {
                       <span className="bg-red-50 text-red-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-red-200 flex items-center gap-1">
                         <Clock className="w-2.5 h-2.5" />
                         Prestado
+                      </span>
+                    ) : libro.estado === 'baja_transitoria' ? (
+                      <span className="bg-amber-50 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-full border border-amber-200 flex items-center gap-1">
+                        <AlertCircle className="w-2.5 h-2.5 text-amber-600" />
+                        Baja Transitoria
                       </span>
                     ) : (
                       <span className="bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1">

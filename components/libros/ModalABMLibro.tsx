@@ -77,7 +77,7 @@ export function ModalABMLibro({
   const [donante, setDonante] = useState<string>(libroAEditar?.donante_o_detalle || '');
   const [topografia, setTopografia] = useState<string>(libroAEditar?.topografia_ubicacion || '');
   const [portadaUrl, setPortadaUrl] = useState<string>(libroAEditar?.portada_url || '');
-  const [estado, setEstado] = useState<'disponible' | 'prestado'>(libroAEditar?.estado || 'disponible');
+  const [estado, setEstado] = useState<'disponible' | 'prestado' | 'baja_transitoria'>(libroAEditar?.estado || 'disponible');
 
   // Gestión Estructurada de Topografía / Secciones
   const [seccionSeleccionada, setSeccionSeleccionada] = useState<string>(() =>
@@ -850,6 +850,7 @@ export function ModalABMLibro({
                 >
                   <option value="disponible">🟢 Disponible para préstamo</option>
                   <option value="prestado">🔴 Prestado a socio</option>
+                  <option value="baja_transitoria">🟡 Baja transitoria</option>
                 </select>
               </div>
 

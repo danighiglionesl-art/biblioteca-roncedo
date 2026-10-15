@@ -461,7 +461,7 @@ export function EnriquecimientoIsbnView() {
         'Posee Portada': l.portada_url ? 'Sí' : 'No',
         'Fuente Portada': l.portada_fuente || '-',
         'Topografía / Estantería': l.topografia_ubicacion || '-',
-        'Estado Físico': l.estado === 'disponible' ? 'Disponible' : 'Prestado',
+        'Estado Físico': l.estado === 'disponible' ? 'Disponible' : l.estado === 'baja_transitoria' ? 'Baja transitoria' : 'Prestado',
         'Enriquecimiento API': enriquecimiento?.estadoProceso || 'No procesado',
       };
     });

@@ -248,6 +248,9 @@ export function LibrosProvider({ children }: { children: React.ReactNode }) {
   const solicitarPrestamo = async (libroId: string, user: UserProfile): Promise<{ success: boolean; error?: string }> => {
     const libro = librosFisicos.find((l) => l.id === libroId);
     if (!libro) return { success: false, error: 'Libro no encontrado en el inventario.' };
+    if (libro.estado === 'baja_transitoria') {
+      return { success: false, error: 'El ejemplar se encuentra temporalmente en baja transitoria (reparación o mantenimiento).' };
+    }
     if (libro.estado === 'prestado') {
       return { success: false, error: 'El libro ya se encuentra prestado. Puedes ingresar a la lista de espera.' };
     }
@@ -315,6 +318,9 @@ export function LibrosProvider({ children }: { children: React.ReactNode }) {
   const solicitarReserva = async (libroId: string, user: UserProfile): Promise<{ success: boolean; error?: string }> => {
     const libro = librosFisicos.find((l) => l.id === libroId);
     if (!libro) return { success: false, error: 'Libro no encontrado.' };
+    if (libro.estado === 'baja_transitoria') {
+      return { success: false, error: 'El ejemplar se encuentra en baja transitoria y no admite reservas en este momento.' };
+    }
 
     const yaTieneReserva = reservas.some((r) => r.libro_id === libroId && r.user_id === user.id && r.estado !== 'cancelada');
     if (yaTieneReserva) {
