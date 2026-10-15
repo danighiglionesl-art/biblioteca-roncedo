@@ -189,7 +189,7 @@ export interface LibroFisico {
   portada_fuente?: 'google_books' | 'open_library' | 'manual' | 'ninguna';
   portada_confianza?: 'alta' | 'media' | 'baja' | 'ninguna';
   portada_detalles?: string;
-  estado: 'disponible' | 'prestado' | 'baja_transitoria';
+  estado: 'disponible' | 'prestado' | 'baja_transitoria' | 'en_gestion';
   prestado_a?: PrestadoDetalle;
   lista_espera?: EsperaDetalle[];
   categoria?: string;
@@ -210,7 +210,7 @@ export interface PrestamoActivo {
   numero_socio: string;
   fecha_prestamo: string;
   fecha_devolucion_prevista: string;
-  estado: 'en_termino' | 'vencido' | 'devuelto';
+  estado: 'en_termino' | 'vencido' | 'devuelto' | 'en_gestion';
   renovaciones: number;
 }
 

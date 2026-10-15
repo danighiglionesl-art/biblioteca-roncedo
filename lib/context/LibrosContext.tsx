@@ -44,6 +44,8 @@ interface LibrosContextType {
   renombrarTopografia: (seccionOriginal: string, nuevoNombre: string) => Promise<{ success: boolean; error?: string }>;
   eliminarTopografia: (seccion: string) => Promise<{ success: boolean; error?: string }>;
   solicitarPrestamo: (libroId: string, user: UserProfile) => Promise<{ success: boolean; error?: string }>;
+  confirmarEntregaPrestamo: (libroId: string) => Promise<{ success: boolean; error?: string }>;
+  cancelarGestionPrestamo: (libroId: string) => Promise<{ success: boolean; error?: string }>;
   solicitarReserva: (libroId: string, user: UserProfile) => Promise<{ success: boolean; error?: string }>;
   cancelarReserva: (reservaId: string) => Promise<void>;
   renovarPrestamo: (prestamoId: string) => Promise<{ success: boolean; error?: string }>;
@@ -153,16 +155,16 @@ export function LibrosProvider({ children }: { children: React.ReactNode }) {
           const merged = parsed.map((item: LibroFisico) => {
             const raw = rawMap.get(item.id);
             if (!raw) return item;
+            const portadaValida = item.portada_url && !item.portada_url.startsWith('data:image/jpeg;base64,AAAA') ? item.portada_url : '';
+            const portadaFinal = portadaValida || raw.portada_url || '';
             return {
               ...item,
-              portada_url: item.portada_url || raw.portada_url || '',
+              portada_url: portadaFinal,
               isbn: item.isbn || raw.isbn || undefined,
               estado_portada:
-                item.estado_portada ||
-                raw.estado_portada ||
-                (item.portada_url ? 'aprobada' : raw.portada_url ? 'aprobada' : 'sin_portada'),
-              portada_fuente: item.portada_fuente || raw.portada_fuente || undefined,
-              portada_confianza: item.portada_confianza || raw.portada_confianza || undefined,
+                item.estado_portada || (portadaFinal ? 'aprobada' : (raw.estado_portada || 'sin_portada')),
+              portada_fuente: item.portada_fuente || (portadaFinal ? (raw.portada_fuente || 'manual') : 'ninguna'),
+              portada_confianza: item.portada_confianza || (portadaFinal ? (raw.portada_confianza || 'alta') : 'ninguna'),
               portada_detalles: item.portada_detalles || raw.portada_detalles || undefined,
             };
           });
@@ -244,7 +246,7 @@ export function LibrosProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem(STORAGE_KEY_FOTOS, JSON.stringify(items));
   };
 
-  // Solicitar Préstamo de libro físico
+  // Solicitar Préstamo de libro físico (Pasa a estado 'en_gestion' hasta que la biblioteca confirma la entrega)
   const solicitarPrestamo = async (libroId: string, user: UserProfile): Promise<{ success: boolean; error?: string }> => {
     const libro = librosFisicos.find((l) => l.id === libroId);
     if (!libro) return { success: false, error: 'Libro no encontrado en el inventario.' };
@@ -254,13 +256,16 @@ export function LibrosProvider({ children }: { children: React.ReactNode }) {
     if (libro.estado === 'prestado') {
       return { success: false, error: 'El libro ya se encuentra prestado. Puedes ingresar a la lista de espera.' };
     }
+    if (libro.estado === 'en_gestion') {
+      return { success: false, error: 'El ejemplar ya se encuentra reservado en gestión de entrega.' };
+    }
 
     const hoy = new Date();
-    const fechaDevolucion = new Date(hoy.getTime() + 14 * 24 * 60 * 60 * 1000); // 14 días
+    const fechaDevolucion = new Date(hoy.getTime() + 14 * 24 * 60 * 60 * 1000); // 14 días estimados
     const fechaDevolucionStr = fechaDevolucion.toISOString().split('T')[0];
     const fechaPrestamoStr = hoy.toISOString().split('T')[0];
 
-    const nuevoPrestamo: PrestamoActivo = {
+    const prestamoEnGestion: PrestamoActivo = {
       id: `pres-${Date.now()}`,
       libro_id: libro.id,
       numero_inventario: libro.numero_inventario,
@@ -274,16 +279,16 @@ export function LibrosProvider({ children }: { children: React.ReactNode }) {
       numero_socio: user.numero_socio || '1042',
       fecha_prestamo: fechaPrestamoStr,
       fecha_devolucion_prevista: fechaDevolucionStr,
-      estado: 'en_termino',
+      estado: 'en_gestion' as any,
       renovaciones: 0,
     };
 
-    // Actualizar libro a prestado
+    // Actualizar libro a 'en_gestion'
     const updatedLibros = librosFisicos.map((l) => {
       if (l.id === libroId) {
         return {
           ...l,
-          estado: 'prestado' as const,
+          estado: 'en_gestion' as const,
           prestado_a: {
             user_id: user.id,
             nombre_socio: `${user.nombre} ${user.apellido}`,
@@ -297,11 +302,11 @@ export function LibrosProvider({ children }: { children: React.ReactNode }) {
     });
 
     persistLibros(updatedLibros);
-    persistPrestamos([nuevoPrestamo, ...prestamos]);
+    persistPrestamos([prestamoEnGestion, ...prestamos]);
 
     // Persistir en Supabase
     actualizarLibroFisicoEnNube(libroId, {
-      estado: 'prestado',
+      estado: 'en_gestion',
       prestado_a: {
         user_id: user.id,
         nombre_socio: `${user.nombre} ${user.apellido}`,
@@ -309,6 +314,87 @@ export function LibrosProvider({ children }: { children: React.ReactNode }) {
         fecha_prestamo: fechaPrestamoStr,
         fecha_devolucion_prevista: fechaDevolucionStr,
       },
+    }).catch(() => {});
+
+    return { success: true };
+  };
+
+  // Confirmar entrega de libro (el administrador marca de 'en_gestion' a 'prestado')
+  const confirmarEntregaPrestamo = async (libroId: string): Promise<{ success: boolean; error?: string }> => {
+    const libro = librosFisicos.find((l) => l.id === libroId);
+    if (!libro) return { success: false, error: 'Libro no encontrado en el inventario.' };
+
+    const hoy = new Date();
+    const fechaDevolucion = new Date(hoy.getTime() + 14 * 24 * 60 * 60 * 1000); // 14 días a partir de la entrega física
+    const fechaDevolucionStr = fechaDevolucion.toISOString().split('T')[0];
+    const fechaPrestamoStr = hoy.toISOString().split('T')[0];
+
+    const prestadoActualizado = {
+      user_id: libro.prestado_a?.user_id || 'socio',
+      nombre_socio: libro.prestado_a?.nombre_socio || 'Socio Roncedo',
+      numero_socio: libro.prestado_a?.numero_socio || '1042',
+      fecha_prestamo: fechaPrestamoStr,
+      fecha_devolucion_prevista: fechaDevolucionStr,
+    };
+
+    const updatedLibros = librosFisicos.map((l) => {
+      if (l.id === libroId) {
+        return {
+          ...l,
+          estado: 'prestado' as const,
+          prestado_a: prestadoActualizado,
+        };
+      }
+      return l;
+    });
+
+    const updatedPrestamos = prestamos.map((p) => {
+      if (p.libro_id === libroId && (p.estado === ('en_gestion' as any) || p.estado === 'en_termino')) {
+        return {
+          ...p,
+          fecha_prestamo: fechaPrestamoStr,
+          fecha_devolucion_prevista: fechaDevolucionStr,
+          estado: 'en_termino' as const,
+        };
+      }
+      return p;
+    });
+
+    persistLibros(updatedLibros);
+    persistPrestamos(updatedPrestamos);
+
+    // Persistir en Supabase
+    actualizarLibroFisicoEnNube(libroId, {
+      estado: 'prestado',
+      prestado_a: prestadoActualizado,
+    }).catch(() => {});
+
+    return { success: true };
+  };
+
+  // Cancelar la solicitud en gestión y volver el libro a disponible
+  const cancelarGestionPrestamo = async (libroId: string): Promise<{ success: boolean; error?: string }> => {
+    const updatedLibros = librosFisicos.map((l) => {
+      if (l.id === libroId) {
+        return {
+          ...l,
+          estado: 'disponible' as const,
+          prestado_a: undefined,
+        };
+      }
+      return l;
+    });
+
+    const updatedPrestamos = prestamos.filter(
+      (p) => !(p.libro_id === libroId && p.estado === ('en_gestion' as any))
+    );
+
+    persistLibros(updatedLibros);
+    persistPrestamos(updatedPrestamos);
+
+    actualizarLibroFisicoEnNube(libroId, {
+      estado: 'disponible',
+      prestado_a: null as any,
     }).catch(() => {});
 
     return { success: true };
@@ -860,6 +946,8 @@ export function LibrosProvider({ children }: { children: React.ReactNode }) {
         renombrarTopografia,
         eliminarTopografia,
         solicitarPrestamo,
+        confirmarEntregaPrestamo,
+        cancelarGestionPrestamo,
         solicitarReserva,
         cancelarReserva,
         renovarPrestamo,

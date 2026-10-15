@@ -35,7 +35,7 @@ export function normalizarLibro(l: any): LibroFisico {
     portada_fuente: l.portada_fuente || (portadaFinal ? (rawFallback?.portada_fuente || 'manual') : 'ninguna'),
     portada_confianza: l.portada_confianza || (portadaFinal ? (rawFallback?.portada_confianza || 'alta') : 'ninguna'),
     portada_detalles: l.portada_detalles || (rawFallback?.portada_detalles || ''),
-    estado: l.estado === 'prestado' ? 'prestado' : l.estado === 'baja_transitoria' ? 'baja_transitoria' : 'disponible',
+    estado: l.estado === 'prestado' ? 'prestado' : l.estado === 'baja_transitoria' ? 'baja_transitoria' : l.estado === 'en_gestion' ? 'en_gestion' : 'disponible',
     prestado_a: l.prestado_a || undefined,
     lista_espera: Array.isArray(l.lista_espera) ? l.lista_espera : [],
     categoria: l.categoria ? String(l.categoria) : rawFallback?.categoria || undefined,

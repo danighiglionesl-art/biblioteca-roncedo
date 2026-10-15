@@ -41,6 +41,8 @@ export function BibliotecaFisicaView() {
     topografiasDisponibles,
     sincronizarConNube,
     solicitarPrestamo,
+    confirmarEntregaPrestamo,
+    cancelarGestionPrestamo,
     solicitarReserva,
     cancelarReserva,
     registrarDevolucion,
@@ -50,9 +52,9 @@ export function BibliotecaFisicaView() {
   } = useLibros();
 
   const [busqueda, setBusqueda] = useState('');
-  const [filtroEstado, setFiltroEstado] = useState<'todos' | 'disponible' | 'prestado' | 'baja_transitoria'>('todos');
+  const [filtroEstado, setFiltroEstado] = useState<'todos' | 'disponible' | 'prestado' | 'baja_transitoria' | 'en_gestion'>('todos');
   const [filtroTopografia, setFiltroTopografia] = useState<string>('todas');
-  const [modoVista, setModoVista] = useState<'tarjetas' | 'visual'>('tarjetas');
+  const [modoVista, setModoVista] = useState<'tarjetas' | 'visual'>('visual');
   const [paginaActual, setPaginaActual] = useState(1);
 
   // Estados de Sincronización Nube
@@ -155,6 +157,7 @@ export function BibliotecaFisicaView() {
   const totalDisponibles = librosFisicos.filter((l) => l.estado === 'disponible').length;
   const totalPrestados = librosFisicos.filter((l) => l.estado === 'prestado').length;
   const totalBajaTransitoria = librosFisicos.filter((l) => l.estado === 'baja_transitoria').length;
+  const totalEnGestion = librosFisicos.filter((l) => l.estado === 'en_gestion').length;
 
   // Paginación
   const totalPaginas = Math.ceil(librosFiltrados.length / ITEMS_POR_PAGINA) || 1;
@@ -357,6 +360,25 @@ export function BibliotecaFisicaView() {
             >
               Baja Transitoria ({totalBajaTransitoria})
             </button>
+            {isAdmin && (
+              <button
+                onClick={() => {
+                  setFiltroEstado('en_gestion');
+                  setPaginaActual(1);
+                }}
+                className={`px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 ${
+                  filtroEstado === 'en_gestion'
+                    ? 'bg-blue-600 text-white shadow-sm font-bold'
+                    : 'text-blue-700 bg-blue-50 hover:bg-blue-100 font-bold'
+                }`}
+                title="Ver y gestionar entregas de libros a socios y cambios de status"
+              >
+                <span>En Gestión ({totalEnGestion})</span>
+                {totalEnGestion > 0 && (
+                  <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                )}
+              </button>
+            )}
           </div>
 
           {/* Filtro por Topografía / Estantería */}
@@ -454,6 +476,28 @@ export function BibliotecaFisicaView() {
         )}
       </div>
 
+      {/* Banner del panel "En Gestión" para Administrador */}
+      {filtroEstado === 'en_gestion' && isAdmin && (
+        <div className="bg-gradient-to-r from-roncedo-navy via-[#1A457D] to-[#2B6CB5] text-white rounded-3xl p-5 shadow-card border border-blue-300/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-fade-in">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 bg-white/10 rounded-2xl border border-white/20 text-roncedo-gold">
+              <Clock className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="font-black text-sm sm:text-base">
+                Panel de Entregas y Solicitudes en Gestión
+              </h3>
+              <p className="text-xs text-blue-200">
+                Ejemplares reservados por socios. Podés coordinar la entrega física en sala y presionar &ldquo;Confirmar Entrega&rdquo; para pasar el status a Prestado.
+              </p>
+            </div>
+          </div>
+          <span className="bg-white/15 border border-white/20 text-white text-xs font-bold px-3 py-1.5 rounded-xl self-start sm:self-auto shrink-0">
+            {totalEnGestion} solicitud(es)
+          </span>
+        </div>
+      )}
+
       {/* Grilla de Libros Físicos (Fichas o Biblioteca Visual) */}
       {modoVista === 'visual' ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
@@ -496,6 +540,10 @@ export function BibliotecaFisicaView() {
                     {estaPrestado ? (
                       <span className="bg-red-600/90 backdrop-blur-sm text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full shadow">
                         Prestado
+                      </span>
+                    ) : libro.estado === 'en_gestion' ? (
+                      <span className="bg-blue-600/90 backdrop-blur-sm text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full shadow">
+                        En Gestión
                       </span>
                     ) : libro.estado === 'baja_transitoria' ? (
                       <span className="bg-amber-500/90 backdrop-blur-sm text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full shadow">
@@ -544,6 +592,11 @@ export function BibliotecaFisicaView() {
                       <span className="bg-red-50 text-red-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-red-200 flex items-center gap-1">
                         <Clock className="w-2.5 h-2.5" />
                         Prestado
+                      </span>
+                    ) : libro.estado === 'en_gestion' ? (
+                      <span className="bg-blue-50 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-blue-200 flex items-center gap-1">
+                        <Clock className="w-2.5 h-2.5 text-blue-600" />
+                        En Gestión
                       </span>
                     ) : libro.estado === 'baja_transitoria' ? (
                       <span className="bg-amber-50 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-full border border-amber-200 flex items-center gap-1">
@@ -605,6 +658,50 @@ export function BibliotecaFisicaView() {
                       {libro.topografia_ubicacion || 'Sala de Lectura General'}
                     </p>
                   </div>
+
+                  {/* Si está en gestión: mostrar datos del socio solicitante */}
+                  {libro.estado === 'en_gestion' && libro.prestado_a && (
+                    <div className="p-2.5 bg-blue-50/80 rounded-xl border border-blue-200 text-[11px] mb-3 space-y-1">
+                      <div className="flex items-center justify-between text-blue-950 font-bold">
+                        <span>Socio: {libro.prestado_a.nombre_socio}</span>
+                        <span className="font-mono text-[10px] bg-blue-200/60 px-1.5 py-0.5 rounded">
+                          #{libro.prestado_a.numero_socio}
+                        </span>
+                      </div>
+                      <p className="text-[10px] text-blue-700">
+                        Solicitado el {libro.prestado_a.fecha_prestamo}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Acciones directas para Admin cuando el libro está en gestión */}
+                  {libro.estado === 'en_gestion' && isAdmin && (
+                    <div className="mb-3 p-1.5 bg-slate-50 rounded-xl border border-slate-200 flex items-center gap-1.5">
+                      <button
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          await confirmarEntregaPrestamo(libro.id);
+                        }}
+                        className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] py-1.5 px-2 rounded-lg transition-colors shadow-sm flex items-center justify-center gap-1"
+                        title="Confirmar entrega física y cambiar status a Prestado"
+                      >
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        <span>Confirmar Entrega</span>
+                      </button>
+                      <button
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          if (confirm('¿Cancelar la solicitud en gestión y volver el ejemplar a disponible?')) {
+                            await cancelarGestionPrestamo(libro.id);
+                          }
+                        }}
+                        className="text-red-600 hover:bg-red-50 text-[11px] font-bold py-1.5 px-2 rounded-lg border border-red-200 transition-colors"
+                        title="Cancelar solicitud y liberar libro"
+                      >
+                        Cancelar
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 {/* Acciones */}

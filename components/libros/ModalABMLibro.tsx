@@ -77,7 +77,7 @@ export function ModalABMLibro({
   const [donante, setDonante] = useState<string>(libroAEditar?.donante_o_detalle || '');
   const [topografia, setTopografia] = useState<string>(libroAEditar?.topografia_ubicacion || '');
   const [portadaUrl, setPortadaUrl] = useState<string>(libroAEditar?.portada_url || '');
-  const [estado, setEstado] = useState<'disponible' | 'prestado' | 'baja_transitoria'>(libroAEditar?.estado || 'disponible');
+  const [estado, setEstado] = useState<'disponible' | 'prestado' | 'baja_transitoria' | 'en_gestion'>(libroAEditar?.estado || 'disponible');
 
   // Gestión Estructurada de Topografía / Secciones
   const [seccionSeleccionada, setSeccionSeleccionada] = useState<string>(() =>
@@ -849,6 +849,7 @@ export function ModalABMLibro({
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-roncedo-blue focus:bg-white"
                 >
                   <option value="disponible">🟢 Disponible para préstamo</option>
+                  <option value="en_gestion">📦 En Gestión (pendiente de entrega)</option>
                   <option value="prestado">🔴 Prestado a socio</option>
                   <option value="baja_transitoria">🟡 Baja transitoria</option>
                 </select>

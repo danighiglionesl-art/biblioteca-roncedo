@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { LibroFisico, UserProfile } from '@/types';
+import { useLibros } from '@/lib/context/LibrosContext';
 import {
   X,
   BookOpen,
@@ -45,18 +46,43 @@ export function ModalDetalleLibroFisico({
   onAbrirEdicion,
   reservaUsuario,
 }: ModalDetalleLibroFisicoProps) {
+  const { confirmarEntregaPrestamo, cancelarGestionPrestamo } = useLibros();
+  const [modalConfirmacionPrestamo, setModalConfirmacionPrestamo] = useState(false);
   const [procesando, setProcesando] = useState(false);
   const [mensajeExito, setMensajeExito] = useState<string | null>(null);
 
   const isSocio = user && (user.role === 'socio' || user.role === 'admin');
   const isAdmin = user && user.role === 'admin';
   const estaPrestado = libro.estado === 'prestado';
+  const estaEnGestion = libro.estado === 'en_gestion';
+  const esMiSolicitudGestion = estaEnGestion && libro.prestado_a?.user_id === user?.id;
 
   const handlePrestamo = async () => {
     try {
       setProcesando(true);
       await onSolicitarPrestamo(libro.id);
-      setMensajeExito('¡Préstamo registrado exitosamente por 14 días!');
+      setModalConfirmacionPrestamo(true);
+    } finally {
+      setProcesando(false);
+    }
+  };
+
+  const handleConfirmarEntrega = async () => {
+    try {
+      setProcesando(true);
+      await confirmarEntregaPrestamo(libro.id);
+      setMensajeExito('¡Entrega confirmada! El ejemplar ahora figura como prestado al socio.');
+    } finally {
+      setProcesando(false);
+    }
+  };
+
+  const handleCancelarGestion = async () => {
+    if (!confirm('¿Deseas cancelar la solicitud en gestión y liberar el ejemplar a disponible?')) return;
+    try {
+      setProcesando(true);
+      await cancelarGestionPrestamo(libro.id);
+      setMensajeExito('Solicitud cancelada. El ejemplar ahora se encuentra disponible.');
     } finally {
       setProcesando(false);
     }
@@ -148,6 +174,11 @@ export function ModalDetalleLibroFisico({
                   <span className="bg-red-100 text-red-800 text-[10px] font-bold px-2.5 py-1 rounded-full border border-red-300 flex items-center gap-1">
                     <Clock className="w-3 h-3" />
                     Actualmente Prestado
+                  </span>
+                ) : estaEnGestion ? (
+                  <span className="bg-blue-100 text-blue-900 text-[10px] font-bold px-2.5 py-1 rounded-full border border-blue-300 flex items-center gap-1">
+                    <Clock className="w-3 h-3 text-blue-600" />
+                    En Gestión de Entrega
                   </span>
                 ) : libro.estado === 'baja_transitoria' ? (
                   <span className="bg-amber-100 text-amber-900 text-[10px] font-bold px-2.5 py-1 rounded-full border border-amber-300 flex items-center gap-1">
@@ -291,15 +322,53 @@ export function ModalDetalleLibroFisico({
 
           <div className="flex items-center gap-2 flex-wrap ml-auto">
             {/* Si está disponible y es socio: Solicitar préstamo */}
-            {!estaPrestado && libro.estado !== 'baja_transitoria' && isSocio && (
+            {!estaPrestado && !estaEnGestion && libro.estado !== 'baja_transitoria' && isSocio && (
               <button
                 disabled={procesando}
                 onClick={handlePrestamo}
                 className="bg-roncedo-navy hover:bg-blue-900 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition-colors flex items-center gap-2 shadow-sm"
               >
                 <BookOpen className="w-4 h-4 text-roncedo-gold" />
-                <span>{procesando ? 'Procesando...' : 'Solicitar Préstamo (14 días)'}</span>
+                <span>{procesando ? 'Procesando...' : 'Solicitar Préstamo'}</span>
               </button>
+            )}
+
+            {/* Si está en gestión de entrega */}
+            {estaEnGestion && (
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="bg-blue-50 text-blue-900 border border-blue-200 px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5">
+                  <Clock className="w-4 h-4 text-blue-600 flex-shrink-0" />
+                  <span>
+                    {esMiSolicitudGestion
+                      ? 'Tenés este libro reservado en gestión para entrega'
+                      : libro.prestado_a?.nombre_socio
+                      ? `En gestión para ${libro.prestado_a.nombre_socio}`
+                      : 'Ejemplar en gestión de entrega'}
+                  </span>
+                </span>
+
+                {isAdmin && (
+                  <div className="flex items-center gap-2">
+                    <button
+                      disabled={procesando}
+                      onClick={handleConfirmarEntrega}
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3.5 py-2 rounded-xl transition-colors flex items-center gap-1.5 shadow-sm"
+                      title="Entregar ejemplar al socio y cambiar a Prestado"
+                    >
+                      <CheckCircle2 className="w-4 h-4" />
+                      <span>Confirmar Entrega (Marcar Prestado)</span>
+                    </button>
+                    <button
+                      disabled={procesando}
+                      onClick={handleCancelarGestion}
+                      className="bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 font-bold text-xs px-3 py-2 rounded-xl transition-colors"
+                      title="Cancelar solicitud y liberar el ejemplar"
+                    >
+                      <span>Cancelar Solicitud</span>
+                    </button>
+                  </div>
+                )}
+              </div>
             )}
 
             {/* Si está en baja transitoria */}
@@ -369,6 +438,51 @@ export function ModalDetalleLibroFisico({
           </div>
         </div>
       </div>
+
+      {/* Ventana Emergente al Solicitar Préstamo */}
+      {modalConfirmacionPrestamo && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-blue-200 p-6 sm:p-7 text-center space-y-4">
+            <div className="w-16 h-16 rounded-full bg-blue-50 border border-blue-200 text-roncedo-navy flex items-center justify-center mx-auto shadow-inner">
+              <CheckCircle2 className="w-9 h-9 text-emerald-600" />
+            </div>
+
+            <div className="space-y-1">
+              <span className="text-[10px] font-black uppercase tracking-widest text-roncedo-celesteDark">
+                Club Sportivo y Biblioteca Dr. Lautaro Roncedo
+              </span>
+              <h3 className="text-lg font-black text-slate-900 leading-tight">
+                ¡Solicitud Registrada con Éxito!
+              </h3>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-gradient-to-br from-blue-50 to-slate-50 border border-blue-200/80 text-left space-y-3">
+              <p className="text-xs sm:text-sm font-semibold text-slate-800 leading-relaxed text-center">
+                Tu libro se encuentra reservado, en los días y horarios de atención se contactará contigo un miembro de la Biblioteca para acordar la entrega. ¡Muchas gracias!
+              </p>
+              <div className="pt-2 border-t border-blue-200/60 flex items-center gap-3 text-xs">
+                <div className="w-9 h-12 bg-white rounded border border-slate-200 flex items-center justify-center flex-shrink-0 text-slate-400 font-bold text-[10px]">
+                  #{libro.numero_inventario}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="font-bold text-slate-900 truncate">{libro.titulo}</p>
+                  <p className="text-[11px] text-slate-500 truncate">{libro.autor}</p>
+                </div>
+              </div>
+            </div>
+
+            <button
+              onClick={() => {
+                setModalConfirmacionPrestamo(false);
+                onClose();
+              }}
+              className="w-full bg-roncedo-navy hover:bg-blue-900 text-white font-bold py-3 px-5 rounded-2xl text-xs sm:text-sm transition-all shadow-md active:scale-95"
+            >
+              Entendido
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
