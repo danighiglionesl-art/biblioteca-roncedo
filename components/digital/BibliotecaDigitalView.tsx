@@ -21,6 +21,8 @@ import {
   Trash2,
   X,
   Headphones,
+  LayoutGrid,
+  LayoutList,
 } from 'lucide-react';
 import { LibroDigital, FuenteDigital, DisponibilidadDigital, MetricasBibliotecaDigital } from '@/types';
 import { LIBROS_DIGITALES_CURADOS } from '@/lib/data/librosDigitalesCurados';
@@ -53,23 +55,30 @@ export function BibliotecaDigitalView() {
   // Modo de sección: LIBROS DIGITALES vs AUDIOLIBROS
   const [modoSeccion, setModoSeccion] = useState<'libros' | 'audiolibros'>('libros');
 
+  // Modo de visualización en Libros Digitales: 'visual' (Portadas, por defecto) vs 'fichas' (Detallada)
+  const [modoVista, setModoVista] = useState<'visual' | 'fichas'>('visual');
+
   // Leer parámetro ?tab=audiolibros si viene en la URL
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search);
-      const tab = params.get('tab');
-      if (tab === 'audiolibros' || tab === 'audio') {
-        setModoSeccion('audiolibros');
-      }
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const tab = params.get('tab');
+        if (tab === 'audiolibros' || tab === 'audio') {
+          setModoSeccion('audiolibros');
+        }
+      } catch {}
     }
   }, []);
 
   const cambiarModoSeccion = (nuevoModo: 'libros' | 'audiolibros') => {
     setModoSeccion(nuevoModo);
     if (typeof window !== 'undefined') {
-      const url = new URL(window.location.href);
-      url.searchParams.set('tab', nuevoModo);
-      window.history.replaceState({}, '', url.toString());
+      try {
+        const url = new URL(window.location.href);
+        url.searchParams.set('tab', nuevoModo);
+        window.history.replaceState(null, '', url.toString());
+      } catch {}
     }
   };
 
@@ -744,255 +753,402 @@ export function BibliotecaDigitalView() {
           )}
         </div>
 
-        {totalPaginas > 1 && (
-          <div className="flex items-center gap-1.5 self-end sm:self-auto">
+        <div className="flex flex-wrap items-center gap-2.5 self-end sm:self-auto">
+          {/* Alternador de Modo de Vista (Portadas vs Fichas) */}
+          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl shadow-2xs">
             <button
-              onClick={() => cambiarPagina(paginaActual - 1)}
-              disabled={paginaActual === 1 || cargando}
-              className="p-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 transition-colors shadow-sm"
-              title="Página anterior"
+              type="button"
+              onClick={() => setModoVista('visual')}
+              className={`p-1.5 rounded-lg transition-colors flex items-center gap-1 text-[11px] font-bold ${
+                modoVista === 'visual' ? 'bg-white text-roncedo-navy shadow-sm' : 'text-slate-500 hover:text-slate-800'
+              }`}
+              title="Biblioteca Visual (Portadas por defecto)"
             >
-              <ChevronLeft className="w-4 h-4" />
+              <LayoutGrid className="w-3.5 h-3.5" />
+              <span>Portadas</span>
             </button>
-            <span className="font-bold text-xs px-2.5 py-1 bg-white border border-slate-200 rounded-xl text-slate-800 shadow-sm">
-              {paginaActual} / {totalPaginas}
-            </span>
             <button
-              onClick={() => cambiarPagina(paginaActual + 1)}
-              disabled={paginaActual === totalPaginas || cargando}
-              className="p-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 transition-colors shadow-sm"
-              title="Página siguiente"
+              type="button"
+              onClick={() => setModoVista('fichas')}
+              className={`p-1.5 rounded-lg transition-colors flex items-center gap-1 text-[11px] font-bold ${
+                modoVista === 'fichas' ? 'bg-white text-roncedo-navy shadow-sm' : 'text-slate-500 hover:text-slate-800'
+              }`}
+              title="Vista Detallada de Fichas"
             >
-              <ChevronRight className="w-4 h-4" />
+              <LayoutList className="w-3.5 h-3.5" />
+              <span>Fichas</span>
             </button>
           </div>
-        )}
+
+          {totalPaginas > 1 && (
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => cambiarPagina(paginaActual - 1)}
+                disabled={paginaActual === 1 || cargando}
+                className="p-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 transition-colors shadow-sm"
+                title="Página anterior"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <span className="font-bold text-xs px-2.5 py-1 bg-white border border-slate-200 rounded-xl text-slate-800 shadow-sm">
+                {paginaActual} / {totalPaginas}
+              </span>
+              <button
+                onClick={() => cambiarPagina(paginaActual + 1)}
+                disabled={paginaActual === totalPaginas || cargando}
+                className="p-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 transition-colors shadow-sm"
+                title="Página siguiente"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Grilla de Obras Digitales */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        {libros.map((libro) => {
-          const badge = badgeFuente(libro.fuente);
-          const formatoEpub = libro.formatos.find((f) => f.tipo === 'epub');
-          const formatoPdf = libro.formatos.find((f) => f.tipo === 'pdf') || (libro.archivo_pdf_url ? { tipo: 'pdf', url: libro.archivo_pdf_url } : null);
-          const esRoncedo = libro.fuente === 'roncedo_digital';
+      {/* Grilla de Obras Digitales (Portadas vs Fichas) */}
+      {modoVista === 'visual' ? (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
+          {libros.map((libro) => {
+            const badge = badgeFuente(libro.fuente);
+            const formatoPdf = (libro.formatos || []).find((f) => f.tipo === 'pdf') || (libro.archivo_pdf_url ? { tipo: 'pdf', url: libro.archivo_pdf_url } : null);
+            const formatoEpub = (libro.formatos || []).find((f) => f.tipo === 'epub');
+            const esRoncedo = libro.fuente === 'roncedo_digital';
 
-          return (
-            <div
-              key={libro.id}
-              className={`bg-white rounded-3xl p-5 shadow-card border transition-all duration-200 flex flex-col justify-between group ${
-                esRoncedo ? 'border-amber-400 ring-2 ring-amber-400/20 shadow-md' : 'border-blue-200/80 hover:shadow-lg'
-              }`}
-            >
-              <div>
-                {/* Cabecera de la Ficha: Fuente y Disponibilidad */}
-                <div className="flex items-center justify-between gap-2 mb-3">
-                  <span
-                    className={`inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${badge.bg}`}
-                  >
-                    <span className={`w-1.5 h-1.5 rounded-full ${badge.dot}`} />
-                    {badge.nombre}
-                  </span>
-
-                  {esRoncedo ? (
-                    <span className="bg-amber-500 text-slate-900 text-[10px] font-black px-2 py-0.5 rounded-full shadow-sm">
-                      🏛️ Archivo PDF Roncedo
-                    </span>
-                  ) : libro.disponibilidad === 'descarga_libre' ? (
-                    <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-300">
-                      Descarga Libre
-                    </span>
-                  ) : libro.disponibilidad === 'lectura_directa' ? (
-                    <span className="bg-sky-100 text-sky-800 text-[10px] font-bold px-2 py-0.5 rounded-full border border-sky-300">
-                      Lectura Directa
-                    </span>
-                  ) : (
-                    <span className="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-full border border-amber-300">
-                      Préstamo / Externo
-                    </span>
-                  )}
-                </div>
-
-                {/* Título y Autor */}
-                <div className="flex gap-3 items-start mb-3">
+            return (
+              <div
+                key={libro.id}
+                onClick={() => setLibroSeleccionadoParaLeer(libro)}
+                className={`bg-white rounded-2xl p-2.5 shadow-card border transition-all duration-200 cursor-pointer flex flex-col justify-between group relative overflow-hidden ${
+                  esRoncedo ? 'border-amber-400 ring-2 ring-amber-400/20 shadow-md' : 'border-blue-200/80 hover:shadow-xl hover:border-roncedo-blue'
+                }`}
+              >
+                {/* Portada Hero con Proporción 2/3 */}
+                <div className="relative w-full aspect-[2/3] rounded-xl overflow-hidden bg-slate-100 border border-slate-200 shadow-sm flex items-center justify-center p-1 mb-2">
                   {libro.portada_url ? (
-                    <div className="relative w-16 h-24 flex-shrink-0 rounded-xl overflow-hidden shadow border border-slate-200 bg-slate-100">
-                      <Image
-                        src={libro.portada_url}
-                        alt={libro.titulo}
-                        fill
-                        sizes="64px"
-                        className="object-cover group-hover:scale-105 transition-transform"
-                        unoptimized
-                      />
-                    </div>
+                    <Image
+                      src={libro.portada_url}
+                      alt={libro.titulo}
+                      fill
+                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 16vw"
+                      className="object-cover group-hover:scale-105 transition-transform duration-200"
+                      unoptimized
+                    />
                   ) : (
-                    <div className={`w-16 h-24 flex-shrink-0 rounded-xl text-white flex flex-col items-center justify-center p-1.5 text-center shadow ${
-                      esRoncedo
-                        ? 'bg-gradient-to-br from-[#0c2340] to-amber-600'
-                        : 'bg-gradient-to-br from-roncedo-navy to-roncedo-celeste'
-                    }`}>
+                    <div
+                      className={`w-full h-full text-white flex flex-col items-center justify-center p-2 text-center rounded-lg shadow-inner ${
+                        esRoncedo
+                          ? 'bg-gradient-to-br from-[#0c2340] to-amber-600'
+                          : 'bg-gradient-to-br from-roncedo-navy to-roncedo-celeste'
+                      }`}
+                    >
                       {esRoncedo ? (
-                        <FileText className="w-6 h-6 text-amber-300 mb-1" />
+                        <FileText className="w-8 h-8 text-amber-300 mb-1" />
                       ) : (
-                        <BookOpen className="w-6 h-6 text-roncedo-gold mb-1" />
+                        <BookOpen className="w-8 h-8 text-roncedo-gold mb-1" />
                       )}
-                      <span className="text-[8px] font-bold uppercase leading-tight line-clamp-2">
+                      <span className="text-[9px] font-black uppercase leading-tight line-clamp-2">
                         {esRoncedo ? 'Roncedo' : libro.fuente}
                       </span>
+                      <span className="text-[8px] text-blue-200">PDF Digital</span>
                     </div>
                   )}
 
-                  <div className="min-w-0 flex-1">
-                    {libro.es_argentino_o_latino && !esRoncedo && (
-                      <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200 inline-block mb-1">
-                        🇦🇷 Autor Argentino / Latino
+                  {/* Badges Flotantes sobre la Portada */}
+                  <div className="absolute top-1.5 left-1.5 right-1.5 flex items-center justify-between pointer-events-none">
+                    <span className={`text-[8px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded shadow ${badge.bg}`}>
+                      {badge.icon} {esRoncedo ? 'Roncedo' : libro.fuente.toUpperCase()}
+                    </span>
+
+                    {formatoPdf ? (
+                      <span className="bg-red-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded shadow">
+                        PDF
+                      </span>
+                    ) : formatoEpub ? (
+                      <span className="bg-emerald-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded shadow">
+                        EPUB
+                      </span>
+                    ) : (
+                      <span className="bg-sky-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded shadow">
+                        ONLINE
                       </span>
                     )}
-                    {esRoncedo && (
-                      <span className="text-[10px] font-bold text-slate-800 bg-amber-100 px-1.5 py-0.5 rounded border border-amber-300 inline-block mb-1">
-                        Colección Digital Local
-                      </span>
-                    )}
-                    <h3 className="text-sm font-black text-slate-900 leading-snug line-clamp-2" title={libro.titulo}>
-                      {libro.titulo}
-                    </h3>
-                    <p className="text-xs font-semibold text-slate-600 mt-0.5">{libro.autor}</p>
-                    {libro.editorial && <p className="text-[10px] text-slate-500 mt-0.5">Ed: {libro.editorial}</p>}
-                    {libro.anio && <p className="text-[10px] text-slate-400 mt-0.5">Año: {libro.anio}</p>}
+                  </div>
+
+                  {/* Overlay al hacer hover: botón Leer en la App */}
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <span className="bg-roncedo-gold text-roncedo-navy text-xs font-black px-3 py-1.5 rounded-xl shadow-lg flex items-center gap-1.5 transform group-hover:scale-105 transition-transform">
+                      <BookOpen className="w-3.5 h-3.5" />
+                      <span>Leer</span>
+                    </span>
                   </div>
                 </div>
 
-                {/* Descripción / Sinopsis */}
-                {libro.descripcion && (
-                  <p className="text-xs text-slate-500 line-clamp-3 mb-3 leading-relaxed">
-                    {libro.descripcion}
-                  </p>
-                )}
-
-                {/* Etiquetas de formatos disponibles y licencia */}
-                <div className="flex flex-wrap gap-1 mb-4">
-                  {formatoPdf && (
-                    <span className="text-[9px] font-bold bg-red-50 text-red-700 border border-red-200 px-2 py-0.5 rounded-md">
-                      PDF disponible
-                    </span>
-                  )}
-                  {formatoEpub && (
-                    <span className="text-[9px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-md">
-                      EPUB disponible
-                    </span>
-                  )}
-                  {libro.tipo_licencia && (
-                    <span className="text-[9px] font-bold bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md">
-                      {libro.tipo_licencia}
-                    </span>
-                  )}
-                  <span className="text-[9px] font-bold bg-blue-50 text-blue-700 px-2 py-0.5 rounded-md">
-                    Idioma Español
-                  </span>
-                </div>
-              </div>
-
-              {/* Botones de Acción */}
-              <div className="pt-3 border-t border-slate-100 space-y-2">
-                <div className="grid grid-cols-2 gap-2">
-                  {/* Botón Lector en la App */}
-                  <button
-                    onClick={() => setLibroSeleccionadoParaLeer(libro)}
-                    className="w-full bg-roncedo-navy hover:bg-blue-900 text-white font-bold text-xs py-2 px-3 rounded-xl transition-colors flex items-center justify-center gap-1.5 shadow-sm"
-                  >
-                    <BookOpen className="w-3.5 h-3.5 text-roncedo-gold" />
-                    <span>Leer en la App</span>
-                  </button>
-
-                  {/* Botón Descarga si está autorizada */}
-                  {formatoPdf ? (
-                    <a
-                      href={formatoPdf.url}
-                      download
-                      target="_blank"
-                      rel="noreferrer"
-                      className="w-full bg-red-600 hover:bg-red-700 text-white font-bold text-xs py-2 px-3 rounded-xl transition-colors flex items-center justify-center gap-1.5 shadow-sm"
-                    >
-                      <Download className="w-3.5 h-3.5" />
-                      <span>PDF</span>
-                    </a>
-                  ) : formatoEpub ? (
-                    <a
-                      href={formatoEpub.url}
-                      download
-                      target="_blank"
-                      rel="noreferrer"
-                      className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2 px-3 rounded-xl transition-colors flex items-center justify-center gap-1.5 shadow-sm"
-                    >
-                      <Download className="w-3.5 h-3.5" />
-                      <span>EPUB</span>
-                    </a>
-                  ) : (
-                    <a
-                      href={libro.enlace_oficial}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs py-2 px-3 rounded-xl transition-colors flex items-center justify-center gap-1.5 border border-slate-200"
-                    >
-                      <ExternalLink className="w-3.5 h-3.5" />
-                      <span>Visor Web</span>
-                    </a>
-                  )}
+                {/* Pie con Título y Autor */}
+                <div className="space-y-0.5 text-left">
+                  <h3 className="text-xs font-black text-slate-900 leading-tight line-clamp-2 group-hover:text-roncedo-blue transition-colors" title={libro.titulo}>
+                    {libro.titulo}
+                  </h3>
+                  <p className="text-[10px] font-semibold text-slate-600 line-clamp-1">{libro.autor}</p>
+                  {libro.anio && <p className="text-[9px] text-slate-400">{libro.anio}</p>}
                 </div>
 
-                <div className="flex items-center justify-between text-[11px] px-1 text-slate-400">
-                  <a
-                    href={libro.enlace_oficial || libro.enlace_lectura || '#'}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="hover:text-roncedo-navy hover:underline flex items-center gap-1"
-                  >
-                    <span>{esRoncedo ? 'Biblioteca Roncedo' : 'Fuente original'}</span>
-                    <ExternalLink className="w-3 h-3" />
-                  </a>
-
-                  {libro.fuentes_adicionales && libro.fuentes_adicionales.length > 0 && (
-                    <span className="text-[10px] text-slate-500">
-                      También en: {libro.fuentes_adicionales.join(', ')}
-                    </span>
-                  )}
-                </div>
-
-                {/* Acciones Rápidas ABM para Administrador biblioroncedo */}
+                {/* Acciones ABM si es admin */}
                 {esAdmin && (
-                  <div className="pt-2 mt-2 border-t border-amber-200/80 flex items-center justify-between text-xs bg-amber-50/80 p-2 rounded-xl">
-                    <span className="text-[10px] font-extrabold text-amber-900 flex items-center gap-1">
-                      ⚙️ ABM
-                    </span>
-                    <div className="flex items-center gap-1.5">
-                      <button
-                        onClick={() => {
-                          setLibroParaEditar(libro);
-                          setModalLibroFormOpen(true);
-                        }}
-                        className="px-2.5 py-1 rounded-lg bg-blue-100 hover:bg-blue-200 text-roncedo-blue font-bold text-[11px] flex items-center gap-1 transition-colors cursor-pointer"
-                        title="Editar metadatos de la obra"
-                      >
-                        <Pencil className="w-3 h-3" />
-                        <span>Editar</span>
-                      </button>
-                      <button
-                        onClick={() => handleEliminarLibro(libro.id, libro.titulo)}
-                        className="px-2.5 py-1 rounded-lg bg-rose-100 hover:bg-rose-200 text-rose-700 font-bold text-[11px] flex items-center gap-1 transition-colors cursor-pointer"
-                        title="Eliminar obra del catálogo"
-                      >
-                        <Trash2 className="w-3 h-3" />
-                        <span>Eliminar</span>
-                      </button>
-                    </div>
+                  <div
+                    onClick={(e) => e.stopPropagation()}
+                    className="mt-2 pt-1.5 border-t border-slate-100 flex items-center justify-end gap-1"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setLibroParaEditar(libro);
+                        setModalLibroFormOpen(true);
+                      }}
+                      className="p-1 rounded-md bg-blue-50 hover:bg-blue-100 text-roncedo-blue"
+                      title="Editar metadatos"
+                    >
+                      <Pencil className="w-3 h-3" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleEliminarLibro(libro.id, libro.titulo)}
+                      className="p-1 rounded-md bg-rose-50 hover:bg-rose-100 text-rose-600"
+                      title="Eliminar obra"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </button>
                   </div>
                 )}
               </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {libros.map((libro) => {
+            const badge = badgeFuente(libro.fuente);
+            const formatoEpub = (libro.formatos || []).find((f) => f.tipo === 'epub');
+            const formatoPdf = (libro.formatos || []).find((f) => f.tipo === 'pdf') || (libro.archivo_pdf_url ? { tipo: 'pdf', url: libro.archivo_pdf_url } : null);
+            const esRoncedo = libro.fuente === 'roncedo_digital';
+
+            return (
+              <div
+                key={libro.id}
+                className={`bg-white rounded-3xl p-5 shadow-card border transition-all duration-200 flex flex-col justify-between group ${
+                  esRoncedo ? 'border-amber-400 ring-2 ring-amber-400/20 shadow-md' : 'border-blue-200/80 hover:shadow-lg'
+                }`}
+              >
+                <div>
+                  {/* Cabecera de la Ficha: Fuente y Disponibilidad */}
+                  <div className="flex items-center justify-between gap-2 mb-3">
+                    <span
+                      className={`inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${badge.bg}`}
+                    >
+                      <span className={`w-1.5 h-1.5 rounded-full ${badge.dot}`} />
+                      {badge.nombre}
+                    </span>
+
+                    {esRoncedo ? (
+                      <span className="bg-amber-500 text-slate-900 text-[10px] font-black px-2 py-0.5 rounded-full shadow-sm">
+                        🏛️ Archivo PDF Roncedo
+                      </span>
+                    ) : libro.disponibilidad === 'descarga_libre' ? (
+                      <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-300">
+                        Descarga Libre
+                      </span>
+                    ) : libro.disponibilidad === 'lectura_directa' ? (
+                      <span className="bg-sky-100 text-sky-800 text-[10px] font-bold px-2 py-0.5 rounded-full border border-sky-300">
+                        Lectura Directa
+                      </span>
+                    ) : (
+                      <span className="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-full border border-amber-300">
+                        Préstamo / Externo
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Título y Autor */}
+                  <div className="flex gap-3 items-start mb-3">
+                    {libro.portada_url ? (
+                      <div className="relative w-16 h-24 flex-shrink-0 rounded-xl overflow-hidden shadow border border-slate-200 bg-slate-100">
+                        <Image
+                          src={libro.portada_url}
+                          alt={libro.titulo}
+                          fill
+                          sizes="64px"
+                          className="object-cover group-hover:scale-105 transition-transform"
+                          unoptimized
+                        />
+                      </div>
+                    ) : (
+                      <div className={`w-16 h-24 flex-shrink-0 rounded-xl text-white flex flex-col items-center justify-center p-1.5 text-center shadow ${
+                        esRoncedo
+                          ? 'bg-gradient-to-br from-[#0c2340] to-amber-600'
+                          : 'bg-gradient-to-br from-roncedo-navy to-roncedo-celeste'
+                      }`}>
+                        {esRoncedo ? (
+                          <FileText className="w-6 h-6 text-amber-300 mb-1" />
+                        ) : (
+                          <BookOpen className="w-6 h-6 text-roncedo-gold mb-1" />
+                        )}
+                        <span className="text-[8px] font-bold uppercase leading-tight line-clamp-2">
+                          {esRoncedo ? 'Roncedo' : libro.fuente}
+                        </span>
+                      </div>
+                    )}
+
+                    <div className="min-w-0 flex-1">
+                      {libro.es_argentino_o_latino && !esRoncedo && (
+                        <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200 inline-block mb-1">
+                          🇦🇷 Autor Argentino / Latino
+                        </span>
+                      )}
+                      {esRoncedo && (
+                        <span className="text-[10px] font-bold text-slate-800 bg-amber-100 px-1.5 py-0.5 rounded border border-amber-300 inline-block mb-1">
+                          Colección Digital Local
+                        </span>
+                      )}
+                      <h3 className="text-sm font-black text-slate-900 leading-snug line-clamp-2" title={libro.titulo}>
+                        {libro.titulo}
+                      </h3>
+                      <p className="text-xs font-semibold text-slate-600 mt-0.5">{libro.autor}</p>
+                      {libro.editorial && <p className="text-[10px] text-slate-500 mt-0.5">Ed: {libro.editorial}</p>}
+                      {libro.anio && <p className="text-[10px] text-slate-400 mt-0.5">Año: {libro.anio}</p>}
+                    </div>
+                  </div>
+
+                  {/* Descripción / Sinopsis */}
+                  {libro.descripcion && (
+                    <p className="text-xs text-slate-500 line-clamp-3 mb-3 leading-relaxed">
+                      {libro.descripcion}
+                    </p>
+                  )}
+
+                  {/* Etiquetas de formatos disponibles y licencia */}
+                  <div className="flex flex-wrap gap-1 mb-4">
+                    {formatoPdf && (
+                      <span className="text-[9px] font-bold bg-red-50 text-red-700 border border-red-200 px-2 py-0.5 rounded-md">
+                        PDF disponible
+                      </span>
+                    )}
+                    {formatoEpub && (
+                      <span className="text-[9px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-md">
+                        EPUB disponible
+                      </span>
+                    )}
+                    {libro.tipo_licencia && (
+                      <span className="text-[9px] font-bold bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md">
+                        {libro.tipo_licencia}
+                      </span>
+                    )}
+                    <span className="text-[9px] font-bold bg-blue-50 text-blue-700 px-2 py-0.5 rounded-md">
+                      Idioma Español
+                    </span>
+                  </div>
+                </div>
+
+                {/* Botones de Acción */}
+                <div className="pt-3 border-t border-slate-100 space-y-2">
+                  <div className="grid grid-cols-2 gap-2">
+                    {/* Botón Lector en la App */}
+                    <button
+                      onClick={() => setLibroSeleccionadoParaLeer(libro)}
+                      className="w-full bg-roncedo-navy hover:bg-blue-900 text-white font-bold text-xs py-2 px-3 rounded-xl transition-colors flex items-center justify-center gap-1.5 shadow-sm"
+                    >
+                      <BookOpen className="w-3.5 h-3.5 text-roncedo-gold" />
+                      <span>Leer en la App</span>
+                    </button>
+
+                    {/* Botón Descarga si está autorizada */}
+                    {formatoPdf ? (
+                      <a
+                        href={formatoPdf.url}
+                        download
+                        target="_blank"
+                        rel="noreferrer"
+                        className="w-full bg-red-600 hover:bg-red-700 text-white font-bold text-xs py-2 px-3 rounded-xl transition-colors flex items-center justify-center gap-1.5 shadow-sm"
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                        <span>PDF</span>
+                      </a>
+                    ) : formatoEpub ? (
+                      <a
+                        href={formatoEpub.url}
+                        download
+                        target="_blank"
+                        rel="noreferrer"
+                        className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2 px-3 rounded-xl transition-colors flex items-center justify-center gap-1.5 shadow-sm"
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                        <span>EPUB</span>
+                      </a>
+                    ) : (
+                      <a
+                        href={libro.enlace_oficial}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs py-2 px-3 rounded-xl transition-colors flex items-center justify-center gap-1.5 border border-slate-200"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5" />
+                        <span>Visor Web</span>
+                      </a>
+                    )}
+                  </div>
+
+                  <div className="flex items-center justify-between text-[11px] px-1 text-slate-400">
+                    <a
+                      href={libro.enlace_oficial || libro.enlace_lectura || '#'}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="hover:text-roncedo-navy hover:underline flex items-center gap-1"
+                    >
+                      <span>{esRoncedo ? 'Biblioteca Roncedo' : 'Fuente original'}</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+
+                    {libro.fuentes_adicionales && libro.fuentes_adicionales.length > 0 && (
+                      <span className="text-[10px] text-slate-500">
+                        También en: {libro.fuentes_adicionales.join(', ')}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Acciones Rápidas ABM para Administrador biblioroncedo */}
+                  {esAdmin && (
+                    <div className="pt-2 mt-2 border-t border-amber-200/80 flex items-center justify-between text-xs bg-amber-50/80 p-2 rounded-xl">
+                      <span className="text-[10px] font-extrabold text-amber-900 flex items-center gap-1">
+                        ⚙️ ABM
+                      </span>
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          onClick={() => {
+                            setLibroParaEditar(libro);
+                            setModalLibroFormOpen(true);
+                          }}
+                          className="px-2.5 py-1 rounded-lg bg-blue-100 hover:bg-blue-200 text-roncedo-blue font-bold text-[11px] flex items-center gap-1 transition-colors cursor-pointer"
+                          title="Editar metadatos de la obra"
+                        >
+                          <Pencil className="w-3 h-3" />
+                          <span>Editar</span>
+                        </button>
+                        <button
+                          onClick={() => handleEliminarLibro(libro.id, libro.titulo)}
+                          className="px-2.5 py-1 rounded-lg bg-rose-100 hover:bg-rose-200 text-rose-700 font-bold text-[11px] flex items-center gap-1 transition-colors cursor-pointer"
+                          title="Eliminar obra del catálogo"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                          <span>Eliminar</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* Paginación Inferior */}
       {totalPaginas > 1 && (

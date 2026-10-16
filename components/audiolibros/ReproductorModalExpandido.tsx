@@ -349,7 +349,7 @@ export function ReproductorModalExpandido() {
                 title="Ver lista de capítulos"
               >
                 <ListMusic className="w-3.5 h-3.5 text-roncedo-celesteLight" />
-                <span>Capítulos ({audiolibroActual.capitulos.length})</span>
+                <span>Capítulos ({(audiolibroActual.capitulos || []).length})</span>
               </button>
 
               {mostrarListaCapitulos && (
@@ -357,7 +357,7 @@ export function ReproductorModalExpandido() {
                   <span className="text-[10px] font-bold text-slate-400 px-2 py-1 uppercase">
                     Seleccionar Capítulo:
                   </span>
-                  {audiolibroActual.capitulos.map((cap) => (
+                  {(audiolibroActual.capitulos || []).map((cap) => (
                     <button
                       key={cap.id}
                       onClick={() => {

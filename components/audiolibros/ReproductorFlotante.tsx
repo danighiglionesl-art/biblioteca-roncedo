@@ -28,6 +28,7 @@ export function ReproductorFlotante() {
     toggleFavorito,
     isFavorito,
     reproducirAudiolibro,
+    cerrarReproductor,
   } = useAudioPlayer();
 
   if (!audiolibroActual || !capituloActual) {
@@ -153,6 +154,19 @@ export function ReproductorFlotante() {
               title="Abrir vista completa"
             >
               <ChevronUp className="w-4 h-4 text-roncedo-celesteLight" />
+            </button>
+
+            {/* Cerrar reproductor */}
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                cerrarReproductor();
+              }}
+              className="p-1.5 rounded-lg hover:bg-white/10 text-white/70 hover:text-white transition-colors ml-0.5"
+              title="Cerrar reproductor"
+            >
+              <X className="w-4 h-4" />
             </button>
           </div>
         </div>

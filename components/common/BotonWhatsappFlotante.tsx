@@ -4,17 +4,28 @@ import React from 'react';
 import { usePathname } from 'next/navigation';
 import { MessageCircle } from 'lucide-react';
 import { CONTACTO_BIBLIOTECA } from '@/lib/constants/contacto';
+import { useAudioPlayer } from '@/lib/context/AudioPlayerContext';
 
 export function BotonWhatsappFlotante() {
   const pathname = usePathname();
+  const { audiolibroActual, capituloActual } = useAudioPlayer();
 
   // No mostrar en pantallas de login o recuperación para no estorbar
   if (pathname === '/login' || pathname === '/recuperar') {
     return null;
   }
 
+  const hayReproductorActivo = Boolean(audiolibroActual && capituloActual);
+
   return (
-    <aside aria-label="Contacto por WhatsApp" className="fixed bottom-20 right-4 md:bottom-6 md:right-6 z-40 flex items-center group">
+    <aside
+      aria-label="Contacto por WhatsApp"
+      className={`fixed right-4 md:right-6 z-40 flex items-center group transition-all duration-300 ease-in-out ${
+        hayReproductorActivo
+          ? 'bottom-36 md:bottom-24'
+          : 'bottom-20 md:bottom-6'
+      }`}
+    >
       <a
         href={CONTACTO_BIBLIOTECA.getWhatsAppUrl('Hola, me comunico desde la app de la Biblioteca Roncedo con una consulta')}
         target="_blank"

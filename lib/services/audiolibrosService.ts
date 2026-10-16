@@ -227,6 +227,122 @@ export function obtenerMetricasAudiolibros() {
 }
 
 /**
+/**
+ * Sincronización masiva desde LibriVox / Internet Archive
+ * Permite incorporar las 560+ obras en español disponibles en dominio público
+ */
+export async function sincronizarLibrivoxMasivo(limite = 150): Promise<{ incorporados: number; total: number }> {
+  try {
+    const searchUrl = `https://archive.org/advancedsearch.php?q=collection:librivoxaudio+AND+language:(spanish+OR+spa)&fl[]=identifier,title,creator,description,year,downloads,publicdate&sort[]=downloads+desc&rows=${limite}&output=json`;
+    const res = await fetch(searchUrl, { headers: { 'User-Agent': 'BibliotecaRoncedoPWA/1.0' } });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    const docs = data?.response?.docs || [];
+
+    const existentes = obtenerTodosLosAudiolibros();
+    const existentesIds = new Set(existentes.map((a) => a.id));
+
+    let personalizados: Audiolibro[] = [];
+    if (fs.existsSync(AUDIOLIBROS_FILE_PATH)) {
+      try {
+        personalizados = JSON.parse(fs.readFileSync(AUDIOLIBROS_FILE_PATH, 'utf-8'));
+      } catch {}
+    }
+
+    let incorporados = 0;
+
+    for (const doc of docs) {
+      if (!doc.identifier || !doc.title) continue;
+      const id = `librivox-${doc.identifier}`;
+      if (existentesIds.has(id)) continue;
+
+      try {
+        const metaRes = await fetch(`https://archive.org/metadata/${doc.identifier}`, {
+          headers: { 'User-Agent': 'BibliotecaRoncedoPWA/1.0' },
+        });
+        if (!metaRes.ok) continue;
+        const meta = await metaRes.json();
+        const files: any[] = meta?.files || [];
+
+        let mp3s = files.filter((f) => f.format === '64Kbps MP3');
+        if (mp3s.length === 0) mp3s = files.filter((f) => f.format === 'VBR MP3' && f.name.endsWith('.mp3'));
+        if (mp3s.length === 0) mp3s = files.filter((f) => f.name.endsWith('.mp3') && !f.name.includes('_vbr'));
+        if (mp3s.length === 0) continue;
+
+        mp3s.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+
+        let duracionTotal = 0;
+        const capitulos = mp3s.map((f, idx) => {
+          const seg = typeof f.length === 'number' ? Math.round(f.length) : parseInt(f.length, 10) || 600;
+          duracionTotal += seg;
+          const num = idx + 1;
+          const title = (f.title || f.name.replace(/\.mp3$/i, '').replace(/_/g, ' ')).replace(/^\d+[\s_-]*/, '') || `Capítulo ${num}`;
+          return {
+            id: `${doc.identifier}-c${num}`,
+            numero: num,
+            titulo: title,
+            audio_url: `https://archive.org/download/${doc.identifier}/${encodeURIComponent(f.name)}`,
+            duracion_segundos: seg,
+            duracion_texto: `${Math.floor(seg / 60)} min`,
+            narrador: f.artist || f.creator || undefined,
+          };
+        });
+
+        const rawDesc = (doc.description || '')
+          .replace(/<[^>]+>/g, '')
+          .replace(/For further information.*?recording\./gi, '')
+          .trim();
+
+        const horas = Math.floor(duracionTotal / 3600);
+        const mins = Math.floor((duracionTotal % 3600) / 60);
+        const durTexto = horas > 0 ? `${horas}h ${mins}m` : `${mins} min`;
+
+        const nuevo: Audiolibro = {
+          id,
+          titulo: doc.title,
+          subtitulo: capitulos.length > 1 ? `Audiolibro en ${capitulos.length} capítulos` : 'Audiolibro completo',
+          autor: doc.creator || 'Dominio Público',
+          narrador: capitulos[0]?.narrador || 'Comunidad LibriVox',
+          genero: 'Clásicos Universales',
+          sinopsis: rawDesc.slice(0, 500) || 'Obra clásica en idioma español en dominio público.',
+          duracion_total_segundos: duracionTotal,
+          duracion_texto: durTexto,
+          idioma: 'Español',
+          portada_url: `https://archive.org/services/img/${doc.identifier}`,
+          fuente: 'librivox',
+          fuente_nombre: 'LibriVox / Internet Archive',
+          enlace_fuente: `https://archive.org/details/${doc.identifier}`,
+          licencia: 'Dominio Público',
+          es_argentino_o_latino: false,
+          anio_publicacion: doc.year ? String(doc.year) : 'Clásico',
+          capitulos,
+          fecha_incorporacion: doc.publicdate ? doc.publicdate.split('T')[0] : new Date().toISOString().split('T')[0],
+          activo: true,
+          reproducciones: doc.downloads ? Math.max(100, Math.round(doc.downloads / 100)) : 150,
+          tags: ['librivox', 'audiolibro', 'español'],
+        };
+
+        personalizados.unshift(nuevo);
+        existentesIds.add(id);
+        incorporados++;
+      } catch (err) {
+        console.warn(`Error procesando metadata de ${doc.identifier}:`, err);
+      }
+    }
+
+    if (incorporados > 0) {
+      fs.writeFileSync(AUDIOLIBROS_FILE_PATH, JSON.stringify(personalizados, null, 2), 'utf-8');
+    }
+
+    const totalActual = obtenerTodosLosAudiolibros().length;
+    return { incorporados, total: totalActual };
+  } catch (error) {
+    console.error('Error en sincronizarLibrivoxMasivo:', error);
+    return { incorporados: 0, total: obtenerTodosLosAudiolibros().length };
+  }
+}
+
+/**
  * Consulta en tiempo real a Internet Archive / LibriVox API para importar audiolibros en español
  */
 export async function buscarEnInternetArchive(termino: string, limite = 10): Promise<Audiolibro[]> {
@@ -287,3 +403,5 @@ export async function buscarEnInternetArchive(termino: string, limite = 10): Pro
     return [];
   }
 }
+
+

@@ -15,6 +15,7 @@ import {
   PlusCircle,
   Pencil,
   Trash2,
+  ChevronLeft,
   ChevronRight,
   RotateCcw,
   ShieldCheck,
@@ -61,12 +62,20 @@ export function AudiolibrosView() {
   const [cargando, setCargando] = useState(true);
   const [metricas, setMetricas] = useState<any>(null);
 
+  // Estados de Paginación y Sincronización
+  const [paginaActual, setPaginaActual] = useState<number>(1);
+  const [totalPaginas, setTotalPaginas] = useState<number>(1);
+  const [totalAudiolibros, setTotalAudiolibros] = useState<number>(0);
+  const [sincronizandoLibrivox, setSincronizandoLibrivox] = useState<boolean>(false);
+  const [mensajeSincronizacion, setMensajeSincronizacion] = useState<string | null>(null);
+  const ITEMS_POR_PAGINA = 24;
+
   // Estados de ABM de Admin
   const [modalAbmOpen, setModalAbmOpen] = useState(false);
   const [audiolibroAEditar, setAudiolibroAEditar] = useState<Audiolibro | null>(null);
 
   // Cargar catálogo de audiolibros desde la API
-  const cargarAudiolibros = useCallback(async () => {
+  const cargarAudiolibros = useCallback(async (pag = paginaActual) => {
     try {
       setCargando(true);
       const params = new URLSearchParams({
@@ -75,13 +84,16 @@ export function AudiolibrosView() {
         solo_argentinos: seccionPill === 'argentina' ? 'true' : 'false',
         duracion: duracionFiltro,
         orden,
-        limite: '50',
+        pagina: pag.toString(),
+        limite: ITEMS_POR_PAGINA.toString(),
       });
 
       const res = await fetch(`/api/audiolibros/search?${params.toString()}`);
       const data = await res.json();
       if (data.success && Array.isArray(data.audiolibros)) {
         setAudiolibros(data.audiolibros);
+        setTotalAudiolibros(data.total ?? data.audiolibros.length);
+        setTotalPaginas(data.totalPaginas ?? 1);
         if (data.metricas) setMetricas(data.metricas);
       }
     } catch (err) {
@@ -89,14 +101,38 @@ export function AudiolibrosView() {
     } finally {
       setCargando(false);
     }
-  }, [query, generoSeleccionado, seccionPill, duracionFiltro, orden]);
+  }, [query, generoSeleccionado, seccionPill, duracionFiltro, orden, paginaActual]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      cargarAudiolibros();
+      cargarAudiolibros(paginaActual);
     }, query ? 350 : 0);
     return () => clearTimeout(timer);
-  }, [cargarAudiolibros, query]);
+  }, [cargarAudiolibros, query, paginaActual]);
+
+  const handleSincronizarLibrivox = async () => {
+    try {
+      setSincronizandoLibrivox(true);
+      setMensajeSincronizacion('Sincronizando con LibriVox y actualizando catálogo...');
+      const res = await fetch('/api/audiolibros/sincronizar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ limite: 150 }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setMensajeSincronizacion(`¡Catálogo actualizado! Se incorporaron ${data.incorporados || 0} nuevas obras.`);
+        cargarAudiolibros(1);
+      } else {
+        setMensajeSincronizacion('No se pudo completar la sincronización en este momento.');
+      }
+    } catch (e: any) {
+      setMensajeSincronizacion(`Error en la sincronización: ${e.message}`);
+    } finally {
+      setSincronizandoLibrivox(false);
+      setTimeout(() => setMensajeSincronizacion(null), 6000);
+    }
+  };
 
   // Audiolibro más reciente en curso para el bloque "Continuar Escuchando"
   const ultimoEnCurso: ProgresoAudiolibro | null = useMemo(() => {
@@ -178,15 +214,41 @@ export function AudiolibrosView() {
                   setAudiolibroAEditar(null);
                   setModalAbmOpen(true);
                 }}
-                className="bg-roncedo-gold hover:bg-amber-400 text-roncedo-navy font-black text-xs px-4 py-2.5 rounded-xl shadow-md transition-all flex items-center justify-center gap-2"
+                className="bg-roncedo-gold hover:bg-amber-400 text-roncedo-navy font-black text-xs px-4 py-2.5 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 <PlusCircle className="w-4 h-4" />
                 <span>Registrar Audiolibro</span>
+              </button>
+
+              <button
+                onClick={handleSincronizarLibrivox}
+                disabled={sincronizandoLibrivox}
+                className="bg-white/15 hover:bg-white/25 text-white font-bold text-xs px-3.5 py-2.5 rounded-xl border border-white/25 transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer disabled:opacity-50"
+                title="Sincronizar masivamente el catálogo oficial con LibriVox"
+              >
+                <RefreshCw className={`w-4 h-4 text-roncedo-gold ${sincronizandoLibrivox ? 'animate-spin' : ''}`} />
+                <span>{sincronizandoLibrivox ? 'Sincronizando...' : 'Sincronizar LibriVox'}</span>
               </button>
             </div>
           )}
         </div>
       </div>
+
+      {/* Cartel de Estado de Sincronización */}
+      {mensajeSincronizacion && (
+        <div className="bg-gradient-to-r from-blue-900 to-[#0B2240] border-2 border-roncedo-gold/50 text-white p-3.5 rounded-2xl shadow-lg flex items-center justify-between gap-3 animate-in fade-in">
+          <div className="flex items-center gap-2.5">
+            <Sparkles className="w-5 h-5 text-roncedo-gold flex-shrink-0 animate-pulse" />
+            <p className="text-xs font-bold text-blue-100">{mensajeSincronizacion}</p>
+          </div>
+          <button
+            onClick={() => setMensajeSincronizacion(null)}
+            className="text-white/70 hover:text-white p-1"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
       {/* BLOQUE HERMOSO: "CONTINUAR ESCUCHANDO" (Si existe progreso guardado) */}
       {ultimoEnCurso && audiolibroEnCursoObjeto && (
@@ -402,6 +464,7 @@ export function AudiolibrosView() {
           <p className="font-bold text-slate-500">Cargando biblioteca de audiolibros...</p>
         </div>
       ) : listaFinalAMostrar.length > 0 ? (
+        <>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3.5 sm:gap-4">
           {listaFinalAMostrar.map((audio) => {
             const estaReproduciendoEste = audiolibroActual?.id === audio.id && isPlaying;
@@ -507,7 +570,7 @@ export function AudiolibrosView() {
                   {/* Pie de la Tarjeta: Capítulos y Botón Escuchar */}
                   <div className="pt-2 border-t border-slate-100 space-y-2">
                     <div className="flex items-center justify-between text-[10px] text-slate-400">
-                      <span>{audio.capitulos.length} {audio.capitulos.length === 1 ? 'capítulo' : 'capítulos'}</span>
+                      <span>{(audio.capitulos || []).length} {(audio.capitulos || []).length === 1 ? 'capítulo' : 'capítulos'}</span>
                       <span className="truncate max-w-[90px]">{audio.fuente_nombre}</span>
                     </div>
 
@@ -559,6 +622,46 @@ export function AudiolibrosView() {
             );
           })}
         </div>
+
+        {/* Paginación Inferior de Audiolibros */}
+        {totalPaginas > 1 && (
+          <div className="flex items-center justify-center gap-2 pt-6">
+            <button
+              onClick={() => {
+                const nueva = Math.max(1, paginaActual - 1);
+                setPaginaActual(nueva);
+                cargarAudiolibros(nueva);
+                window.scrollTo({ top: 350, behavior: 'smooth' });
+              }}
+              disabled={paginaActual === 1 || cargando}
+              className="p-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 transition-colors flex items-center gap-1 text-xs font-bold shadow-sm"
+              title="Página anterior"
+            >
+              <ChevronLeft className="w-4 h-4" />
+              <span>Anterior</span>
+            </button>
+
+            <span className="font-bold text-xs px-3.5 py-2.5 bg-white rounded-xl border border-slate-200 text-slate-800 shadow-sm">
+              Página {paginaActual} de {totalPaginas} ({totalAudiolibros} obras)
+            </span>
+
+            <button
+              onClick={() => {
+                const nueva = Math.min(totalPaginas, paginaActual + 1);
+                setPaginaActual(nueva);
+                cargarAudiolibros(nueva);
+                window.scrollTo({ top: 350, behavior: 'smooth' });
+              }}
+              disabled={paginaActual === totalPaginas || cargando}
+              className="p-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 transition-colors flex items-center gap-1 text-xs font-bold shadow-sm"
+              title="Página siguiente"
+            >
+              <span>Siguiente</span>
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+        </>
       ) : (
         <div className="py-16 text-center bg-white rounded-3xl border border-slate-200 p-6 space-y-3">
           <Headphones className="w-12 h-12 text-slate-300 mx-auto" />

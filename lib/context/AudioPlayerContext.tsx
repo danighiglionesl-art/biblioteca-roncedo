@@ -24,6 +24,7 @@ interface AudioPlayerContextType {
   isPlayerExpanded: boolean;
   favoritosIds: string[];
   historial: ProgresoAudiolibro[];
+  cerrarReproductor: () => void;
   reproducirAudiolibro: (
     audiolibro: Audiolibro,
     capituloNumero?: number,
@@ -64,6 +65,7 @@ const DEFAULT_AUDIO_CONTEXT: AudioPlayerContextType = {
   isPlayerExpanded: false,
   favoritosIds: [],
   historial: [],
+  cerrarReproductor: () => {},
   reproducirAudiolibro: () => {},
   togglePlayPause: () => {},
   adelantar15: () => {},
@@ -267,10 +269,25 @@ export function AudioPlayerProvider({ children }: { children: React.ReactNode })
     }
   }, [isMuted, volume]);
 
+  const cerrarReproductor = useCallback(() => {
+    if (audioRef.current) {
+      try {
+        audioRef.current.pause();
+        audioRef.current.src = '';
+      } catch {}
+    }
+    setIsPlaying(false);
+    setIsLoadingAudio(false);
+    setAudiolibroActual(null);
+    setCapituloActual(null);
+    setIsPlayerExpanded(false);
+  }, []);
+
   const cambiarCapitulo = useCallback(
     (numeroCapitulo: number) => {
       if (!audiolibroActual) return;
-      const cap = audiolibroActual.capitulos.find((c) => c.numero === numeroCapitulo);
+      const caps = audiolibroActual.capitulos || [];
+      const cap = caps.find((c) => c.numero === numeroCapitulo);
       if (cap && audioRef.current) {
         setCapituloActual(cap);
         setIsLoadingAudio(true);
@@ -283,18 +300,20 @@ export function AudioPlayerProvider({ children }: { children: React.ReactNode })
 
   const siguienteCapitulo = useCallback(() => {
     if (!audiolibroActual || !capituloActual) return;
-    const idx = audiolibroActual.capitulos.findIndex((c) => c.id === capituloActual.id);
-    if (idx >= 0 && idx < audiolibroActual.capitulos.length - 1) {
-      const siguiente = audiolibroActual.capitulos[idx + 1];
+    const caps = audiolibroActual.capitulos || [];
+    const idx = caps.findIndex((c) => c.id === capituloActual.id);
+    if (idx >= 0 && idx < caps.length - 1) {
+      const siguiente = caps[idx + 1];
       cambiarCapitulo(siguiente.numero);
     }
   }, [audiolibroActual, capituloActual, cambiarCapitulo]);
 
   const anteriorCapitulo = useCallback(() => {
     if (!audiolibroActual || !capituloActual) return;
-    const idx = audiolibroActual.capitulos.findIndex((c) => c.id === capituloActual.id);
+    const caps = audiolibroActual.capitulos || [];
+    const idx = caps.findIndex((c) => c.id === capituloActual.id);
     if (idx > 0) {
-      const anterior = audiolibroActual.capitulos[idx - 1];
+      const anterior = caps[idx - 1];
       cambiarCapitulo(anterior.numero);
     } else if (audioRef.current) {
       audioRef.current.currentTime = 0;
@@ -349,9 +368,10 @@ export function AudioPlayerProvider({ children }: { children: React.ReactNode })
       }
 
       if (audiolibroActual && capituloActual) {
-        const index = audiolibroActual.capitulos.findIndex((c) => c.id === capituloActual.id);
-        if (index >= 0 && index < audiolibroActual.capitulos.length - 1) {
-          const siguiente = audiolibroActual.capitulos[index + 1];
+        const caps = audiolibroActual.capitulos || [];
+        const index = caps.findIndex((c) => c.id === capituloActual.id);
+        if (index >= 0 && index < caps.length - 1) {
+          const siguiente = caps[index + 1];
           setCapituloActual(siguiente);
           audio.src = siguiente.audio_url;
           audio.play().catch(console.warn);
@@ -511,6 +531,7 @@ export function AudioPlayerProvider({ children }: { children: React.ReactNode })
         toggleFavorito,
         isFavorito,
         obtenerProgreso,
+        cerrarReproductor,
       }}
     >
       {children}
