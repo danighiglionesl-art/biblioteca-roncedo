@@ -20,7 +20,7 @@ export const CONTACTO_BIBLIOTECA = {
   numeroLocal: '621547',
 
   // Datos institucionales
-  nombreInstitucion: 'Biblioteca Club Sp. y Bibl. Dr. Lautaro Roncedo',
+  nombreInstitucion: 'Club Sp. y Bibl. Dr. Lautaro Roncedo',
   localidad: 'Alcira Gigena',
   provincia: 'Córdoba',
   direccion: 'Belgrano 450, Alcira Gigena, Córdoba',

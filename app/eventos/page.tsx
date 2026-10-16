@@ -195,7 +195,7 @@ export default function EventosPage() {
                 Ciclo Cultural 2026
               </span>
               <span className="text-xs text-blue-100 font-medium">
-                Biblioteca Popular Dr. Lautaro Roncedo
+                Club Sp. y Bibl. Dr. Lautaro Roncedo
               </span>
             </div>
 
@@ -841,14 +841,11 @@ export default function EventosPage() {
                     />
                   </div>
                   <div className="text-left">
-                    <span className="text-[11px] font-black tracking-widest uppercase text-slate-800 block">
-                      Club Sportivo y Biblioteca Popular
-                    </span>
                     <span className="text-sm font-black text-roncedo-navy tracking-wider block">
-                      DR. LAUTARO RONCEDO
+                      Club Sp. y Bibl. Dr. Lautaro Roncedo
                     </span>
                     <span className="text-[9px] text-slate-500 font-bold block">
-                      Fundado el 15 de marzo de 1926 • Alcira Gigena, Córdoba
+                      Fundado el 15 de marzo de 1926
                     </span>
                   </div>
                 </div>
@@ -884,7 +881,7 @@ export default function EventosPage() {
                 </p>
 
                 <p className="text-xs text-slate-600 pt-1">
-                  Dictado en las instalaciones de la Biblioteca Popular Dr. Lautaro Roncedo en Alcira Gigena.
+                  Dictado en las instalaciones del Club Sp. y Bibl. Dr. Lautaro Roncedo.
                 </p>
               </div>
 

@@ -449,7 +449,7 @@ export function ModalDetalleLibroFisico({
 
             <div className="space-y-1">
               <span className="text-[10px] font-black uppercase tracking-widest text-roncedo-celesteDark">
-                Club Sportivo y Biblioteca Dr. Lautaro Roncedo
+                Club Sp. y Bibl. Dr. Lautaro Roncedo
               </span>
               <h3 className="text-lg font-black text-slate-900 leading-tight">
                 ¡Solicitud Registrada con Éxito!

@@ -493,7 +493,7 @@ export default function HomePage() {
               <span>Patrimonio y Memoria Colectiva</span>
             </div>
             <h2 className="text-xl sm:text-2xl font-black text-white">
-              Club Sp. y Bibl. Dr. Lautaro Roncedo - Alcira Gigena
+              Club Sp. y Bibl. Dr. Lautaro Roncedo
             </h2>
             <div className="text-xs sm:text-sm text-blue-100 mt-3 leading-relaxed space-y-2">
               <p>

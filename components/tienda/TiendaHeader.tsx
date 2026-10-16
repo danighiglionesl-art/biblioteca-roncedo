@@ -103,7 +103,7 @@ export function TiendaHeader({
           <p className="text-xs sm:text-sm text-blue-100 leading-relaxed max-w-2xl">
             Adquirí los libros históricos de la institución, indumentaria conmemorativa del Centenario,
             mates imperiales y recuerdos exclusivos. Cada adquisición apoya directamente el sostenimiento
-            de la Biblioteca y el Club Dr. Lautaro Roncedo.
+            del Club Sp. y Bibl. Dr. Lautaro Roncedo.
           </p>
 
           {/* Banner de Beneficio Socio Protector */}

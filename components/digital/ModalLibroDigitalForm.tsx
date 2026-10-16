@@ -641,7 +641,7 @@ export function ModalLibroDigitalForm({
                   required
                   value={titulo}
                   onChange={(e) => setTitulo(e.target.value)}
-                  placeholder="Ej: Historia de Alcira Gigena y la Biblioteca Dr. Lautaro Roncedo"
+                  placeholder="Ej: Historia del Club Sp. y Bibl. Dr. Lautaro Roncedo"
                   className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-900 font-semibold focus:outline-none focus:ring-2 focus:ring-roncedo-blue"
                 />
               </div>

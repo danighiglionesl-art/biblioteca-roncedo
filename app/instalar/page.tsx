@@ -707,7 +707,7 @@ export default function InstalarPage() {
 
       {/* Pie institucional */}
       <footer className="text-center text-[11px] text-slate-400 pt-6">
-        Biblioteca Dr. Lautaro Roncedo • Alcira Gigena
+        Club Sp. y Bibl. Dr. Lautaro Roncedo
       </footer>
     </div>
   );

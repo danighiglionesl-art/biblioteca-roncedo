@@ -153,7 +153,7 @@ export function ModalDetalleNovedad({ novedad, onClose }: ModalDetalleNovedadPro
           {/* Pie de artículo */}
           <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400">
             <span>Publicado por: {novedad.autor || 'Biblioteca Roncedo'}</span>
-            <span>Club Sportivo y Biblioteca Dr. Lautaro Roncedo</span>
+            <span>Club Sp. y Bibl. Dr. Lautaro Roncedo</span>
           </div>
         </div>
 

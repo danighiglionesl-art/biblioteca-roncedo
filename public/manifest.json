@@ -1,7 +1,7 @@
 {
   "name": "Biblioteca Roncedo",
   "short_name": "BiblioRoncedo",
-  "description": "Plataforma oficial de la Biblioteca Roncedo de Alcira Gigena",
+  "description": "Plataforma oficial del Club Sp. y Bibl. Dr. Lautaro Roncedo",
   "start_url": "/home",
   "display": "standalone",
   "background_color": "#E5F2FE",

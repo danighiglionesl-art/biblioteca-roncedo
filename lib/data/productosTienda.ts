@@ -241,7 +241,7 @@ export const PRODUCTOS_INICIALES_TIENDA: ProductoTienda[] = [
     titulo: 'Llavero Metálico Centenario Esmaltado',
     subtitulo: 'Fundición maciza en zamak niquelado con estuche de pana',
     descripcion:
-      'Llavero destapador de bolsillo con escudo esmaltado en resina de alta resistencia. Presentado en cajita conmemorativa con grabado láser "Club Sp. y Bibl. Dr. Lautaro Roncedo - Alcira Gigena".',
+      'Llavero destapador de bolsillo con escudo esmaltado en resina de alta resistencia. Presentado en cajita conmemorativa con grabado láser "Club Sp. y Bibl. Dr. Lautaro Roncedo".',
     categoria: 'souvenirs',
     precio: 5000,
     precio_socio_bronce: 4900,

@@ -51,7 +51,7 @@ export function SubirFotoModal({ isOpen, onClose, onFotoSubida }: SubirFotoModal
   const [descripcion, setDescripcion] = useState('');
   const [anioEstimado, setAnioEstimado] = useState<string>('');
   const [lugar, setLugar] = useState('Alcira Gigena');
-  const [institucion, setInstitucion] = useState('Club Roncedo');
+  const [institucion, setInstitucion] = useState('Club Sp. y Bibl. Dr. Lautaro Roncedo');
   const [acontecimiento, setAcontecimiento] = useState('');
   const [coleccion, setColeccion] = useState<ColeccionFoto>('Club Roncedo y Deportes');
   const [autorFotografo, setAutorFotografo] = useState('');
@@ -152,7 +152,7 @@ export function SubirFotoModal({ isOpen, onClose, onFotoSubida }: SubirFotoModal
                 Aportar Fotografía Histórica
               </h2>
               <p className="text-[11px] text-blue-200">
-                Preservación de la memoria viva de Alcira Gigena y Club Roncedo
+                Preservación de la memoria viva del Club Sp. y Bibl. Dr. Lautaro Roncedo
               </p>
             </div>
           </div>

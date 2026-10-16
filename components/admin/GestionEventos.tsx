@@ -445,7 +445,7 @@ export function GestionEventos() {
               Agenda Cultural & Talleres
             </span>
             <span className="text-xs text-slate-500 font-medium">
-              Biblioteca Popular Dr. Lautaro Roncedo
+              Club Sp. y Bibl. Dr. Lautaro Roncedo
             </span>
           </div>
           <h2 className="text-2xl font-black text-slate-900 tracking-tight">

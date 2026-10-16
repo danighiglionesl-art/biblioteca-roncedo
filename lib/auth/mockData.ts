@@ -38,7 +38,7 @@ export const NOVEDADES_INICIALES: NovedadInstitucional[] = [
   {
     id: 'nov-01',
     titulo: 'Lanzamiento de la Plataforma Digital y Carnet Digital',
-    bajada: 'La Biblioteca del Club Sportivo y Biblioteca Dr. Lautaro Roncedo da un paso histórico hacia el futuro con su nueva plataforma web progresiva.',
+    bajada: 'La Biblioteca del Club Sp. y Bibl. Dr. Lautaro Roncedo da un paso histórico hacia el futuro con su nueva plataforma web progresiva.',
     contenido: 'Con inmensa alegría ponemos a disposición de todos nuestros socios y la comunidad de Alcira Gigena esta nueva herramienta digital que permitirá consultar libros, acceder a actas históricas, participar de actividades culturales y llevar el carnet social en el teléfono.',
     fecha: '2026-04-07',
     categoria: 'Institucional',

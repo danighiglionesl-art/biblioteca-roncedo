@@ -76,7 +76,7 @@ export default function RoncedoPage() {
         </div>
 
         {/* Sección Destacada: Archivo Sonoro - Las Dos Marchas del Club */}
-        <section aria-label="Marchas del Club Lautaro Roncedo" className="space-y-4">
+        <section aria-label="Marchas del Club Sp. y Bibl. Dr. Lautaro Roncedo" className="space-y-4">
           <MarchasRoncedoPlayer />
         </section>
       </div>

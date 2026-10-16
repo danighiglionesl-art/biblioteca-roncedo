@@ -169,7 +169,7 @@ export function FototecaGallery() {
             Fototeca Histórica Inteligente
           </h1>
           <p className="text-xs sm:text-sm text-blue-100/90 leading-relaxed max-w-2xl mb-6">
-            Preservamos en alta resolución los rostros, hazañas deportivas y momentos que construyeron la historia del Club Sportivo y Biblioteca Dr. Lautaro Roncedo y de todo Alcira Gigena.
+            Preservamos en alta resolución los rostros, hazañas deportivas y momentos que construyeron la historia del Club Sp. y Bibl. Dr. Lautaro Roncedo.
           </p>
 
           <div className="flex flex-wrap items-center gap-3">

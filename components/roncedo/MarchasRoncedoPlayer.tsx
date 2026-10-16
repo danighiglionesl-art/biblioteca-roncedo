@@ -182,8 +182,8 @@ export function MarchasRoncedoPlayer() {
 
   const handleShare = async (track: MarchaTrack) => {
     const shareData = {
-      title: `${track.titulo} - Club Lautaro Roncedo`,
-      text: `Escuchá la ${track.titulo} (${track.subtitulo}) de la Biblioteca y Club Dr. Lautaro Roncedo.`,
+      title: `${track.titulo} - Club Sp. y Bibl. Dr. Lautaro Roncedo`,
+      text: `Escuchá la ${track.titulo} (${track.subtitulo}) del Club Sp. y Bibl. Dr. Lautaro Roncedo.`,
       url: window.location.href,
     };
 
@@ -231,7 +231,7 @@ export function MarchasRoncedoPlayer() {
           </div>
           <div>
             <h2 className="text-lg sm:text-xl font-black text-white flex items-center gap-2">
-              <span>Marchas del Club Lautaro Roncedo</span>
+              <span>Marchas del Club Sp. y Bibl. Dr. Lautaro Roncedo</span>
               <span className="text-[10px] uppercase font-bold text-roncedo-gold bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/30">
                 Archivo Sonoro
               </span>
