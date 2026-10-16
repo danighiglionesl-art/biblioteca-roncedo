@@ -74,8 +74,8 @@ export default function RootLayout({
       <body className="h-full flex flex-col bg-[#EDF5FD] text-slate-900 font-sans antialiased selection:bg-roncedo-celeste selection:text-white">
         <AuthProvider>
           <LibrosProvider>
-            <AudioPlayerProvider>
-              <AuthGuard>
+            <AuthGuard>
+              <AudioPlayerProvider>
                 <ServiceWorkerRegister />
                 <Header />
                 <main className="flex-1">
@@ -84,8 +84,8 @@ export default function RootLayout({
                 <ReproductorFlotante />
                 <BottomNav />
                 <BotonWhatsappFlotante />
-              </AuthGuard>
-            </AudioPlayerProvider>
+              </AudioPlayerProvider>
+            </AuthGuard>
           </LibrosProvider>
         </AuthProvider>
       </body>

@@ -8,7 +8,6 @@ import {
   VelocidadReproduccion,
   SleepTimerOption,
 } from '@/types/audiolibros';
-import { useAuth } from '@/lib/auth/AuthContext';
 
 interface AudioPlayerContextType {
   audiolibroActual: Audiolibro | null;
@@ -47,13 +46,45 @@ interface AudioPlayerContextType {
   obtenerProgreso: (audiolibroId: string) => ProgresoAudiolibro | null;
 }
 
-const AudioPlayerContext = createContext<AudioPlayerContextType | undefined>(undefined);
-
 const STORAGE_KEY_PROGRESO = 'roncedo_audiolibros_progreso_v1';
 const STORAGE_KEY_FAVORITOS = 'roncedo_audiolibros_favoritos_v1';
 
+const DEFAULT_AUDIO_CONTEXT: AudioPlayerContextType = {
+  audiolibroActual: null,
+  capituloActual: null,
+  isPlaying: false,
+  isLoadingAudio: false,
+  currentTime: 0,
+  duration: 0,
+  playbackRate: 1,
+  volume: 1,
+  isMuted: false,
+  sleepTimerMode: null,
+  sleepTimerRemaining: null,
+  isPlayerExpanded: false,
+  favoritosIds: [],
+  historial: [],
+  reproducirAudiolibro: () => {},
+  togglePlayPause: () => {},
+  adelantar15: () => {},
+  retroceder15: () => {},
+  seekTo: () => {},
+  setVelocidad: () => {},
+  setVolumen: () => {},
+  toggleMute: () => {},
+  siguienteCapitulo: () => {},
+  anteriorCapitulo: () => {},
+  cambiarCapitulo: () => {},
+  setSleepTimer: () => {},
+  setIsPlayerExpanded: () => {},
+  toggleFavorito: () => {},
+  isFavorito: () => false,
+  obtenerProgreso: () => null,
+};
+
+const AudioPlayerContext = createContext<AudioPlayerContextType>(DEFAULT_AUDIO_CONTEXT);
+
 export function AudioPlayerProvider({ children }: { children: React.ReactNode }) {
-  const { user } = useAuth();
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const [audiolibroActual, setAudiolibroActual] = useState<Audiolibro | null>(null);
@@ -73,209 +104,74 @@ export function AudioPlayerProvider({ children }: { children: React.ReactNode })
   const [favoritosIds, setFavoritosIds] = useState<string[]>([]);
   const [historial, setHistorial] = useState<ProgresoAudiolibro[]>([]);
 
-  // 1. Inicializar Audio element una única vez en cliente
+  // 1. Inicializar Audio element una única vez en cliente con protección completa
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    const audio = new Audio();
-    audio.preload = 'metadata';
-    audioRef.current = audio;
-
-    // Cargar favoritos y progreso guardados
     try {
-      const favRaw = localStorage.getItem(STORAGE_KEY_FAVORITOS);
-      if (favRaw) setFavoritosIds(JSON.parse(favRaw));
+      const audio = new Audio();
+      audio.preload = 'metadata';
+      audioRef.current = audio;
 
-      const histRaw = localStorage.getItem(STORAGE_KEY_PROGRESO);
-      if (histRaw) setHistorial(JSON.parse(histRaw));
-    } catch (e) {
-      console.warn('Error leyendo almacenamiento de audiolibros:', e);
-    }
+      // Cargar favoritos y progreso guardados
+      try {
+        const favRaw = localStorage.getItem(STORAGE_KEY_FAVORITOS);
+        if (favRaw) setFavoritosIds(JSON.parse(favRaw));
 
-    // Eventos del elemento HTML5 Audio
-    const onTimeUpdate = () => {
-      setCurrentTime(audio.currentTime);
-      if (audio.duration && !isNaN(audio.duration)) {
-        setDuration(audio.duration);
-      }
-    };
-
-    const onLoadedMetadata = () => {
-      setIsLoadingAudio(false);
-      if (audio.duration && !isNaN(audio.duration)) {
-        setDuration(audio.duration);
-      }
-    };
-
-    const onWaiting = () => setIsLoadingAudio(true);
-    const onCanPlay = () => setIsLoadingAudio(false);
-    const onPlaying = () => {
-      setIsPlaying(true);
-      setIsLoadingAudio(false);
-    };
-    const onPause = () => setIsPlaying(false);
-
-    audio.addEventListener('timeupdate', onTimeUpdate);
-    audio.addEventListener('loadedmetadata', onLoadedMetadata);
-    audio.addEventListener('waiting', onWaiting);
-    audio.addEventListener('canplay', onCanPlay);
-    audio.addEventListener('playing', onPlaying);
-    audio.addEventListener('pause', onPause);
-
-    return () => {
-      audio.removeEventListener('timeupdate', onTimeUpdate);
-      audio.removeEventListener('loadedmetadata', onLoadedMetadata);
-      audio.removeEventListener('waiting', onWaiting);
-      audio.removeEventListener('canplay', onCanPlay);
-      audio.removeEventListener('playing', onPlaying);
-      audio.removeEventListener('pause', onPause);
-      audio.pause();
-    };
-  }, []);
-
-  // 2. Manejo de fin de pista (Auto-play siguiente capítulo o parar)
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    const onEnded = () => {
-      if (sleepTimerMode === 'fin_capitulo') {
-        setIsPlaying(false);
-        setSleepTimerMode(null);
-        setSleepTimerRemaining(null);
-        return;
+        const histRaw = localStorage.getItem(STORAGE_KEY_PROGRESO);
+        if (histRaw) setHistorial(JSON.parse(histRaw));
+      } catch (e) {
+        console.warn('Error leyendo almacenamiento de audiolibros:', e);
       }
 
-      if (audiolibroActual && capituloActual) {
-        const index = audiolibroActual.capitulos.findIndex((c) => c.id === capituloActual.id);
-        if (index >= 0 && index < audiolibroActual.capitulos.length - 1) {
-          const siguiente = audiolibroActual.capitulos[index + 1];
-          setCapituloActual(siguiente);
-          audio.src = siguiente.audio_url;
-          audio.play().catch(console.warn);
-        } else {
-          setIsPlaying(false);
+      // Eventos del elemento HTML5 Audio
+      const onTimeUpdate = () => {
+        setCurrentTime(audio.currentTime);
+        if (audio.duration && !isNaN(audio.duration)) {
+          setDuration(audio.duration);
         }
-      }
-    };
-
-    audio.addEventListener('ended', onEnded);
-    return () => audio.removeEventListener('ended', onEnded);
-  }, [audiolibroActual, capituloActual, sleepTimerMode]);
-
-  // 3. Persistencia periódica del punto exacto de escucha (cada 3 segundos)
-  useEffect(() => {
-    if (!audiolibroActual || !capituloActual || !currentTime) return;
-
-    const interval = setInterval(() => {
-      const dur = duration || capituloActual.duracion_segundos || 1;
-      const nuevoProgreso: ProgresoAudiolibro = {
-        audiolibro_id: audiolibroActual.id,
-        audiolibro_titulo: audiolibroActual.titulo,
-        audiolibro_autor: audiolibroActual.autor,
-        portada_url: audiolibroActual.portada_url,
-        capitulo_id: capituloActual.id,
-        capitulo_numero: capituloActual.numero,
-        capitulo_titulo: capituloActual.titulo,
-        segundo_actual: Math.floor(currentTime),
-        segundo_total: Math.floor(dur),
-        porcentaje: Math.min(100, Math.round((currentTime / dur) * 100)),
-        completado: currentTime >= dur - 10,
-        ultima_reproduccion: new Date().toISOString(),
       };
 
-      setHistorial((prev) => {
-        const filtrado = prev.filter((p) => p.audiolibro_id !== audiolibroActual.id);
-        const actualizado = [nuevoProgreso, ...filtrado].slice(0, 30);
+      const onLoadedMetadata = () => {
+        setIsLoadingAudio(false);
+        if (audio.duration && !isNaN(audio.duration)) {
+          setDuration(audio.duration);
+        }
+      };
+
+      const onWaiting = () => setIsLoadingAudio(true);
+      const onCanPlay = () => setIsLoadingAudio(false);
+      const onPlaying = () => {
+        setIsPlaying(true);
+        setIsLoadingAudio(false);
+      };
+      const onPause = () => setIsPlaying(false);
+
+      audio.addEventListener('timeupdate', onTimeUpdate);
+      audio.addEventListener('loadedmetadata', onLoadedMetadata);
+      audio.addEventListener('waiting', onWaiting);
+      audio.addEventListener('canplay', onCanPlay);
+      audio.addEventListener('playing', onPlaying);
+      audio.addEventListener('pause', onPause);
+
+      return () => {
         try {
-          localStorage.setItem(STORAGE_KEY_PROGRESO, JSON.stringify(actualizado));
-        } catch (e) {
-          console.warn('Error guardando progreso:', e);
-        }
-        return actualizado;
-      });
-    }, 3000);
-
-    return () => clearInterval(interval);
-  }, [audiolibroActual, capituloActual, currentTime, duration]);
-
-  // 4. Temporizador de Apagado (Sleep Timer en cuenta regresiva)
-  useEffect(() => {
-    if (!sleepTimerRemaining || sleepTimerRemaining <= 0) return;
-
-    const timer = setInterval(() => {
-      setSleepTimerRemaining((prev) => {
-        if (!prev || prev <= 1) {
-          if (audioRef.current) {
-            audioRef.current.pause();
-          }
-          setIsPlaying(false);
-          setSleepTimerMode(null);
-          return null;
-        }
-        return prev - 1;
-      });
-    }, 60000); // Decrementar cada minuto
-
-    return () => clearInterval(timer);
-  }, [sleepTimerRemaining]);
-
-  // 5. Integración con MediaSession API (Segundo plano y controles de pantalla de bloqueo)
-  useEffect(() => {
-    if (typeof window === 'undefined' || !('mediaSession' in navigator)) return;
-    if (!audiolibroActual || !capituloActual) return;
-
-    try {
-      navigator.mediaSession.metadata = new MediaMetadata({
-        title: capituloActual.titulo,
-        artist: audiolibroActual.autor,
-        album: `Biblioteca Roncedo • ${audiolibroActual.titulo}`,
-        artwork: [
-          {
-            src: audiolibroActual.portada_url || '/images/logo-biblioteca.png',
-            sizes: '512x512',
-            type: 'image/jpeg',
-          },
-        ],
-      });
-
-      navigator.mediaSession.setActionHandler('play', () => {
-        audioRef.current?.play().catch(console.warn);
-      });
-
-      navigator.mediaSession.setActionHandler('pause', () => {
-        audioRef.current?.pause();
-      });
-
-      navigator.mediaSession.setActionHandler('seekbackward', () => {
-        if (audioRef.current) {
-          audioRef.current.currentTime = Math.max(0, audioRef.current.currentTime - 15);
-        }
-      });
-
-      navigator.mediaSession.setActionHandler('seekforward', () => {
-        if (audioRef.current) {
-          audioRef.current.currentTime = Math.min(
-            audioRef.current.duration || Infinity,
-            audioRef.current.currentTime + 15
-          );
-        }
-      });
-
-      navigator.mediaSession.setActionHandler('previoustrack', () => {
-        anteriorCapitulo();
-      });
-
-      navigator.mediaSession.setActionHandler('nexttrack', () => {
-        siguienteCapitulo();
-      });
-    } catch (e) {
-      console.warn('Error configurando MediaSession:', e);
+          audio.removeEventListener('timeupdate', onTimeUpdate);
+          audio.removeEventListener('loadedmetadata', onLoadedMetadata);
+          audio.removeEventListener('waiting', onWaiting);
+          audio.removeEventListener('canplay', onCanPlay);
+          audio.removeEventListener('playing', onPlaying);
+          audio.removeEventListener('pause', onPause);
+          audio.pause();
+        } catch {}
+      };
+    } catch (err) {
+      console.warn('Reproductor de audio no disponible en este entorno:', err);
     }
-  }, [audiolibroActual, capituloActual]);
+  }, []);
 
   // ---------------------------------------------------------------------------
-  // ACCIONES PRINCIPALES DEL REPRODUCTOR
+  // ACCIONES PRINCIPALES DEL REPRODUCTOR (Declaradas antes de efectos para hoisting seguro)
   // ---------------------------------------------------------------------------
   const reproducirAudiolibro = useCallback(
     (audiolibro: Audiolibro, capituloNumero?: number, segundoInicio?: number) => {
@@ -439,6 +335,149 @@ export function AudioPlayerProvider({ children }: { children: React.ReactNode })
     [historial]
   );
 
+  // 2. Manejo de fin de pista (Auto-play siguiente capítulo o parar)
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const onEnded = () => {
+      if (sleepTimerMode === 'fin_capitulo') {
+        setIsPlaying(false);
+        setSleepTimerMode(null);
+        setSleepTimerRemaining(null);
+        return;
+      }
+
+      if (audiolibroActual && capituloActual) {
+        const index = audiolibroActual.capitulos.findIndex((c) => c.id === capituloActual.id);
+        if (index >= 0 && index < audiolibroActual.capitulos.length - 1) {
+          const siguiente = audiolibroActual.capitulos[index + 1];
+          setCapituloActual(siguiente);
+          audio.src = siguiente.audio_url;
+          audio.play().catch(console.warn);
+        } else {
+          setIsPlaying(false);
+        }
+      }
+    };
+
+    audio.addEventListener('ended', onEnded);
+    return () => audio.removeEventListener('ended', onEnded);
+  }, [audiolibroActual, capituloActual, sleepTimerMode]);
+
+  // 3. Persistencia periódica del punto exacto de escucha (cada 3 segundos)
+  useEffect(() => {
+    if (!audiolibroActual || !capituloActual || !currentTime) return;
+
+    const interval = setInterval(() => {
+      const dur = duration || capituloActual.duracion_segundos || 1;
+      const nuevoProgreso: ProgresoAudiolibro = {
+        audiolibro_id: audiolibroActual.id,
+        audiolibro_titulo: audiolibroActual.titulo,
+        audiolibro_autor: audiolibroActual.autor,
+        portada_url: audiolibroActual.portada_url,
+        capitulo_id: capituloActual.id,
+        capitulo_numero: capituloActual.numero,
+        capitulo_titulo: capituloActual.titulo,
+        segundo_actual: Math.floor(currentTime),
+        segundo_total: Math.floor(dur),
+        porcentaje: Math.min(100, Math.round((currentTime / dur) * 100)),
+        completado: currentTime >= dur - 10,
+        ultima_reproduccion: new Date().toISOString(),
+      };
+
+      setHistorial((prev) => {
+        const filtrado = prev.filter((p) => p.audiolibro_id !== audiolibroActual.id);
+        const actualizado = [nuevoProgreso, ...filtrado].slice(0, 30);
+        try {
+          localStorage.setItem(STORAGE_KEY_PROGRESO, JSON.stringify(actualizado));
+        } catch (e) {
+          console.warn('Error guardando progreso:', e);
+        }
+        return actualizado;
+      });
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [audiolibroActual, capituloActual, currentTime, duration]);
+
+  // 4. Temporizador de Apagado (Sleep Timer en cuenta regresiva)
+  useEffect(() => {
+    if (!sleepTimerRemaining || sleepTimerRemaining <= 0) return;
+
+    const timer = setInterval(() => {
+      setSleepTimerRemaining((prev) => {
+        if (!prev || prev <= 1) {
+          if (audioRef.current) {
+            audioRef.current.pause();
+          }
+          setIsPlaying(false);
+          setSleepTimerMode(null);
+          return null;
+        }
+        return prev - 1;
+      });
+    }, 60000);
+
+    return () => clearInterval(timer);
+  }, [sleepTimerRemaining]);
+
+  // 5. Integración con MediaSession API (Segundo plano y controles de pantalla de bloqueo)
+  useEffect(() => {
+    if (typeof window === 'undefined' || !('mediaSession' in navigator)) return;
+    if (!audiolibroActual || !capituloActual) return;
+
+    try {
+      if (typeof (window as any).MediaMetadata !== 'undefined') {
+        navigator.mediaSession.metadata = new (window as any).MediaMetadata({
+          title: capituloActual.titulo,
+          artist: audiolibroActual.autor,
+          album: `Biblioteca Roncedo • ${audiolibroActual.titulo}`,
+          artwork: [
+            {
+              src: audiolibroActual.portada_url || '/images/logo-biblioteca.png',
+              sizes: '512x512',
+              type: 'image/jpeg',
+            },
+          ],
+        });
+      }
+
+      navigator.mediaSession.setActionHandler('play', () => {
+        audioRef.current?.play().catch(console.warn);
+      });
+
+      navigator.mediaSession.setActionHandler('pause', () => {
+        audioRef.current?.pause();
+      });
+
+      navigator.mediaSession.setActionHandler('seekbackward', () => {
+        if (audioRef.current) {
+          audioRef.current.currentTime = Math.max(0, audioRef.current.currentTime - 15);
+        }
+      });
+
+      navigator.mediaSession.setActionHandler('seekforward', () => {
+        if (audioRef.current) {
+          audioRef.current.currentTime = Math.min(
+            audioRef.current.duration || Infinity,
+            audioRef.current.currentTime + 15
+          );
+        }
+      });
+
+      navigator.mediaSession.setActionHandler('previoustrack', () => {
+        anteriorCapitulo();
+      });
+
+      navigator.mediaSession.setActionHandler('nexttrack', () => {
+        siguienteCapitulo();
+      });
+    } catch (e) {
+      console.warn('Error configurando MediaSession:', e);
+    }
+  }, [audiolibroActual, capituloActual, anteriorCapitulo, siguienteCapitulo]);
+
   return (
     <AudioPlayerContext.Provider
       value={{
@@ -479,10 +518,7 @@ export function AudioPlayerProvider({ children }: { children: React.ReactNode })
   );
 }
 
-export function useAudioPlayer() {
+export function useAudioPlayer(): AudioPlayerContextType {
   const context = useContext(AudioPlayerContext);
-  if (!context) {
-    throw new Error('useAudioPlayer debe usarse dentro de un AudioPlayerProvider');
-  }
-  return context;
+  return context || DEFAULT_AUDIO_CONTEXT;
 }
