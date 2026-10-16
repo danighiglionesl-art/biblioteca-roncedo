@@ -1,4 +1,4 @@
-const CACHE_NAME = 'roncedo-pwa-v18';
+const CACHE_NAME = 'roncedo-pwa-v19';
 
 const STATIC_ASSETS = [
   '/',
@@ -15,6 +15,10 @@ const STATIC_ASSETS = [
   '/videoteca',
   '/sabores',
   '/inferiores',
+  '/trofeos',
+  '/rifas',
+  '/anecdotario',
+  '/fiesta-del-maiz',
   '/manifest.json',
   '/images/escudo-roncedo.png',
   '/images/logo-biblioteca.png',
