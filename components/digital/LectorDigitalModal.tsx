@@ -17,6 +17,7 @@ import {
   Minimize2,
   CheckCircle,
 } from 'lucide-react';
+import { SocialInteractionsBlock } from '@/components/social/SocialInteractionsBlock';
 
 interface LectorDigitalModalProps {
   libro: LibroDigital;
@@ -322,6 +323,16 @@ export function LectorDigitalModal({ libro, onClose }: LectorDigitalModalProps) 
               </a>
             </div>
           )}
+
+          {/* Reacciones y Comentarios de la Comunidad (Red Social) */}
+          <div className="mt-12 pt-6 border-t border-black/10 dark:border-white/10 max-w-3xl mx-auto">
+            <SocialInteractionsBlock
+              seccion="libros_digitales"
+              itemId={libro.id}
+              tituloContenido={`${libro.titulo} - ${libro.autor}`}
+              modoOscuro={tema === 'oscuro'}
+            />
+          </div>
         </div>
       </div>
     </div>

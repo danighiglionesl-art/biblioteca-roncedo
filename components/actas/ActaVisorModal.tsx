@@ -23,7 +23,9 @@ import {
   ShieldAlert,
   ShieldCheck,
   Sparkles,
+  Heart,
 } from 'lucide-react';
+import { SocialInteractionsBlock } from '@/components/social/SocialInteractionsBlock';
 
 interface ActaVisorModalProps {
   isOpen: boolean;
@@ -54,7 +56,7 @@ export function ActaVisorModal({
   const [zoom, setZoom] = useState(1);
   const [rotation, setRotation] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [tabActiva, setTabActiva] = useState<'transcripcion' | 'ficha' | 'miniaturas'>('transcripcion');
+  const [tabActiva, setTabActiva] = useState<'transcripcion' | 'ficha' | 'miniaturas' | 'comunidad'>('transcripcion');
   const [isPanning, setIsPanning] = useState(false);
   const [panPos, setPanPos] = useState({ x: 0, y: 0 });
   const panStartRef = useRef({ x: 0, y: 0 });
@@ -361,6 +363,18 @@ export function ActaVisorModal({
                 <BookOpen className="w-3.5 h-3.5" />
                 <span>Folios ({totalPaginas})</span>
               </button>
+              <button
+                onClick={() => setTabActiva('comunidad')}
+                className={`flex-1 py-2.5 text-xs font-bold flex items-center justify-center gap-1.5 border-b-2 transition-colors ${
+                  tabActiva === 'comunidad'
+                    ? 'border-roncedo-celeste text-roncedo-celesteLight bg-slate-800/40'
+                    : 'border-transparent text-slate-400 hover:text-slate-200'
+                }`}
+                title="Reacciones y Comentarios de la Comunidad"
+              >
+                <Heart className="w-3.5 h-3.5 text-rose-400" />
+                <span>Social</span>
+              </button>
             </div>
 
             {/* Contenido según pestaña */}
@@ -553,6 +567,25 @@ export function ActaVisorModal({
                       );
                     })}
                   </div>
+                </div>
+              )}
+
+              {tabActiva === 'comunidad' && (
+                <div className="space-y-4">
+                  <div className="space-y-1">
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-roncedo-celesteLight">
+                      Interacciones de la Comunidad
+                    </span>
+                    <h4 className="text-xs font-black text-white">
+                      {actaActual?.titulo || `Acta de Fundación • Folio ${paginaActual}`}
+                    </h4>
+                  </div>
+                  <SocialInteractionsBlock
+                    seccion="actas"
+                    itemId={actaActual?.id || `acta-folio-${paginaActual}`}
+                    tituloContenido={actaActual?.titulo || `Acta de Fundación - Folio ${paginaActual}`}
+                    modoOscuro={true}
+                  />
                 </div>
               )}
             </div>

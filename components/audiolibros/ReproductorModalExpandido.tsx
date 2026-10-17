@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { useAudioPlayer } from '@/lib/context/AudioPlayerContext';
 import { VelocidadReproduccion, SleepTimerOption } from '@/types/audiolibros';
+import { SocialInteractionsBlock } from '@/components/social/SocialInteractionsBlock';
 
 export function ReproductorModalExpandido() {
   const {
@@ -403,6 +404,16 @@ export function ReproductorModalExpandido() {
             <p className="text-white/40">
               Reproducción streaming directa integrada en la PWA de Biblioteca Roncedo.
             </p>
+          </div>
+
+          {/* Reacciones y Comentarios de la Comunidad (Red Social) */}
+          <div className="pt-4 border-t border-white/10 text-left">
+            <SocialInteractionsBlock
+              seccion="audiolibros"
+              itemId={audiolibroActual.id}
+              tituloContenido={`${audiolibroActual.titulo} - ${audiolibroActual.autor}`}
+              modoOscuro={true}
+            />
           </div>
         </div>
       </div>

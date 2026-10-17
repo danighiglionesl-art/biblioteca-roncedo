@@ -31,6 +31,7 @@ import {
   Maximize2,
   ZoomIn,
 } from 'lucide-react';
+import { SocialInteractionsBlock } from '@/components/social/SocialInteractionsBlock';
 
 interface FotoDetalleModalProps {
   foto: FotoHistorica | null;
@@ -558,61 +559,14 @@ export function FotoDetalleModal({
               </div>
             )}
 
-            {/* PESTAÑA 3: MEMORIA VIVA Y COMENTARIOS */}
+            {/* PESTAÑA 3: REACCIONES Y COMENTARIOS TIPO RED SOCIAL */}
             {activeTab === 'comentarios' && (
               <div className="space-y-4">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800">
-                  Historias y Anécdotas de Vecinos
-                </h3>
-
-                {/* Listado de comentarios */}
-                <div className="space-y-2.5 max-h-56 overflow-y-auto">
-                  {foto.comentarios && foto.comentarios.length > 0 ? (
-                    foto.comentarios.map((c) => (
-                      <div
-                        key={c.id}
-                        className="p-3 rounded-2xl bg-slate-50 border border-slate-200 text-xs space-y-1"
-                      >
-                        <div className="flex items-center justify-between text-[11px]">
-                          <span className="font-bold text-roncedo-navy">
-                            {c.nombre_usuario}
-                          </span>
-                          <span className="text-slate-400">
-                            {new Date(c.created_at).toLocaleDateString('es-AR')}
-                          </span>
-                        </div>
-                        <p className="text-slate-700 leading-relaxed">{c.comentario}</p>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="text-center py-6 text-slate-500 text-xs">
-                      <MessageSquare className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-                      <p>Todavía no hay historias compartidas sobre esta foto.</p>
-                      <p className="text-[11px] text-slate-400 mt-1">
-                        Dejá tu recuerdo o testimonio para la posteridad.
-                      </p>
-                    </div>
-                  )}
-                </div>
-
-                {/* Formulario para agregar recuerdo */}
-                <form onSubmit={handleAddComment} className="pt-2 border-t border-slate-100 flex gap-2">
-                  <input
-                    type="text"
-                    value={nuevoComentario}
-                    onChange={(e) => setNuevoComentario(e.target.value)}
-                    placeholder="Escribí una anécdota o recuerdo..."
-                    className="flex-1 px-3 py-2 rounded-xl border border-slate-300 text-xs focus:outline-none focus:ring-2 focus:ring-roncedo-celeste/20"
-                    required
-                  />
-                  <button
-                    type="submit"
-                    disabled={isSubmittingComment || !nuevoComentario.trim()}
-                    className="bg-roncedo-celeste hover:bg-roncedo-celesteDark text-white px-3.5 py-2 rounded-xl text-xs font-bold transition-colors disabled:opacity-50 flex items-center gap-1"
-                  >
-                    <Send className="w-3.5 h-3.5" />
-                  </button>
-                </form>
+                <SocialInteractionsBlock
+                  seccion="fototeca"
+                  itemId={foto.id}
+                  tituloContenido={foto.titulo}
+                />
               </div>
             )}
           </div>

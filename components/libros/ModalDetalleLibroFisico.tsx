@@ -22,6 +22,7 @@ import {
   Sparkles,
   Users,
 } from 'lucide-react';
+import { SocialInteractionsBlock } from '@/components/social/SocialInteractionsBlock';
 
 interface ModalDetalleLibroFisicoProps {
   libro: LibroFisico;
@@ -300,6 +301,15 @@ export function ModalDetalleLibroFisico({
               )}
             </div>
           )}
+
+          {/* Reacciones y Comentarios de la Comunidad (Red Social) */}
+          <div className="pt-4 border-t border-slate-200">
+            <SocialInteractionsBlock
+              seccion="libros_fisicos"
+              itemId={libro.id}
+              tituloContenido={`${libro.titulo} - ${libro.autor}`}
+            />
+          </div>
         </div>
 
         {/* Acciones del pie según rol y estado */}

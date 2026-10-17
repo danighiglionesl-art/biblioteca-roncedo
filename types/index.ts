@@ -620,3 +620,5 @@ export interface PedidoTienda {
 }
 
 export * from './audiolibros';
+export * from './social';
+export * from './roncedo';
